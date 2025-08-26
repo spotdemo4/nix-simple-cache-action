@@ -27,7 +27,7 @@
 		"@rollup/plugin-node-resolve": "^16.0.1",
 		"@rollup/plugin-typescript": "^12.1.4",
 		"@types/node": "^24.3.0",
-		"rollup": "^4.48.0",
+		"rollup": "^4.48.1",
 		"typescript": "^5.9.2"
 	}
 }
