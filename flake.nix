@@ -1,5 +1,5 @@
 {
-  description = "Gitea Nix Cache Action";
+  description = "Nix Simple Cache Action";
 
   nixConfig = {
     extra-substituters = [
