@@ -80,13 +80,14 @@ async function main() {
 		port: 5001,
 		path: "/substituters",
 	});
-	if (!subUpdate.statusCode || subUpdate.statusCode > 299) {
+	if (!subUpdate || !subUpdate.statusCode || subUpdate.statusCode >= 300) {
 		core.warning("failed to load substituters");
 	} else {
-		const substituters = JSON.parse(
-			await streamToString(subUpdate),
-		) as string[];
-		core.info(`substituters: ${substituters.join(", ")}`);
+		const subString = await streamToString(subUpdate);
+		if (subString) {
+			const substituters = JSON.parse(subString) as string[];
+			core.info(`substituters: ${substituters.join(", ")}`);
+		}
 	}
 
 	// add to cache
@@ -137,13 +138,17 @@ async function main() {
 		process.kill(parseInt(proxyPID, 10));
 	}
 
+	const stdout = readFileSync("/tmp/out.log", "utf8").trim();
+	if (stdout) {
+		core.debug("proxy server stdout:");
+		core.debug(stdout);
+	}
+
 	// print proxy errors if they exist
 	const stderr = readFileSync("/tmp/err.log", "utf8").trim();
 	if (stderr) {
-		const stdout = readFileSync("/tmp/out.log", "utf8").trim();
-		core.info("proxy server output:");
-		core.info(stdout);
-		core.warning("proxy server errors:");
+		core.warning("proxy server exited with errors");
+		core.info("proxy server stderr:");
 		core.info(stderr);
 	}
 }

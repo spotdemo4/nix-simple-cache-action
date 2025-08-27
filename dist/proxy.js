@@ -6,17 +6,21 @@ import { promisify } from 'node:util';
 import { request } from 'node:https';
 
 function requestPromise(options, secure) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const request$1 = request ;
         const req = request$1(options, (res) => {
             resolve(res);
         });
-        req.setTimeout(10000, () => {
+        // catch timeout
+        req.setTimeout(300000, () => {
+            console.error(`request "${options.path}" timed out`);
             req.destroy(); // destroy the request if a timeout occurs
-            reject(new Error("request timed out"));
+            resolve(null);
         });
+        // catch error
         req.on("error", (err) => {
-            reject(err);
+            console.error(`request "${options.path}" error: ${err.message}`);
+            resolve(null);
         });
         req.end();
     });
@@ -51,7 +55,7 @@ const server = createServer(async (req, res) => {
                         method: req.method,
                         headers: req.headers,
                     }, true);
-                    if (!head.statusCode || head.statusCode > 299)
+                    if (!head || !head.statusCode || head.statusCode >= 300)
                         continue;
                     console.log("✓", substituterURL.href);
                     // return status
@@ -86,7 +90,7 @@ const server = createServer(async (req, res) => {
                         method: req.method,
                         headers: req.headers,
                     }, true);
-                    if (!get.statusCode || get.statusCode > 299)
+                    if (!get || !get.statusCode || get.statusCode >= 300)
                         continue;
                     console.log("<-", substituterURL.href);
                     // pipe store path to response

@@ -2,33 +2,46 @@ import { request as http, type IncomingMessage } from "node:http";
 import { request as https, type RequestOptions } from "node:https";
 
 export function requestPromise(
-	options: RequestOptions | string | URL,
+	options: RequestOptions,
 	secure?: boolean,
-): Promise<IncomingMessage> {
-	return new Promise((resolve, reject) => {
+): Promise<IncomingMessage | null> {
+	return new Promise((resolve) => {
 		const request = secure ? https : http;
 
 		const req = request(options, (res) => {
 			resolve(res);
 		});
 
+		// catch timeout
 		req.setTimeout(300000, () => {
+			console.error(`request "${options.path}" timed out`);
 			req.destroy(); // destroy the request if a timeout occurs
-			reject(new Error("request timed out"));
+
+			resolve(null);
 		});
+
+		// catch error
 		req.on("error", (err) => {
-			reject(err);
+			console.error(`request "${options.path}" error: ${err.message}`);
+
+			resolve(null);
 		});
+
 		req.end();
 	});
 }
 
-export function streamToString(stream: NodeJS.ReadableStream): Promise<string> {
+export function streamToString(
+	stream: NodeJS.ReadableStream,
+): Promise<string | null> {
 	const chunks: Buffer[] = [];
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve) => {
 		stream.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
-		stream.on("error", (err) => reject(err));
 		stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+		stream.on("error", (err) => {
+			console.error(`error reading stream: ${err}`);
+			resolve(null);
+		});
 	});
 }
 

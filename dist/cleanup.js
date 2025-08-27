@@ -82683,27 +82683,34 @@ var execExports = requireExec();
 var ioExports = requireIo();
 
 function requestPromise(options, secure) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const request = request$2;
         const req = request(options, (res) => {
             resolve(res);
         });
-        req.setTimeout(10000, () => {
+        // catch timeout
+        req.setTimeout(300000, () => {
+            console.error(`request "${options.path}" timed out`);
             req.destroy(); // destroy the request if a timeout occurs
-            reject(new Error("request timed out"));
+            resolve(null);
         });
+        // catch error
         req.on("error", (err) => {
-            reject(err);
+            console.error(`request "${options.path}" error: ${err.message}`);
+            resolve(null);
         });
         req.end();
     });
 }
 function streamToString(stream) {
     const chunks = [];
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         stream.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
-        stream.on("error", (err) => reject(err));
         stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+        stream.on("error", (err) => {
+            console.error(`error reading stream: ${err}`);
+            resolve(null);
+        });
     });
 }
 function formatBytes(bytes, decimals = 2) {
@@ -82785,12 +82792,15 @@ async function main() {
         port: 5001,
         path: "/substituters",
     });
-    if (!subUpdate.statusCode || subUpdate.statusCode > 299) {
+    if (!subUpdate || !subUpdate.statusCode || subUpdate.statusCode >= 300) {
         coreExports.warning("failed to load substituters");
     }
     else {
-        const substituters = JSON.parse(await streamToString(subUpdate));
-        coreExports.info(`substituters: ${substituters.join(", ")}`);
+        const subString = await streamToString(subUpdate);
+        if (subString) {
+            const substituters = JSON.parse(subString);
+            coreExports.info(`substituters: ${substituters.join(", ")}`);
+        }
     }
     // add to cache
     coreExports.info("adding to cache");
@@ -82823,13 +82833,16 @@ async function main() {
         coreExports.info("stopping proxy server");
         process.kill(parseInt(proxyPID, 10));
     }
+    const stdout = readFileSync("/tmp/out.log", "utf8").trim();
+    if (stdout) {
+        coreExports.debug("proxy server stdout:");
+        coreExports.debug(stdout);
+    }
     // print proxy errors if they exist
     const stderr = readFileSync("/tmp/err.log", "utf8").trim();
     if (stderr) {
-        const stdout = readFileSync("/tmp/out.log", "utf8").trim();
-        coreExports.info("proxy server output:");
-        coreExports.info(stdout);
-        coreExports.warning("proxy server errors:");
+        coreExports.warning("proxy server exited with errors");
+        coreExports.info("proxy server stderr:");
         coreExports.info(stderr);
     }
 }

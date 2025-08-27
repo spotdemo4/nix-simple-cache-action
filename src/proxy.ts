@@ -45,7 +45,7 @@ const server = createServer(async (req, res) => {
 						},
 						true,
 					);
-					if (!head.statusCode || head.statusCode > 299) continue;
+					if (!head || !head.statusCode || head.statusCode >= 300) continue;
 
 					console.log("✓", substituterURL.href);
 
@@ -91,7 +91,7 @@ const server = createServer(async (req, res) => {
 						},
 						true,
 					);
-					if (!get.statusCode || get.statusCode > 299) continue;
+					if (!get || !get.statusCode || get.statusCode >= 300) continue;
 
 					console.log("<-", substituterURL.href);
 
