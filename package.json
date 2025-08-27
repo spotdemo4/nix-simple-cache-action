@@ -1,7 +1,7 @@
 {
 	"name": "nix-gitea-cache-action",
 	"description": "GitHub Action to cache the nix store",
-	"version": "1.4.6",
+	"version": "1.4.7",
 	"type": "module",
 	"keywords": [
 		"actions"
