@@ -102,6 +102,7 @@
               prettier --check .
               alejandra -c .
               renovate-config-validator
+              renovate-config-validator .github/renovate-global.json
               action-validator .github/workflows/*
             '';
           };
