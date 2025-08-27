@@ -73,7 +73,7 @@ async function main() {
 		},
 	);
 
-	// have proxy server load in substituters so cached paths are not added
+	// have proxy server load in substituters so already cached paths are not added
 	core.info("loading substituters");
 	const { statusCode, body } = await request(
 		"http://127.0.0.1:5001/substituters",

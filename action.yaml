@@ -1,5 +1,5 @@
 name: Nix Simple Cache Action
-description: Imports/exports the nix store to/from the actions cache
+description: cache the nix store
 author: Trev
 branding:
   icon: chevron-up
