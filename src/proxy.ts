@@ -8,7 +8,7 @@ import {
 import { createServer } from "node:http";
 import path from "node:path";
 import { promisify } from "node:util";
-import { requestPromise } from "./util.js";
+import { request } from "undici";
 
 const execPromise = promisify(exec);
 
@@ -35,22 +35,16 @@ const server = createServer(async (req, res) => {
 
 					delete req.headers.host;
 					delete req.headers.referer;
-					const head = await requestPromise(
-						{
-							hostname: substituterURL.hostname,
-							port: 443,
-							path: req.url,
-							method: req.method,
-							headers: req.headers,
-						},
-						true,
-					);
-					if (!head || !head.statusCode || head.statusCode >= 300) continue;
+					const { statusCode, headers } = await request(substituterURL, {
+						method: "HEAD",
+						headers: req.headers,
+					});
+					if (statusCode >= 300) continue;
 
 					console.log("✓", substituterURL.href);
 
 					// return status
-					res.writeHead(head.statusCode, head.headers);
+					res.writeHead(statusCode, headers);
 					res.end();
 
 					return;
@@ -81,23 +75,17 @@ const server = createServer(async (req, res) => {
 
 					delete req.headers.host;
 					delete req.headers.referer;
-					const get = await requestPromise(
-						{
-							hostname: substituterURL.hostname,
-							port: 443,
-							path: req.url,
-							method: req.method,
-							headers: req.headers,
-						},
-						true,
-					);
-					if (!get || !get.statusCode || get.statusCode >= 300) continue;
+					const { statusCode, headers, body } = await request(substituterURL, {
+						method: "GET",
+						headers: req.headers,
+					});
+					if (statusCode >= 300) continue;
 
 					console.log("<-", substituterURL.href);
 
-					// pipe store path to response
-					res.writeHead(get.statusCode, get.headers);
-					get.pipe(res, {
+					// pipe store to response
+					res.writeHead(statusCode, headers);
+					body.pipe(res, {
 						end: true,
 					});
 

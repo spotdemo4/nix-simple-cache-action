@@ -3,7 +3,8 @@ import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as io from "@actions/io";
-import { formatBytes, requestPromise, streamToString } from "./util.js";
+import { request } from "undici";
+import { formatBytes } from "./util.js";
 
 async function main() {
 	// make sure caching is available
@@ -74,20 +75,17 @@ async function main() {
 
 	// have proxy server load in substituters so cached paths are not added
 	core.info("loading substituters");
-	const subUpdate = await requestPromise({
-		method: "POST",
-		host: "127.0.0.1",
-		port: 5001,
-		path: "/substituters",
-	});
-	if (!subUpdate || !subUpdate.statusCode || subUpdate.statusCode >= 300) {
+	const { statusCode, body } = await request(
+		"http://127.0.0.1:5001/substituters",
+		{
+			method: "POST",
+		},
+	);
+	if (statusCode >= 300) {
 		core.warning("failed to load substituters");
 	} else {
-		const subString = await streamToString(subUpdate);
-		if (subString) {
-			const substituters = JSON.parse(subString) as string[];
-			core.info(`substituters: ${substituters.join(", ")}`);
-		}
+		const substituters = (await body.json()) as string[];
+		core.info(`substituters: ${substituters.join(", ")}`);
 	}
 
 	// add to cache
@@ -138,6 +136,7 @@ async function main() {
 		process.kill(parseInt(proxyPID, 10));
 	}
 
+	// print proxy stdout to debug
 	const stdout = readFileSync("/tmp/out.log", "utf8").trim();
 	if (stdout) {
 		core.debug("proxy server stdout:");
