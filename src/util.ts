@@ -12,7 +12,7 @@ export function requestPromise(
 			resolve(res);
 		});
 
-		req.setTimeout(10000, () => {
+		req.setTimeout(300000, () => {
 			req.destroy(); // destroy the request if a timeout occurs
 			reject(new Error("request timed out"));
 		});
