@@ -28,14 +28,14 @@ Gitea/Forgejo:
 
 ```yaml
 uses: https://github.com/DeterminateSystems/nix-installer-action@main
-uses: https://github.com/spotdemo4/nix-simple-cache-action@v1.4.4
+uses: https://github.com/spotdemo4/nix-simple-cache-action@v1.4.5
 ```
 
 GitHub:
 
 ```yaml
 uses: DeterminateSystems/nix-installer-action@main
-uses: spotdemo4/nix-simple-cache-action@v1.4.4
+uses: spotdemo4/nix-simple-cache-action@v1.4.5
 ```
 
 ## Alternatives
