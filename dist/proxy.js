@@ -19277,6 +19277,13 @@ const server = createServer(async (req, res) => {
 		if (!req.url) return;
 		switch (req.method) {
 			case "HEAD": {
+				const localPath = path.join(root, req.url);
+				if (existsSync(localPath)) {
+					console.log("✓", localPath);
+					res.writeHead(200);
+					res.end();
+					return;
+				}
 				for (const substituter of substituters) {
 					const substituterURL = new URL(req.url, substituter);
 					delete req.headers.host;
@@ -19291,19 +19298,29 @@ const server = createServer(async (req, res) => {
 					res.end();
 					return;
 				}
-				const localPath = path.join(root, req.url);
-				if (!existsSync(localPath)) {
-					console.log("x", localPath);
-					res.writeHead(404, { "Content-Type": "text/plain" });
-					res.end("not found");
-					return;
-				}
-				console.log("✓", localPath);
-				res.writeHead(200);
-				res.end();
-				break;
+				console.log("x", req.url);
+				res.writeHead(404, { "Content-Type": "text/plain" });
+				res.end("not found");
+				return;
 			}
 			case "GET": {
+				const localPath = path.join(root, req.url);
+				if (existsSync(localPath)) {
+					console.log("<-", localPath);
+					const ext = path.parse(localPath).ext;
+					const contentType = mimeTypes[ext] || "application/octet-stream";
+					res.writeHead(200, {
+						"Content-Type": contentType,
+						"Content-Disposition": `attachment; filename="${path.basename(localPath)}"`
+					});
+					const fileStream = createReadStream(localPath);
+					fileStream.on("error", (err) => {
+						console.error("error streaming file:", err);
+						res.end("error streaming file");
+					});
+					fileStream.pipe(res);
+					return;
+				}
 				for (const substituter of substituters) {
 					const substituterURL = new URL(req.url, substituter);
 					delete req.headers.host;
@@ -19318,26 +19335,10 @@ const server = createServer(async (req, res) => {
 					body.pipe(res, { end: true });
 					return;
 				}
-				const localPath = path.join(root, req.url);
-				if (!existsSync(localPath)) {
-					res.writeHead(404, { "Content-Type": "text/plain" });
-					res.end("not found");
-					return;
-				}
-				console.log("<-", localPath);
-				const ext = path.parse(localPath).ext;
-				const contentType = mimeTypes[ext] || "application/octet-stream";
-				res.writeHead(200, {
-					"Content-Type": contentType,
-					"Content-Disposition": `attachment; filename="${path.basename(localPath)}"`
-				});
-				const fileStream = createReadStream(localPath);
-				fileStream.on("error", (err) => {
-					console.error("error streaming file:", err);
-					res.end("error streaming file");
-				});
-				fileStream.pipe(res);
-				break;
+				console.log("x", req.url);
+				res.writeHead(404, { "Content-Type": "text/plain" });
+				res.end("not found");
+				return;
 			}
 			case "PUT": {
 				const localPath = path.join(root, req.url);
@@ -19353,7 +19354,7 @@ const server = createServer(async (req, res) => {
 					res.end("created");
 				});
 				req.pipe(fileStream);
-				break;
+				return;
 			}
 			case "POST":
 				if (req.url !== "/substituters") {
@@ -19363,9 +19364,9 @@ const server = createServer(async (req, res) => {
 				}
 				substituters = (await execPromise("nix config show substituters")).stdout.split(" ").map((s) => s.trim());
 				console.log("substituters:", substituters.join(", "));
-				res.writeHead(200, { "Content-Type": "text/plain" });
+				res.writeHead(200, { "Content-Type": "application/json" });
 				res.end(JSON.stringify(substituters));
-				break;
+				return;
 		}
 	} catch (err) {
 		console.error("error handling request:", err);

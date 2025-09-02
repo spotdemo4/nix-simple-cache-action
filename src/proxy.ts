@@ -29,10 +29,23 @@ const server = createServer(async (req, res) => {
 
 		switch (req.method) {
 			case "HEAD": {
-				// check if any substituter has the requested path
+				// check if requested path exists locally
+				const localPath = path.join(root, req.url);
+				if (existsSync(localPath)) {
+					console.log("✓", localPath);
+
+					// return good status code
+					res.writeHead(200);
+					res.end();
+
+					return;
+				}
+
+				// also check if any substituter has the requested path
 				for (const substituter of substituters) {
 					const substituterURL = new URL(req.url, substituter);
 
+					// proxy the request
 					delete req.headers.host;
 					delete req.headers.referer;
 					const { statusCode, headers } = await request(substituterURL, {
@@ -50,29 +63,44 @@ const server = createServer(async (req, res) => {
 					return;
 				}
 
-				// else check if requested path exists locally
-				const localPath = path.join(root, req.url);
-				if (!existsSync(localPath)) {
-					console.log("x", localPath);
-					res.writeHead(404, { "Content-Type": "text/plain" });
-					res.end("not found");
-					return;
-				}
+				// else not found
+				console.log("x", req.url);
+				res.writeHead(404, { "Content-Type": "text/plain" });
+				res.end("not found");
 
-				console.log("✓", localPath);
-
-				// return good status code
-				res.writeHead(200);
-				res.end();
-
-				break;
+				return;
 			}
 
 			case "GET": {
-				// check if any substituter has the requested path
+				// check if requested path exists locally
+				const localPath = path.join(root, req.url);
+				if (existsSync(localPath)) {
+					console.log("<-", localPath);
+
+					// determine content type
+					const ext = path.parse(localPath).ext;
+					const contentType = mimeTypes[ext] || "application/octet-stream";
+					res.writeHead(200, {
+						"Content-Type": contentType,
+						"Content-Disposition": `attachment; filename="${path.basename(localPath)}"`,
+					});
+
+					// pipe the file to response
+					const fileStream = createReadStream(localPath);
+					fileStream.on("error", (err) => {
+						console.error("error streaming file:", err);
+						res.end("error streaming file");
+					});
+					fileStream.pipe(res);
+
+					return;
+				}
+
+				// also check if any substituter has the requested path
 				for (const substituter of substituters) {
 					const substituterURL = new URL(req.url, substituter);
 
+					// proxy the request
 					delete req.headers.host;
 					delete req.headers.referer;
 					const { statusCode, headers, body } = await request(substituterURL, {
@@ -92,33 +120,12 @@ const server = createServer(async (req, res) => {
 					return;
 				}
 
-				// else check if requested path exists locally
-				const localPath = path.join(root, req.url);
-				if (!existsSync(localPath)) {
-					res.writeHead(404, { "Content-Type": "text/plain" });
-					res.end("not found");
-					return;
-				}
+				// else not found
+				console.log("x", req.url);
+				res.writeHead(404, { "Content-Type": "text/plain" });
+				res.end("not found");
 
-				console.log("<-", localPath);
-
-				// determine content type
-				const ext = path.parse(localPath).ext;
-				const contentType = mimeTypes[ext] || "application/octet-stream";
-				res.writeHead(200, {
-					"Content-Type": contentType,
-					"Content-Disposition": `attachment; filename="${path.basename(localPath)}"`,
-				});
-
-				// pipe the file to response
-				const fileStream = createReadStream(localPath);
-				fileStream.on("error", (err) => {
-					console.error("error streaming file:", err);
-					res.end("error streaming file");
-				});
-				fileStream.pipe(res);
-
-				break;
+				return;
 			}
 
 			case "PUT": {
@@ -144,7 +151,7 @@ const server = createServer(async (req, res) => {
 				});
 				req.pipe(fileStream);
 
-				break;
+				return;
 			}
 
 			case "POST": {
@@ -161,10 +168,10 @@ const server = createServer(async (req, res) => {
 					.split(" ")
 					.map((s) => s.trim());
 				console.log("substituters:", substituters.join(", "));
-				res.writeHead(200, { "Content-Type": "text/plain" });
+				res.writeHead(200, { "Content-Type": "application/json" });
 				res.end(JSON.stringify(substituters));
 
-				break;
+				return;
 			}
 		}
 	} catch (err) {
