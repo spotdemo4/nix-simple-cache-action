@@ -103,8 +103,8 @@
               biome check .
               prettier --check .
               alejandra -c flake.nix
-              renovate-config-validator .github/renovate*.json
               action-validator .github/**/*.yaml
+              renovate-config-validator .github/renovate*.json
             '';
           };
         }
