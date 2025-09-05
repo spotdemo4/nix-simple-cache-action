@@ -34,32 +34,34 @@
         inherit system;
         overlays = [nur.overlays.default];
       };
+      trev = pkgs.nur.repos.trev;
+      node = pkgs.nodejs_24; # increment as needed
     in rec {
       devShells.default = pkgs.mkShell {
         packages = with pkgs; [
-          git
-          pkgs.nur.repos.trev.bumper
-
-          nodejs_20
+          node
           biome
           prettier
 
-          # Nix
+          # utils
+          trev.bumper
+
+          # nix
           alejandra
           flake-checker
 
-          # Actions
+          # actions
           action-validator
-          pkgs.nur.repos.trev.renovate
+          trev.renovate
         ];
-        shellHook = pkgs.nur.repos.trev.shellhook.ref;
+        shellHook = trev.shellhook.ref;
       };
 
       packages.default = pkgs.buildNpmPackage (finalAttrs: {
         pname = "nix-simple-cache-action";
         version = "1.4.8";
         src = ./.;
-        nodejs = pkgs.nodejs_20;
+        nodejs = node;
 
         npmDeps = pkgs.importNpmLock {
           npmRoot = ./.;
@@ -77,7 +79,7 @@
           mkdir -p $out/{bin,lib/node_modules/nix-simple-cache-action}
           cp -r dist node_modules package.json $out/lib/node_modules/nix-simple-cache-action
 
-          makeWrapper "${pkgs.lib.getExe pkgs.nodejs_20}" "$out/bin/nix-simple-cache-action" \
+          makeWrapper "${pkgs.lib.getExe node}" "$out/bin/nix-simple-cache-action" \
             --add-flags "$out/lib/node_modules/nix-simple-cache-action/dist/index.js"
 
           runHook postInstall
@@ -87,7 +89,7 @@
       });
 
       checks =
-        pkgs.nur.repos.trev.lib.mkChecks {
+        trev.lib.mkChecks {
           lint = {
             src = ./.;
             nativeBuildInputs = with pkgs; [
@@ -95,15 +97,14 @@
               prettier
               alejandra
               action-validator
-              pkgs.nur.repos.trev.renovate
+              trev.renovate
             ];
             checkPhase = ''
               biome check .
               prettier --check .
-              alejandra -c .
-              renovate-config-validator
-              renovate-config-validator .github/renovate-global.json
-              action-validator .github/workflows/*
+              alejandra -c flake.nix
+              renovate-config-validator .github/renovate*.json
+              action-validator .github/**/*.yaml
             '';
           };
         }
