@@ -8,15 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: spotdemo4/nix-simple-cache-action/.github/actions/init@main
-
-      - run: nix flake check -L
-
   release:
-    needs: check
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -28,7 +20,6 @@ jobs:
           generate_release_notes: true
 
   tag:
-    needs: check
     runs-on: ubuntu-latest
     permissions:
       actions: write

@@ -23,6 +23,12 @@
 			"postUpgradeTasks": {
 				"commands": ["npm install", "npm run build"]
 			}
+		},
+		{
+			"matchManagers": ["nix"],
+			"postUpgradeTasks": {
+				"commands": ["biome migrate --write"]
+			}
 		}
 	]
 }

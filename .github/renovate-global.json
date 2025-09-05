@@ -6,5 +6,5 @@
 	"requireConfig": "optional",
 	"platform": "github",
 	"repositories": ["spotdemo4/nix-simple-cache-action"],
-	"allowedCommands": ["npm install", "npm run build"]
+	"allowedCommands": ["npm install", "npm run build", "biome migrate --write"]
 }

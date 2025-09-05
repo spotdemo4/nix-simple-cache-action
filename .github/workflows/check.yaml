@@ -3,6 +3,8 @@ name: check
 on:
   pull_request:
     branches: ['main']
+  push:
+    branches: ['main']
   workflow_dispatch:
 
 permissions:
@@ -15,4 +17,5 @@ jobs:
       - uses: spotdemo4/nix-simple-cache-action/.github/actions/init@main
 
       - run: nix flake check -L
+      
       - run: nix build .# --no-link --print-out-paths

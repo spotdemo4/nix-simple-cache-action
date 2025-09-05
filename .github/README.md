@@ -1,14 +1,19 @@
 # Nix Simple Cache Action
 
-[![check](https://img.shields.io/github/actions/workflow/status/spotdemo4/nix-gitea-cache-action/check.yaml?logo=GitHub&logoColor=%23cdd6f4&label=check&labelColor=%2311111b)](https://github.com/spotdemo4/nix-gitea-cache-action/actions/workflows/check.yaml)
-[![flake](https://img.shields.io/github/actions/workflow/status/spotdemo4/nix-gitea-cache-action/flake.yaml?logo=nixos&logoColor=%2389dceb&label=flake&labelColor=%2311111b)](https://github.com/spotdemo4/nix-gitea-cache-action/actions/workflows/flake.yaml)
-[![vulnerable](https://img.shields.io/github/actions/workflow/status/spotdemo4/nix-gitea-cache-action/vulnerable.yaml?logo=npm&logoColor=%23cdd6f4&label=vulnerable&labelColor=%2311111b)](https://github.com/spotdemo4/nix-gitea-cache-action/actions/workflows/vulnerable.yaml)
+[![check](https://img.shields.io/github/actions/workflow/status/spotdemo4/nix-gitea-cache-action/check.yaml?branch=main&logo=nixos&logoColor=%23cdd6f4&label=flake&labelColor=%2311111b)](https://github.com/spotdemo4/nix-gitea-cache-action/actions/workflows/check.yaml)
+[![vulnerable](https://img.shields.io/github/actions/workflow/status/spotdemo4/nix-gitea-cache-action/vulnerable.yaml?branch=main&logo=npm&logoColor=%23cdd6f4&label=vulnerable&labelColor=%2311111b)](https://github.com/spotdemo4/nix-gitea-cache-action/actions/workflows/vulnerable.yaml)
+[![release](https://img.shields.io/github/v/release/spotdemo4/nix-simple-cache-action?logo=github&logoColor=%23cdd6f4&labelColor=%2311111b&color=%23313244)](https://github.com/spotdemo4/nix-simple-cache-action/releases/latest)
 
 This action saves and restores the nix store to/from the actions cache. It is mainly useful for Gitea & Forgejo, as they are unsupported by the other nix cache actions. 
 
 ## Requirements
 
-Any action that installs Nix ([DeterminateSystems/nix-installer-action](https://github.com/DeterminateSystems/nix-installer-action), [cachix/install-nix-action](https://github.com/cachix/install-nix-action), etc)
+Any action that installs Nix 
+- [DeterminateSystems/nix-installer-action](https://github.com/DeterminateSystems/nix-installer-action)
+- [cachix/install-nix-action](https://github.com/cachix/install-nix-action)
+- etc
+
+If you're using Gitea/Forgejo actions, make sure the runner has Node.js >= 20
 
 ## Inputs
 
@@ -28,14 +33,14 @@ Gitea/Forgejo:
 
 ```yaml
 uses: https://github.com/DeterminateSystems/nix-installer-action@main
-uses: https://github.com/spotdemo4/nix-simple-cache-action@v1.4.7
+uses: https://github.com/spotdemo4/nix-simple-cache-action@v1.4.8
 ```
 
 GitHub:
 
 ```yaml
 uses: DeterminateSystems/nix-installer-action@main
-uses: spotdemo4/nix-simple-cache-action@v1.4.7
+uses: spotdemo4/nix-simple-cache-action@v1.4.8
 ```
 
 ## Alternatives

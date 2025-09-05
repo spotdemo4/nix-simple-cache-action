@@ -9,6 +9,15 @@ permissions:
   contents: read
 
 jobs:
+  flake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: spotdemo4/nix-simple-cache-action/.github/actions/init@main
+
+      - uses: nicknovitski/nix-develop@9be7cfb4b10451d3390a75dc18ad0465bed4932a # v1.2.1
+
+      - run: flake-checker -f
+
   npm:
     runs-on: ubuntu-latest
     steps:
