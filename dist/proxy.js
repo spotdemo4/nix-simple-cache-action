@@ -765,8 +765,7 @@ var require_tree = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/tr
 		*/
 		constructor(key, value, index) {
 			if (index === void 0 || index >= key.length) throw new TypeError("Unreachable");
-			const code = this.code = key.charCodeAt(index);
-			if (code > 127) throw new TypeError("key must be ascii string");
+			if ((this.code = key.charCodeAt(index)) > 127) throw new TypeError("key must be ascii string");
 			if (key.length !== ++index) this.middle = new TstNode(key, value, index);
 			else this.value = value;
 		}
@@ -1375,8 +1374,7 @@ var require_util$5 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 	* @returns {T}
 	*/
 	function addListener(obj, name, listener) {
-		const listeners = obj[kListeners] ??= [];
-		listeners.push([name, listener]);
+		(obj[kListeners] ??= []).push([name, listener]);
 		obj.on(name, listener);
 		return obj;
 	}
@@ -3642,8 +3640,7 @@ var require_webidl = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/w
 		return r;
 	};
 	webidl$16.util.Stringify = function(V) {
-		const type = webidl$16.util.Type(V);
-		switch (type) {
+		switch (webidl$16.util.Type(V)) {
 			case SYMBOL: return `Symbol(${V.description})`;
 			case OBJECT: return inspect(V);
 			case STRING: return `"${V}"`;
@@ -3685,19 +3682,14 @@ var require_webidl = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/w
 				for (const key of keys$1) {
 					const keyName = webidl$16.util.Stringify(key);
 					const typedKey = keyConverter(key, prefix, `Key ${keyName} in ${argument}`);
-					const typedValue = valueConverter(O[key], prefix, `${argument}[${keyName}]`);
-					result[typedKey] = typedValue;
+					result[typedKey] = valueConverter(O[key], prefix, `${argument}[${keyName}]`);
 				}
 				return result;
 			}
 			const keys = Reflect.ownKeys(O);
-			for (const key of keys) {
-				const desc = Reflect.getOwnPropertyDescriptor(O, key);
-				if (desc?.enumerable) {
-					const typedKey = keyConverter(key, prefix, argument);
-					const typedValue = valueConverter(O[key], prefix, argument);
-					result[typedKey] = typedValue;
-				}
+			for (const key of keys) if (Reflect.getOwnPropertyDescriptor(O, key)?.enumerable) {
+				const typedKey = keyConverter(key, prefix, argument);
+				result[typedKey] = valueConverter(O[key], prefix, argument);
 			}
 			return result;
 		};
@@ -3788,27 +3780,22 @@ var require_webidl = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/w
 		return `${value}`.toWellFormed();
 	};
 	webidl$16.converters.boolean = function(V) {
-		const x = Boolean(V);
-		return x;
+		return Boolean(V);
 	};
 	webidl$16.converters.any = function(V) {
 		return V;
 	};
 	webidl$16.converters["long long"] = function(V, prefix, argument) {
-		const x = webidl$16.util.ConvertToInt(V, 64, "signed", void 0, prefix, argument);
-		return x;
+		return webidl$16.util.ConvertToInt(V, 64, "signed", void 0, prefix, argument);
 	};
 	webidl$16.converters["unsigned long long"] = function(V, prefix, argument) {
-		const x = webidl$16.util.ConvertToInt(V, 64, "unsigned", void 0, prefix, argument);
-		return x;
+		return webidl$16.util.ConvertToInt(V, 64, "unsigned", void 0, prefix, argument);
 	};
 	webidl$16.converters["unsigned long"] = function(V, prefix, argument) {
-		const x = webidl$16.util.ConvertToInt(V, 32, "unsigned", void 0, prefix, argument);
-		return x;
+		return webidl$16.util.ConvertToInt(V, 32, "unsigned", void 0, prefix, argument);
 	};
 	webidl$16.converters["unsigned short"] = function(V, prefix, argument, opts) {
-		const x = webidl$16.util.ConvertToInt(V, 16, "unsigned", opts, prefix, argument);
-		return x;
+		return webidl$16.util.ConvertToInt(V, 16, "unsigned", opts, prefix, argument);
 	};
 	webidl$16.converters.ArrayBuffer = function(V, prefix, argument, opts) {
 		if (webidl$16.util.Type(V) !== OBJECT || !types.isAnyArrayBuffer(V)) throw webidl$16.errors.conversionFailed({
@@ -4599,8 +4586,7 @@ var require_util$4 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/f
 	function utf8DecodeBytes$3(buffer$1) {
 		if (buffer$1.length === 0) return "";
 		if (buffer$1[0] === 239 && buffer$1[1] === 187 && buffer$1[2] === 191) buffer$1 = buffer$1.subarray(3);
-		const output = textDecoder.decode(buffer$1);
-		return output;
+		return textDecoder.decode(buffer$1);
 	}
 	var EnvironmentSettingsObjectBase = class {
 		get baseUrl() {
@@ -4697,15 +4683,13 @@ var require_formdata = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web
 		}
 		delete(name) {
 			webidl$14.brandCheck(this, FormData$1);
-			const prefix = "FormData.delete";
-			webidl$14.argumentLengthCheck(arguments, 1, prefix);
+			webidl$14.argumentLengthCheck(arguments, 1, "FormData.delete");
 			name = webidl$14.converters.USVString(name);
 			this.#state = this.#state.filter((entry) => entry.name !== name);
 		}
 		get(name) {
 			webidl$14.brandCheck(this, FormData$1);
-			const prefix = "FormData.get";
-			webidl$14.argumentLengthCheck(arguments, 1, prefix);
+			webidl$14.argumentLengthCheck(arguments, 1, "FormData.get");
 			name = webidl$14.converters.USVString(name);
 			const idx = this.#state.findIndex((entry) => entry.name === name);
 			if (idx === -1) return null;
@@ -4713,15 +4697,13 @@ var require_formdata = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web
 		}
 		getAll(name) {
 			webidl$14.brandCheck(this, FormData$1);
-			const prefix = "FormData.getAll";
-			webidl$14.argumentLengthCheck(arguments, 1, prefix);
+			webidl$14.argumentLengthCheck(arguments, 1, "FormData.getAll");
 			name = webidl$14.converters.USVString(name);
 			return this.#state.filter((entry) => entry.name === name).map((entry) => entry.value);
 		}
 		has(name) {
 			webidl$14.brandCheck(this, FormData$1);
-			const prefix = "FormData.has";
-			webidl$14.argumentLengthCheck(arguments, 1, prefix);
+			webidl$14.argumentLengthCheck(arguments, 1, "FormData.has");
 			name = webidl$14.converters.USVString(name);
 			return this.#state.findIndex((entry) => entry.name === name) !== -1;
 		}
@@ -4872,8 +4854,7 @@ var require_formdata_parser = /* @__PURE__ */ __commonJS({ "node_modules/undici/
 			if (position.position === input.length - 2 && bufferStartsWith(input, dd, position) || position.position === input.length - 4 && bufferStartsWith(input, ddcrlf, position)) return entryList;
 			if (input[position.position] !== 13 || input[position.position + 1] !== 10) throw parsingError("expected CRLF");
 			position.position += 2;
-			const result = parseMultipartFormDataHeaders(input, position);
-			let { name, filename, contentType, encoding } = result;
+			let { name, filename, contentType, encoding } = parseMultipartFormDataHeaders(input, position);
 			position.position += 2;
 			let body;
 			{
@@ -5038,12 +5019,11 @@ var require_promise = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/util
 	function createDeferredPromise$4() {
 		let res;
 		let rej;
-		const promise = new Promise((resolve$1, reject) => {
-			res = resolve$1;
-			rej = reject;
-		});
 		return {
-			promise,
+			promise: new Promise((resolve$1, reject) => {
+				res = resolve$1;
+				rej = reject;
+			}),
 			resolve: res,
 			reject: rej
 		};
@@ -5177,12 +5157,11 @@ Content-Type: ${value.type || "application/octet-stream"}\r\n\r\n`);
 				type: "bytes"
 			});
 		}
-		const body = {
+		return [{
 			stream: stream$2,
 			source,
 			length
-		};
-		return [body, type];
+		}, type];
 	}
 	/**
 	* @typedef {object} ExtractBodyResult
@@ -5219,7 +5198,7 @@ Content-Type: ${value.type || "application/octet-stream"}\r\n\r\n`);
 		if (state.aborted) throw new DOMException("The operation was aborted.", "AbortError");
 	}
 	function bodyMixinMethods(instance, getInternalState) {
-		const methods = {
+		return {
 			blob() {
 				return consumeBody(this, (bytes) => {
 					let mimeType = bodyMimeType(getInternalState(this));
@@ -5265,7 +5244,6 @@ Content-Type: ${value.type || "application/octet-stream"}\r\n\r\n`);
 				}, instance, getInternalState);
 			}
 		};
-		return methods;
 	}
 	function mixinBody$2(prototype, getInternalState) {
 		Object.assign(prototype.prototype, bodyMixinMethods(prototype, getInternalState));
@@ -7427,10 +7405,8 @@ var require_balanced_pool = /* @__PURE__ */ __commonJS({ "node_modules/undici/li
 		}
 		[kGetDispatcher]() {
 			if (this[kClients$2].length === 0) throw new BalancedPoolMissingUpstreamError();
-			const dispatcher = this[kClients$2].find((dispatcher$1) => !dispatcher$1[kNeedDrain] && dispatcher$1.closed !== true && dispatcher$1.destroyed !== true);
-			if (!dispatcher) return;
-			const allClientsBusy = this[kClients$2].map((pool) => pool[kNeedDrain]).reduce((a, b) => a && b, true);
-			if (allClientsBusy) return;
+			if (!this[kClients$2].find((dispatcher) => !dispatcher[kNeedDrain] && dispatcher.closed !== true && dispatcher.destroyed !== true)) return;
+			if (this[kClients$2].map((pool) => pool[kNeedDrain]).reduce((a, b) => a && b, true)) return;
 			let counter = 0;
 			let maxWeightIndex = this[kClients$2].findIndex((pool) => !pool[kNeedDrain]);
 			while (counter++ < this[kClients$2].length) {
@@ -7748,8 +7724,7 @@ var require_proxy_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 	* It should be removed in the next major version for performance reasons
 	*/
 	function throwIfProxyAuthIsSent(headers) {
-		const existProxyAuth = headers && Object.keys(headers).find((key) => key.toLowerCase() === "proxy-authorization");
-		if (existProxyAuth) throw new InvalidArgumentError$21("Proxy-Authorization should be sent in ProxyAgent constructor");
+		if (headers && Object.keys(headers).find((key) => key.toLowerCase() === "proxy-authorization")) throw new InvalidArgumentError$21("Proxy-Authorization should be sent in ProxyAgent constructor");
 	}
 	module.exports = ProxyAgent$2;
 }) });
@@ -7790,8 +7765,7 @@ var require_env_http_proxy_agent = /* @__PURE__ */ __commonJS({ "node_modules/un
 		}
 		[kDispatch](opts, handler) {
 			const url = new URL(opts.origin);
-			const agent = this.#getProxyAgentForUrl(url);
-			return agent.dispatch(opts, handler);
+			return this.#getProxyAgentForUrl(url).dispatch(opts, handler);
 		}
 		async [kClose$3]() {
 			await this[kNoProxyAgent].close();
@@ -8891,8 +8865,7 @@ var require_api_stream = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/a
 			});
 			res.on("drain", resume$1);
 			this.res = res;
-			const needDrain = res.writableNeedDrain !== void 0 ? res.writableNeedDrain : res._writableState?.needDrain;
-			return needDrain !== true;
+			return (res.writableNeedDrain !== void 0 ? res.writableNeedDrain : res._writableState?.needDrain) !== true;
 		}
 		onData(chunk) {
 			const { res } = this;
@@ -9361,7 +9334,7 @@ var require_mock_utils = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/m
 	function getHeaderByName(headers, key) {
 		if (Array.isArray(headers)) {
 			for (let i = 0; i < headers.length; i += 2) if (headers[i].toLocaleLowerCase() === key.toLocaleLowerCase()) return headers[i + 1];
-			return void 0;
+			return;
 		} else if (typeof headers.get === "function") return headers.get(key);
 		else return lowerCaseEntries(headers)[key.toLocaleLowerCase()];
 	}
@@ -9391,8 +9364,7 @@ var require_mock_utils = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/m
 		const normalizedQp = new URLSearchParams();
 		for (let [key, value] of originalQp.entries()) {
 			key = key.replace("[]", "");
-			const valueRepresentsString = /^(['"]).*\1$/.test(value);
-			if (valueRepresentsString) {
+			if (/^(['"]).*\1$/.test(value)) {
 				normalizedQp.append(key, value);
 				continue;
 			}
@@ -9940,8 +9912,7 @@ var require_mock_call_history = /* @__PURE__ */ __commonJS({ "node_modules/undic
 				if ("hash" in criteria) maybeDuplicatedLogsFiltered = handleFilterCallsWithOptions(criteria.hash, finalOptions, this.filterCallsByHash, maybeDuplicatedLogsFiltered);
 				if ("fullUrl" in criteria) maybeDuplicatedLogsFiltered = handleFilterCallsWithOptions(criteria.fullUrl, finalOptions, this.filterCallsByFullUrl, maybeDuplicatedLogsFiltered);
 				if ("method" in criteria) maybeDuplicatedLogsFiltered = handleFilterCallsWithOptions(criteria.method, finalOptions, this.filterCallsByMethod, maybeDuplicatedLogsFiltered);
-				const uniqLogsFiltered = [...new Set(maybeDuplicatedLogsFiltered)];
-				return uniqLogsFiltered;
+				return [...new Set(maybeDuplicatedLogsFiltered)];
 			}
 			throw new InvalidArgumentError$10("criteria parameter should be one of function, regexp, or object");
 		}
@@ -10555,9 +10526,9 @@ var require_snapshot_recorder = /* @__PURE__ */ __commonJS({ "node_modules/undic
 		* @returns {SnapshotEntry&Record<'response', SnapshotEntryResponse>|undefined} - Matching snapshot response or undefined if not found
 		*/
 		findSnapshot(requestOpts) {
-			if (!this.shouldPlayback(requestOpts)) return void 0;
+			if (!this.shouldPlayback(requestOpts)) return;
 			const url = new URL(requestOpts.path, requestOpts.origin).toString();
-			if (this.#isUrlExcluded(url)) return void 0;
+			if (this.#isUrlExcluded(url)) return;
 			const request$2 = formatRequestKey(requestOpts, this.#headerFilters, this.matchOptions);
 			const hash = createRequestHash(request$2);
 			const snapshot = this.#snapshots.get(hash);
@@ -10814,7 +10785,7 @@ var require_snapshot_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/l
 				body: []
 			};
 			const self = this;
-			const recordingHandler = {
+			return this[kRealAgent].dispatch(opts, {
 				onRequestStart(controller, context) {
 					return handler.onRequestStart(controller, {
 						...context,
@@ -10847,9 +10818,7 @@ var require_snapshot_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/l
 						handler.onResponseError(controller, error);
 					});
 				}
-			};
-			const agent = this[kRealAgent];
-			return agent.dispatch(opts, recordingHandler);
+			});
 		}
 		/**
 		* Replays a recorded response
@@ -11915,29 +11884,29 @@ var require_date = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/util/da
 	* @returns {Date | undefined}
 	*/
 	function parseImfDate(date) {
-		if (date.length !== 29) return void 0;
-		if (!date.endsWith("gmt")) return void 0;
-		for (const spaceInx of IMF_SPACES) if (date[spaceInx] !== " ") return void 0;
-		for (const colonIdx of IMF_COLONS) if (date[colonIdx] !== ":") return void 0;
+		if (date.length !== 29) return;
+		if (!date.endsWith("gmt")) return;
+		for (const spaceInx of IMF_SPACES) if (date[spaceInx] !== " ") return;
+		for (const colonIdx of IMF_COLONS) if (date[colonIdx] !== ":") return;
 		const dayName = date.substring(0, 3);
-		if (!IMF_DAYS.includes(dayName)) return void 0;
+		if (!IMF_DAYS.includes(dayName)) return;
 		const dayString = date.substring(5, 7);
 		const day = Number.parseInt(dayString);
-		if (isNaN(day) || day < 10 && dayString[0] !== "0") return void 0;
+		if (isNaN(day) || day < 10 && dayString[0] !== "0") return;
 		const month = date.substring(8, 11);
 		const monthIdx = IMF_MONTHS.indexOf(month);
-		if (monthIdx === -1) return void 0;
+		if (monthIdx === -1) return;
 		const year = Number.parseInt(date.substring(12, 16));
-		if (isNaN(year)) return void 0;
+		if (isNaN(year)) return;
 		const hourString = date.substring(17, 19);
 		const hour = Number.parseInt(hourString);
-		if (isNaN(hour) || hour < 10 && hourString[0] !== "0") return void 0;
+		if (isNaN(hour) || hour < 10 && hourString[0] !== "0") return;
 		const minuteString = date.substring(20, 22);
 		const minute = Number.parseInt(minuteString);
-		if (isNaN(minute) || minute < 10 && minuteString[0] !== "0") return void 0;
+		if (isNaN(minute) || minute < 10 && minuteString[0] !== "0") return;
 		const secondString = date.substring(23, 25);
 		const second = Number.parseInt(secondString);
-		if (isNaN(second) || second < 10 && secondString[0] !== "0") return void 0;
+		if (isNaN(second) || second < 10 && secondString[0] !== "0") return;
 		return new Date(Date.UTC(year, monthIdx, day, hour, minute, second));
 	}
 	/**
@@ -11947,27 +11916,27 @@ var require_date = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/util/da
 	* @returns {Date | undefined}
 	*/
 	function parseAscTimeDate(date) {
-		if (date.length !== 24) return void 0;
-		for (const spaceIdx of ASCTIME_SPACES) if (date[spaceIdx] !== " ") return void 0;
+		if (date.length !== 24) return;
+		for (const spaceIdx of ASCTIME_SPACES) if (date[spaceIdx] !== " ") return;
 		const dayName = date.substring(0, 3);
-		if (!IMF_DAYS.includes(dayName)) return void 0;
+		if (!IMF_DAYS.includes(dayName)) return;
 		const month = date.substring(4, 7);
 		const monthIdx = IMF_MONTHS.indexOf(month);
-		if (monthIdx === -1) return void 0;
+		if (monthIdx === -1) return;
 		const dayString = date.substring(8, 10);
 		const day = Number.parseInt(dayString);
-		if (isNaN(day) || day < 10 && dayString[0] !== " ") return void 0;
+		if (isNaN(day) || day < 10 && dayString[0] !== " ") return;
 		const hourString = date.substring(11, 13);
 		const hour = Number.parseInt(hourString);
-		if (isNaN(hour) || hour < 10 && hourString[0] !== "0") return void 0;
+		if (isNaN(hour) || hour < 10 && hourString[0] !== "0") return;
 		const minuteString = date.substring(14, 16);
 		const minute = Number.parseInt(minuteString);
-		if (isNaN(minute) || minute < 10 && minuteString[0] !== "0") return void 0;
+		if (isNaN(minute) || minute < 10 && minuteString[0] !== "0") return;
 		const secondString = date.substring(17, 19);
 		const second = Number.parseInt(secondString);
-		if (isNaN(second) || second < 10 && secondString[0] !== "0") return void 0;
+		if (isNaN(second) || second < 10 && secondString[0] !== "0") return;
 		const year = Number.parseInt(date.substring(20, 24));
-		if (isNaN(year)) return void 0;
+		if (isNaN(year)) return;
 		return new Date(Date.UTC(year, monthIdx, day, hour, minute, second));
 	}
 	/**
@@ -11978,21 +11947,21 @@ var require_date = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/util/da
 	* @returns {Date | undefined}
 	*/
 	function parseRfc850Date(date, now = /* @__PURE__ */ new Date()) {
-		if (!date.endsWith("gmt")) return void 0;
+		if (!date.endsWith("gmt")) return;
 		const commaIndex = date.indexOf(",");
-		if (commaIndex === -1) return void 0;
-		if (date.length - commaIndex - 1 !== 23) return void 0;
+		if (commaIndex === -1) return;
+		if (date.length - commaIndex - 1 !== 23) return;
 		const dayName = date.substring(0, commaIndex);
-		if (!RFC850_DAYS.includes(dayName)) return void 0;
-		if (date[commaIndex + 1] !== " " || date[commaIndex + 4] !== "-" || date[commaIndex + 8] !== "-" || date[commaIndex + 11] !== " " || date[commaIndex + 14] !== ":" || date[commaIndex + 17] !== ":" || date[commaIndex + 20] !== " ") return void 0;
+		if (!RFC850_DAYS.includes(dayName)) return;
+		if (date[commaIndex + 1] !== " " || date[commaIndex + 4] !== "-" || date[commaIndex + 8] !== "-" || date[commaIndex + 11] !== " " || date[commaIndex + 14] !== ":" || date[commaIndex + 17] !== ":" || date[commaIndex + 20] !== " ") return;
 		const dayString = date.substring(commaIndex + 2, commaIndex + 4);
 		const day = Number.parseInt(dayString);
-		if (isNaN(day) || day < 10 && dayString[0] !== "0") return void 0;
+		if (isNaN(day) || day < 10 && dayString[0] !== "0") return;
 		const month = date.substring(commaIndex + 5, commaIndex + 8);
 		const monthIdx = IMF_MONTHS.indexOf(month);
-		if (monthIdx === -1) return void 0;
+		if (monthIdx === -1) return;
 		let year = Number.parseInt(date.substring(commaIndex + 9, commaIndex + 11));
-		if (isNaN(year)) return void 0;
+		if (isNaN(year)) return;
 		const currentYear = now.getUTCFullYear();
 		const currentDecade = currentYear % 100;
 		const currentCentury = Math.floor(currentYear / 100);
@@ -12000,13 +11969,13 @@ var require_date = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/util/da
 		else year += currentCentury * 100;
 		const hourString = date.substring(commaIndex + 12, commaIndex + 14);
 		const hour = Number.parseInt(hourString);
-		if (isNaN(hour) || hour < 10 && hourString[0] !== "0") return void 0;
+		if (isNaN(hour) || hour < 10 && hourString[0] !== "0") return;
 		const minuteString = date.substring(commaIndex + 15, commaIndex + 17);
 		const minute = Number.parseInt(minuteString);
-		if (isNaN(minute) || minute < 10 && minuteString[0] !== "0") return void 0;
+		if (isNaN(minute) || minute < 10 && minuteString[0] !== "0") return;
 		const secondString = date.substring(commaIndex + 18, commaIndex + 20);
 		const second = Number.parseInt(secondString);
-		if (isNaN(second) || second < 10 && secondString[0] !== "0") return void 0;
+		if (isNaN(second) || second < 10 && secondString[0] !== "0") return;
 		return new Date(Date.UTC(year, monthIdx, day, hour, minute, second));
 	}
 	module.exports = { parseHttpDate: parseHttpDate$1 };
@@ -12209,10 +12178,10 @@ var require_cache_handler = /* @__PURE__ */ __commonJS({ "node_modules/undici/li
 		if (typeof resHeaders.expires === "string") {
 			const expiresDate = parseHttpDate(resHeaders.expires);
 			if (expiresDate) {
-				if (now >= expiresDate.getTime()) return void 0;
+				if (now >= expiresDate.getTime()) return;
 				if (responseDate) {
-					if (responseDate >= expiresDate) return void 0;
-					if (age !== void 0 && age > expiresDate - responseDate) return void 0;
+					if (responseDate >= expiresDate) return;
+					if (age !== void 0 && age > expiresDate - responseDate) return;
 				}
 				return expiresDate.getTime() - now;
 			}
@@ -12220,13 +12189,11 @@ var require_cache_handler = /* @__PURE__ */ __commonJS({ "node_modules/undici/li
 		if (typeof resHeaders["last-modified"] === "string") {
 			const lastModified = new Date(resHeaders["last-modified"]);
 			if (isValidDate(lastModified)) {
-				if (lastModified.getTime() >= now) return void 0;
-				const responseAge = now - lastModified.getTime();
-				return responseAge * .1;
+				if (lastModified.getTime() >= now) return;
+				return (now - lastModified.getTime()) * .1;
 			}
 		}
 		if (cacheControlDirectives.immutable) return 31536e3;
-		return void 0;
 	}
 	/**
 	* @param {number} now
@@ -12810,10 +12777,7 @@ var require_decompress = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/i
 		#setupDecompressorEvents(decompressor, controller) {
 			decompressor.on("readable", () => {
 				let chunk;
-				while ((chunk = decompressor.read()) !== null) {
-					const result = super.onResponseData(controller, chunk);
-					if (result === false) break;
-				}
+				while ((chunk = decompressor.read()) !== null) if (super.onResponseData(controller, chunk) === false) break;
 			});
 			decompressor.on("error", (error) => {
 				super.onResponseError(controller, error);
@@ -13222,10 +13186,10 @@ var require_sqlite_cache_store = /* @__PURE__ */ __commonJS({ "node_modules/undi
 			* @type {SqliteStoreValue[]}
 			*/
 			const values = this.#getValuesQuery.all(url, method);
-			if (values.length === 0) return void 0;
+			if (values.length === 0) return;
 			const now = Date.now();
 			for (const value of values) {
-				if (now >= value.deleteAt && !canBeExpired) return void 0;
+				if (now >= value.deleteAt && !canBeExpired) return;
 				let matches = true;
 				if (value.vary) {
 					const vary = JSON.parse(value.vary);
@@ -13236,7 +13200,6 @@ var require_sqlite_cache_store = /* @__PURE__ */ __commonJS({ "node_modules/undi
 				}
 				if (matches) return value;
 			}
-			return void 0;
 		}
 	};
 	/**
@@ -13519,8 +13482,7 @@ var require_headers = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/
 		delete(name) {
 			webidl$11.brandCheck(this, Headers$4);
 			webidl$11.argumentLengthCheck(arguments, 1, "Headers.delete");
-			const prefix = "Headers.delete";
-			name = webidl$11.converters.ByteString(name, prefix, "name");
+			name = webidl$11.converters.ByteString(name, "Headers.delete", "name");
 			if (!isValidHeaderName$1(name)) throw webidl$11.errors.invalidArgument({
 				prefix: "Headers.delete",
 				value: name,
@@ -13671,8 +13633,7 @@ var require_response = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web
 		#headers;
 		#state;
 		static error() {
-			const responseObject = fromInnerResponse$2(makeNetworkError$1(), "immutable");
-			return responseObject;
+			return fromInnerResponse$2(makeNetworkError$1(), "immutable");
 		}
 		static json(data, init = void 0) {
 			webidl$10.argumentLengthCheck(arguments, 1, "Response.json");
@@ -14059,8 +14020,7 @@ var require_request = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/
 		constructor(input, init = void 0) {
 			webidl$9.util.markAsUncloneable(this);
 			if (input === kConstruct$5) return;
-			const prefix = "Request constructor";
-			webidl$9.argumentLengthCheck(arguments, 1, prefix);
+			webidl$9.argumentLengthCheck(arguments, 1, "Request constructor");
 			input = webidl$9.converters.RequestInfo(input);
 			init = webidl$9.converters.RequestInit(init);
 			let request$2 = null;
@@ -14691,8 +14651,7 @@ var require_subresource_integrity = /* @__PURE__ */ __commonJS({ "node_modules/u
 		/** @type {MetadataList} */
 		const result = [];
 		for (const item of metadata.split(" ")) {
-			const expressionAndOptions = item.split("?", 1);
-			const algorithmExpression = expressionAndOptions[0];
+			const algorithmExpression = item.split("?", 1)[0];
 			let base64Value = "";
 			const algorithmAndValue = [algorithmExpression.slice(0, 6), algorithmExpression.slice(7)];
 			const algorithm = algorithmAndValue[0];
@@ -14814,8 +14773,7 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/fe
 			abortFetch(p, request$2, null, requestObject.signal.reason);
 			return p.promise;
 		}
-		const globalObject = request$2.client.globalObject;
-		if (globalObject?.constructor?.name === "ServiceWorkerGlobalScope") request$2.serviceWorkers = "none";
+		if (request$2.client.globalObject?.constructor?.name === "ServiceWorkerGlobalScope") request$2.serviceWorkers = "none";
 		let responseObject = null;
 		let locallyAborted = false;
 		let controller = null;
@@ -14905,10 +14863,7 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/fe
 		if (request$2.origin === "client") request$2.origin = request$2.client.origin;
 		if (request$2.policyContainer === "client") if (request$2.client != null) request$2.policyContainer = clonePolicyContainer(request$2.client.policyContainer);
 		else request$2.policyContainer = makePolicyContainer();
-		if (!request$2.headersList.contains("accept", true)) {
-			const value = "*/*";
-			request$2.headersList.append("accept", value, true);
-		}
+		if (!request$2.headersList.contains("accept", true)) request$2.headersList.append("accept", "*/*", true);
 		if (!request$2.headersList.contains("accept-language", true)) request$2.headersList.append("accept-language", "*", true);
 		if (request$2.priority === null) {}
 		if (subresourceSet.has(request$2.destination)) {}
@@ -15013,8 +14968,7 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/fe
 						if (rangeEnd === null || rangeEnd >= fullLength) rangeEnd = fullLength - 1;
 					}
 					const slicedBlob = blob.slice(rangeStart, rangeEnd, type);
-					const slicedBodyWithType = extractBody(slicedBlob);
-					response.body = slicedBodyWithType[0];
+					response.body = extractBody(slicedBlob)[0];
 					const serializedSlicedLength = isomorphicEncode(`${slicedBlob.size}`);
 					const contentRange = buildContentRange(rangeStart, rangeEnd, fullLength);
 					response.status = 206;
@@ -15224,8 +15178,7 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/fe
 		const request$2 = fetchParams.request;
 		let response = null;
 		const timingInfo = fetchParams.timingInfo;
-		const httpCache = null;
-		if (httpCache == null) request$2.cache = "no-store";
+		request$2.cache = "no-store";
 		if (request$2.mode === "websocket") {}
 		let requestBody = null;
 		if (request$2.body == null && fetchParams.processRequestEndOfBody) queueMicrotask(() => fetchParams.processRequestEndOfBody());
@@ -15545,12 +15498,10 @@ var require_cache = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/ca
 		}
 		async add(request$2) {
 			webidl$7.brandCheck(this, Cache$1);
-			const prefix = "Cache.add";
-			webidl$7.argumentLengthCheck(arguments, 1, prefix);
+			webidl$7.argumentLengthCheck(arguments, 1, "Cache.add");
 			request$2 = webidl$7.converters.RequestInfo(request$2);
 			const requests = [request$2];
-			const responseArrayPromise = this.addAll(requests);
-			return await responseArrayPromise;
+			return await this.addAll(requests);
 		}
 		async addAll(requests) {
 			webidl$7.brandCheck(this, Cache$1);
@@ -15613,8 +15564,7 @@ var require_cache = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/ca
 				}));
 				responsePromises.push(responsePromise.promise);
 			}
-			const p = Promise.all(responsePromises);
-			const responses = await p;
+			const responses = await Promise.all(responsePromises);
 			const operations = [];
 			let index = 0;
 			for (const response of responses) {
@@ -15672,8 +15622,7 @@ var require_cache = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/ca
 			const clonedResponse = cloneResponse(innerResponse);
 			const bodyReadPromise = createDeferredPromise$1();
 			if (innerResponse.body != null) {
-				const stream$2 = innerResponse.body.stream;
-				const reader = stream$2.getReader();
+				const reader = innerResponse.body.stream.getReader();
 				readAllBytes(reader, bodyReadPromise.resolve, bodyReadPromise.reject);
 			} else bodyReadPromise.resolve(void 0);
 			/** @type {CacheBatchOperation[]} */
@@ -15972,12 +15921,10 @@ var require_cachestorage = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib
 			if (options.cacheName != null) {
 				if (this.#caches.has(options.cacheName)) {
 					const cacheList = this.#caches.get(options.cacheName);
-					const cache = new Cache(kConstruct$3, cacheList);
-					return await cache.match(request$2, options);
+					return await new Cache(kConstruct$3, cacheList).match(request$2, options);
 				}
 			} else for (const cacheList of this.#caches.values()) {
-				const cache = new Cache(kConstruct$3, cacheList);
-				const response = await cache.match(request$2, options);
+				const response = await new Cache(kConstruct$3, cacheList).match(request$2, options);
 				if (response !== void 0) return response;
 			}
 		}
@@ -16029,8 +15976,7 @@ var require_cachestorage = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib
 		*/
 		async keys() {
 			webidl$6.brandCheck(this, CacheStorage$1);
-			const keys = this.#caches.keys();
-			return [...keys];
+			return [...this.#caches.keys()];
 		}
 	};
 	Object.defineProperties(CacheStorage$1.prototype, {
@@ -16322,15 +16268,12 @@ var require_parse = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/co
 		attributeValue = attributeValue.trim();
 		if (attributeValue.length > maxAttributeValueSize) return parseUnparsedAttributes(unparsedAttributes, cookieAttributeList);
 		const attributeNameLowercase = attributeName.toLowerCase();
-		if (attributeNameLowercase === "expires") {
-			const expiryTime = new Date(attributeValue);
-			cookieAttributeList.expires = expiryTime;
-		} else if (attributeNameLowercase === "max-age") {
+		if (attributeNameLowercase === "expires") cookieAttributeList.expires = new Date(attributeValue);
+		else if (attributeNameLowercase === "max-age") {
 			const charCode = attributeValue.charCodeAt(0);
 			if ((charCode < 48 || charCode > 57) && attributeValue[0] !== "-") return parseUnparsedAttributes(unparsedAttributes, cookieAttributeList);
 			if (!/^\d+$/.test(attributeValue)) return parseUnparsedAttributes(unparsedAttributes, cookieAttributeList);
-			const deltaSeconds = Number(attributeValue);
-			cookieAttributeList.maxAge = deltaSeconds;
+			cookieAttributeList.maxAge = Number(attributeValue);
 		} else if (attributeNameLowercase === "domain") {
 			let cookieDomain = attributeValue;
 			if (cookieDomain[0] === ".") cookieDomain = cookieDomain.slice(1);
@@ -17035,8 +16978,7 @@ var require_util$1 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/w
 		const position = { position: 0 };
 		const extensionList = /* @__PURE__ */ new Map();
 		while (position.position < extensions.length) {
-			const pair = collectASequenceOfCodePointsFast(";", extensions, position);
-			const [name, value = ""] = pair.split("=", 2);
+			const [name, value = ""] = collectASequenceOfCodePointsFast(";", extensions, position).split("=", 2);
 			extensionList.set(removeHTTPWhitespace(name, true, false), removeHTTPWhitespace(value, false, true));
 			position.position++;
 		}
@@ -17260,17 +17202,13 @@ var require_connection = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/w
 			cache: "no-store",
 			redirect: "error"
 		});
-		if (options.headers) {
-			const headersList = getHeadersList(new Headers(options.headers));
-			request$2.headersList = headersList;
-		}
+		if (options.headers) request$2.headersList = getHeadersList(new Headers(options.headers));
 		const keyValue = crypto.randomBytes(16).toString("base64");
 		request$2.headersList.append("sec-websocket-key", keyValue, true);
 		request$2.headersList.append("sec-websocket-version", "13", true);
 		for (const protocol of protocols) request$2.headersList.append("sec-websocket-protocol", protocol, true);
-		const permessageDeflate = "permessage-deflate; client_max_window_bits";
-		request$2.headersList.append("sec-websocket-extensions", permessageDeflate, true);
-		const controller = fetching$1({
+		request$2.headersList.append("sec-websocket-extensions", "permessage-deflate; client_max_window_bits", true);
+		return fetching$1({
 			request: request$2,
 			useParallelQueue: true,
 			dispatcher: options.dispatcher,
@@ -17309,8 +17247,7 @@ var require_connection = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/w
 				}
 				const secProtocol = response.headersList.get("Sec-WebSocket-Protocol");
 				if (secProtocol !== null) {
-					const requestProtocols = getDecodeSplit("sec-websocket-protocol", request$2.headersList);
-					if (!requestProtocols.includes(secProtocol)) {
+					if (!getDecodeSplit("sec-websocket-protocol", request$2.headersList).includes(secProtocol)) {
 						failWebsocketConnection$3(handler, 1002, "Protocol was not set in the opening handshake.");
 						return;
 					}
@@ -17322,7 +17259,6 @@ var require_connection = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/w
 				handler.onConnectionEstablished(response, extensions);
 			}
 		});
-		return controller;
 	}
 	/**
 	* @see https://whatpr.org/websockets/48.html#close-the-websocket
