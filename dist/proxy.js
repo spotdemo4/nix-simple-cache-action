@@ -313,9 +313,9 @@ var require_timers = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/util/
 		* before the specified function or code is executed.
 		* @param {*} arg
 		*/
-		constructor(callback, delay$2, arg) {
+		constructor(callback, delay, arg) {
 			this._onTimeout = callback;
-			this._idleTimeout = delay$2;
+			this._idleTimeout = delay;
 			this._timerArg = arg;
 			this.refresh();
 		}
@@ -349,8 +349,8 @@ var require_timers = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/util/
 	* used as a drop-in replacement for the native functions.
 	*/
 	module.exports = {
-		setTimeout(callback, delay$2, arg) {
-			return delay$2 <= RESOLUTION_MS ? setTimeout(callback, delay$2, arg) : new FastTimer(callback, delay$2, arg);
+		setTimeout(callback, delay, arg) {
+			return delay <= RESOLUTION_MS ? setTimeout(callback, delay, arg) : new FastTimer(callback, delay, arg);
 		},
 		clearTimeout(timeout) {
 			if (timeout[kFastTimer])
@@ -360,8 +360,8 @@ var require_timers = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/util/
 			timeout.clear();
 			else clearTimeout(timeout);
 		},
-		setFastTimeout(callback, delay$2, arg) {
-			return new FastTimer(callback, delay$2, arg);
+		setFastTimeout(callback, delay, arg) {
+			return new FastTimer(callback, delay, arg);
 		},
 		clearFastTimeout(timeout) {
 			timeout.clear();
@@ -369,8 +369,8 @@ var require_timers = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/util/
 		now() {
 			return fastNow;
 		},
-		tick(delay$2 = 0) {
-			fastNow += delay$2 - RESOLUTION_MS + 1;
+		tick(delay = 0) {
+			fastNow += delay - RESOLUTION_MS + 1;
 			onTick();
 			onTick();
 		},
@@ -387,13 +387,21 @@ var require_timers = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/util/
 //#endregion
 //#region node_modules/undici/lib/core/errors.js
 var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/errors.js": ((exports, module) => {
+	const kUndiciError = Symbol.for("undici.error.UND_ERR");
 	var UndiciError$4 = class extends Error {
 		constructor(message, options) {
 			super(message, options);
 			this.name = "UndiciError";
 			this.code = "UND_ERR";
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kUndiciError] === true;
+		}
+		get [kUndiciError]() {
+			return true;
+		}
 	};
+	const kConnectTimeoutError = Symbol.for("undici.error.UND_ERR_CONNECT_TIMEOUT");
 	var ConnectTimeoutError$1 = class extends UndiciError$4 {
 		constructor(message) {
 			super(message);
@@ -401,7 +409,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.message = message || "Connect Timeout Error";
 			this.code = "UND_ERR_CONNECT_TIMEOUT";
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kConnectTimeoutError] === true;
+		}
+		get [kConnectTimeoutError]() {
+			return true;
+		}
 	};
+	const kHeadersTimeoutError = Symbol.for("undici.error.UND_ERR_HEADERS_TIMEOUT");
 	var HeadersTimeoutError$1 = class extends UndiciError$4 {
 		constructor(message) {
 			super(message);
@@ -409,7 +424,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.message = message || "Headers Timeout Error";
 			this.code = "UND_ERR_HEADERS_TIMEOUT";
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kHeadersTimeoutError] === true;
+		}
+		get [kHeadersTimeoutError]() {
+			return true;
+		}
 	};
+	const kHeadersOverflowError = Symbol.for("undici.error.UND_ERR_HEADERS_OVERFLOW");
 	var HeadersOverflowError$1 = class extends UndiciError$4 {
 		constructor(message) {
 			super(message);
@@ -417,7 +439,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.message = message || "Headers Overflow Error";
 			this.code = "UND_ERR_HEADERS_OVERFLOW";
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kHeadersOverflowError] === true;
+		}
+		get [kHeadersOverflowError]() {
+			return true;
+		}
 	};
+	const kBodyTimeoutError = Symbol.for("undici.error.UND_ERR_BODY_TIMEOUT");
 	var BodyTimeoutError$1 = class extends UndiciError$4 {
 		constructor(message) {
 			super(message);
@@ -425,19 +454,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.message = message || "Body Timeout Error";
 			this.code = "UND_ERR_BODY_TIMEOUT";
 		}
-	};
-	var ResponseStatusCodeError = class extends UndiciError$4 {
-		constructor(message, statusCode, headers, body) {
-			super(message);
-			this.name = "ResponseStatusCodeError";
-			this.message = message || "Response Status Code Error";
-			this.code = "UND_ERR_RESPONSE_STATUS_CODE";
-			this.body = body;
-			this.status = statusCode;
-			this.statusCode = statusCode;
-			this.headers = headers;
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kBodyTimeoutError] === true;
+		}
+		get [kBodyTimeoutError]() {
+			return true;
 		}
 	};
+	const kInvalidArgumentError = Symbol.for("undici.error.UND_ERR_INVALID_ARG");
 	var InvalidArgumentError$32 = class extends UndiciError$4 {
 		constructor(message) {
 			super(message);
@@ -445,7 +469,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.message = message || "Invalid Argument Error";
 			this.code = "UND_ERR_INVALID_ARG";
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kInvalidArgumentError] === true;
+		}
+		get [kInvalidArgumentError]() {
+			return true;
+		}
 	};
+	const kInvalidReturnValueError = Symbol.for("undici.error.UND_ERR_INVALID_RETURN_VALUE");
 	var InvalidReturnValueError$2 = class extends UndiciError$4 {
 		constructor(message) {
 			super(message);
@@ -453,14 +484,29 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.message = message || "Invalid Return Value Error";
 			this.code = "UND_ERR_INVALID_RETURN_VALUE";
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kInvalidReturnValueError] === true;
+		}
+		get [kInvalidReturnValueError]() {
+			return true;
+		}
 	};
+	const kAbortError = Symbol.for("undici.error.UND_ERR_ABORT");
 	var AbortError$2 = class extends UndiciError$4 {
 		constructor(message) {
 			super(message);
 			this.name = "AbortError";
 			this.message = message || "The operation was aborted";
+			this.code = "UND_ERR_ABORT";
+		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kAbortError] === true;
+		}
+		get [kAbortError]() {
+			return true;
 		}
 	};
+	const kRequestAbortedError = Symbol.for("undici.error.UND_ERR_ABORTED");
 	var RequestAbortedError$8 = class extends AbortError$2 {
 		constructor(message) {
 			super(message);
@@ -468,7 +514,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.message = message || "Request aborted";
 			this.code = "UND_ERR_ABORTED";
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kRequestAbortedError] === true;
+		}
+		get [kRequestAbortedError]() {
+			return true;
+		}
 	};
+	const kInformationalError = Symbol.for("undici.error.UND_ERR_INFO");
 	var InformationalError$4 = class extends UndiciError$4 {
 		constructor(message) {
 			super(message);
@@ -476,7 +529,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.message = message || "Request information";
 			this.code = "UND_ERR_INFO";
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kInformationalError] === true;
+		}
+		get [kInformationalError]() {
+			return true;
+		}
 	};
+	const kRequestContentLengthMismatchError = Symbol.for("undici.error.UND_ERR_REQ_CONTENT_LENGTH_MISMATCH");
 	var RequestContentLengthMismatchError$2 = class extends UndiciError$4 {
 		constructor(message) {
 			super(message);
@@ -484,7 +544,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.message = message || "Request body length does not match content-length header";
 			this.code = "UND_ERR_REQ_CONTENT_LENGTH_MISMATCH";
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kRequestContentLengthMismatchError] === true;
+		}
+		get [kRequestContentLengthMismatchError]() {
+			return true;
+		}
 	};
+	const kResponseContentLengthMismatchError = Symbol.for("undici.error.UND_ERR_RES_CONTENT_LENGTH_MISMATCH");
 	var ResponseContentLengthMismatchError$1 = class extends UndiciError$4 {
 		constructor(message) {
 			super(message);
@@ -492,7 +559,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.message = message || "Response body length does not match content-length header";
 			this.code = "UND_ERR_RES_CONTENT_LENGTH_MISMATCH";
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kResponseContentLengthMismatchError] === true;
+		}
+		get [kResponseContentLengthMismatchError]() {
+			return true;
+		}
 	};
+	const kClientDestroyedError = Symbol.for("undici.error.UND_ERR_DESTROYED");
 	var ClientDestroyedError$2 = class extends UndiciError$4 {
 		constructor(message) {
 			super(message);
@@ -500,7 +574,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.message = message || "The client is destroyed";
 			this.code = "UND_ERR_DESTROYED";
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kClientDestroyedError] === true;
+		}
+		get [kClientDestroyedError]() {
+			return true;
+		}
 	};
+	const kClientClosedError = Symbol.for("undici.error.UND_ERR_CLOSED");
 	var ClientClosedError$1 = class extends UndiciError$4 {
 		constructor(message) {
 			super(message);
@@ -508,7 +589,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.message = message || "The client is closed";
 			this.code = "UND_ERR_CLOSED";
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kClientClosedError] === true;
+		}
+		get [kClientClosedError]() {
+			return true;
+		}
 	};
+	const kSocketError = Symbol.for("undici.error.UND_ERR_SOCKET");
 	var SocketError$4 = class extends UndiciError$4 {
 		constructor(message, socket) {
 			super(message);
@@ -517,7 +605,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.code = "UND_ERR_SOCKET";
 			this.socket = socket;
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kSocketError] === true;
+		}
+		get [kSocketError]() {
+			return true;
+		}
 	};
+	const kNotSupportedError = Symbol.for("undici.error.UND_ERR_NOT_SUPPORTED");
 	var NotSupportedError$2 = class extends UndiciError$4 {
 		constructor(message) {
 			super(message);
@@ -525,7 +620,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.message = message || "Not supported error";
 			this.code = "UND_ERR_NOT_SUPPORTED";
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kNotSupportedError] === true;
+		}
+		get [kNotSupportedError]() {
+			return true;
+		}
 	};
+	const kBalancedPoolMissingUpstreamError = Symbol.for("undici.error.UND_ERR_BPL_MISSING_UPSTREAM");
 	var BalancedPoolMissingUpstreamError$1 = class extends UndiciError$4 {
 		constructor(message) {
 			super(message);
@@ -533,7 +635,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.message = message || "No upstream has been added to the BalancedPool";
 			this.code = "UND_ERR_BPL_MISSING_UPSTREAM";
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kBalancedPoolMissingUpstreamError] === true;
+		}
+		get [kBalancedPoolMissingUpstreamError]() {
+			return true;
+		}
 	};
+	const kHTTPParserError = Symbol.for("undici.error.UND_ERR_HTTP_PARSER");
 	var HTTPParserError$1 = class extends Error {
 		constructor(message, code, data) {
 			super(message);
@@ -541,7 +650,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.code = code ? `HPE_${code}` : void 0;
 			this.data = data ? data.toString() : void 0;
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kHTTPParserError] === true;
+		}
+		get [kHTTPParserError]() {
+			return true;
+		}
 	};
+	const kResponseExceededMaxSizeError = Symbol.for("undici.error.UND_ERR_RES_EXCEEDED_MAX_SIZE");
 	var ResponseExceededMaxSizeError$1 = class extends UndiciError$4 {
 		constructor(message) {
 			super(message);
@@ -549,7 +665,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.message = message || "Response content exceeded max size";
 			this.code = "UND_ERR_RES_EXCEEDED_MAX_SIZE";
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kResponseExceededMaxSizeError] === true;
+		}
+		get [kResponseExceededMaxSizeError]() {
+			return true;
+		}
 	};
+	const kRequestRetryError = Symbol.for("undici.error.UND_ERR_REQ_RETRY");
 	var RequestRetryError$1 = class extends UndiciError$4 {
 		constructor(message, code, { headers, data }) {
 			super(message);
@@ -560,7 +683,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.data = data;
 			this.headers = headers;
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kRequestRetryError] === true;
+		}
+		get [kRequestRetryError]() {
+			return true;
+		}
 	};
+	const kResponseError = Symbol.for("undici.error.UND_ERR_RESPONSE");
 	var ResponseError$1 = class extends UndiciError$4 {
 		constructor(message, code, { headers, body }) {
 			super(message);
@@ -571,7 +701,14 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.body = body;
 			this.headers = headers;
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kResponseError] === true;
+		}
+		get [kResponseError]() {
+			return true;
+		}
 	};
+	const kSecureProxyConnectionError = Symbol.for("undici.error.UND_ERR_PRX_TLS");
 	var SecureProxyConnectionError$1 = class extends UndiciError$4 {
 		constructor(cause, message, options = {}) {
 			super(message, {
@@ -583,6 +720,27 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			this.code = "UND_ERR_PRX_TLS";
 			this.cause = cause;
 		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kSecureProxyConnectionError] === true;
+		}
+		get [kSecureProxyConnectionError]() {
+			return true;
+		}
+	};
+	const kMaxOriginsReachedError = Symbol.for("undici.error.UND_ERR_MAX_ORIGINS_REACHED");
+	var MaxOriginsReachedError$1 = class extends UndiciError$4 {
+		constructor(message) {
+			super(message);
+			this.name = "MaxOriginsReachedError";
+			this.message = message || "Maximum allowed origins reached";
+			this.code = "UND_ERR_MAX_ORIGINS_REACHED";
+		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kMaxOriginsReachedError] === true;
+		}
+		get [kMaxOriginsReachedError]() {
+			return true;
+		}
 	};
 	module.exports = {
 		AbortError: AbortError$2,
@@ -593,7 +751,6 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 		BodyTimeoutError: BodyTimeoutError$1,
 		RequestContentLengthMismatchError: RequestContentLengthMismatchError$2,
 		ConnectTimeoutError: ConnectTimeoutError$1,
-		ResponseStatusCodeError,
 		InvalidArgumentError: InvalidArgumentError$32,
 		InvalidReturnValueError: InvalidReturnValueError$2,
 		RequestAbortedError: RequestAbortedError$8,
@@ -607,7 +764,8 @@ var require_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 		ResponseExceededMaxSizeError: ResponseExceededMaxSizeError$1,
 		RequestRetryError: RequestRetryError$1,
 		ResponseError: ResponseError$1,
-		SecureProxyConnectionError: SecureProxyConnectionError$1
+		SecureProxyConnectionError: SecureProxyConnectionError$1,
+		MaxOriginsReachedError: MaxOriginsReachedError$1
 	};
 }) });
 
@@ -1249,12 +1407,11 @@ var require_util$5 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 	function ReadableStreamFrom$3(iterable) {
 		let iterator;
 		return new ReadableStream({
-			async start() {
+			start() {
 				iterator = iterable[Symbol.asyncIterator]();
 			},
 			pull(controller) {
-				async function pull() {
-					const { done, value } = await iterator.next();
+				return iterator.next().then(({ done, value }) => {
 					if (done) queueMicrotask(() => {
 						controller.close();
 						controller.byobRequest?.respond(0);
@@ -1262,13 +1419,12 @@ var require_util$5 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 					else {
 						const buf = Buffer.isBuffer(value) ? value : Buffer.from(value);
 						if (buf.byteLength) controller.enqueue(new Uint8Array(buf));
-						else return await pull();
+						else return this.pull(controller);
 					}
-				}
-				return pull();
+				});
 			},
-			async cancel() {
-				await iterator.return();
+			cancel() {
+				return iterator.return();
 			},
 			type: "bytes"
 		});
@@ -1453,6 +1609,17 @@ var require_util$5 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 		message += ` timeout: ${opts.timeout}ms)`;
 		destroy$1(socket, new ConnectTimeoutError(message));
 	}
+	/**
+	* @param {string} urlString
+	* @returns {string}
+	*/
+	function getProtocolFromUrlString$1(urlString) {
+		if (urlString[0] === "h" && urlString[1] === "t" && urlString[2] === "t" && urlString[3] === "p") switch (urlString[4]) {
+			case ":": return "http:";
+			case "s": if (urlString[5] === ":") return "https:";
+		}
+		return urlString.slice(0, urlString.indexOf(":") + 1);
+	}
 	const kEnumerableProperty$11 = Object.create(null);
 	kEnumerableProperty$11.enumerable = true;
 	const normalizedMethodRecordsBase$2 = {
@@ -1524,7 +1691,8 @@ var require_util$5 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/
 			"TRACE"
 		]),
 		wrapRequestBody: wrapRequestBody$1,
-		setupConnectTimeout
+		setupConnectTimeout,
+		getProtocolFromUrlString: getProtocolFromUrlString$1
 	};
 }) });
 
@@ -1658,7 +1826,7 @@ var require_diagnostics = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 var require_request$1 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/request.js": ((exports, module) => {
 	const { InvalidArgumentError: InvalidArgumentError$30, NotSupportedError: NotSupportedError$1 } = require_errors();
 	const assert$29 = __require("node:assert");
-	const { isValidHTTPToken: isValidHTTPToken$2, isValidHeaderValue: isValidHeaderValue$2, isStream, destroy, isBuffer, isFormDataLike, isIterable, isBlobLike, serializePathWithQuery: serializePathWithQuery$3, assertRequestHandler, getServerName, normalizedMethodRecords: normalizedMethodRecords$1 } = require_util$5();
+	const { isValidHTTPToken: isValidHTTPToken$2, isValidHeaderValue: isValidHeaderValue$2, isStream, destroy, isBuffer, isFormDataLike, isIterable, isBlobLike, serializePathWithQuery: serializePathWithQuery$3, assertRequestHandler, getServerName, normalizedMethodRecords: normalizedMethodRecords$1, getProtocolFromUrlString } = require_util$5();
 	const { channels: channels$5 } = require_diagnostics();
 	const { headerNameLowerCasedRecord } = require_constants$4();
 	const invalidPathRegex = /[^\u0021-\u00ff]/;
@@ -1707,6 +1875,7 @@ var require_request$1 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/co
 			this.upgrade = upgrade$1 || null;
 			this.path = query ? serializePathWithQuery$3(path$1, query) : path$1;
 			this.origin = origin;
+			this.protocol = getProtocolFromUrlString(origin);
 			this.idempotent = idempotent == null ? method === "HEAD" || method === "GET" : idempotent;
 			this.blocking = blocking ?? this.method !== "HEAD";
 			this.reset = reset == null ? null : reset;
@@ -2057,16 +2226,19 @@ var require_dispatcher_base = /* @__PURE__ */ __commonJS({ "node_modules/undici/
 	const kOnDestroyed = Symbol("onDestroyed");
 	const kOnClosed = Symbol("onClosed");
 	var DispatcherBase$6 = class extends Dispatcher$3 {
-		constructor() {
-			super();
-			this[kDestroyed$1] = false;
-			this[kOnDestroyed] = null;
-			this[kClosed$3] = false;
-			this[kOnClosed] = [];
-		}
+		/** @type {boolean} */
+		[kDestroyed$1] = false;
+		/** @type {Array|null} */
+		[kOnDestroyed] = null;
+		/** @type {boolean} */
+		[kClosed$3] = false;
+		/** @type {Array} */
+		[kOnClosed] = [];
+		/** @returns {boolean} */
 		get destroyed() {
 			return this[kDestroyed$1];
 		}
+		/** @returns {boolean} */
 		get closed() {
 			return this[kClosed$3];
 		}
@@ -3594,7 +3766,7 @@ var require_webidl = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/w
 		}
 	};
 	webidl$16.util.markAsUncloneable = markAsUncloneable || (() => {});
-	webidl$16.util.ConvertToInt = function(V, bitLength, signedness, opts) {
+	webidl$16.util.ConvertToInt = function(V, bitLength, signedness, flags) {
 		let upperBound;
 		let lowerBound;
 		if (bitLength === 64) {
@@ -3610,7 +3782,7 @@ var require_webidl = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/w
 		}
 		let x = Number(V);
 		if (x === 0) x = 0;
-		if (opts?.enforceRange === true) {
+		if (webidl$16.util.HasFlag(flags, webidl$16.attributes.EnforceRange)) {
 			if (Number.isNaN(x) || x === Number.POSITIVE_INFINITY || x === Number.NEGATIVE_INFINITY) throw webidl$16.errors.exception({
 				header: "Integer conversion",
 				message: `Could not convert ${webidl$16.util.Stringify(V)} to an integer.`
@@ -3622,7 +3794,7 @@ var require_webidl = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/w
 			});
 			return x;
 		}
-		if (!Number.isNaN(x) && opts?.clamp === true) {
+		if (!Number.isNaN(x) && webidl$16.util.HasFlag(flags, webidl$16.attributes.Clamp)) {
 			x = Math.min(Math.max(x, lowerBound), upperBound);
 			if (Math.floor(x) % 2 === 0) x = Math.floor(x);
 			else x = Math.ceil(x);
@@ -3647,6 +3819,17 @@ var require_webidl = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/w
 			case BIGINT: return `${V}n`;
 			default: return `${V}`;
 		}
+	};
+	webidl$16.util.IsResizableArrayBuffer = function(V) {
+		if (types.isArrayBuffer(V)) return V.resizable;
+		if (types.isSharedArrayBuffer(V)) return V.growable;
+		throw webidl$16.errors.exception({
+			header: "IsResizableArrayBuffer",
+			message: `"${webidl$16.util.Stringify(V)}" is not an array buffer.`
+		});
+	};
+	webidl$16.util.HasFlag = function(flags, attributes) {
+		return typeof flags === "number" && (flags & attributes) === attributes;
 	};
 	webidl$16.sequenceConverter = function(converter) {
 		return (V, prefix, argument, Iterable) => {
@@ -3753,8 +3936,11 @@ var require_webidl = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/w
 	webidl$16.is.URL = webidl$16.util.MakeTypeAssertion(URL);
 	webidl$16.is.AbortSignal = webidl$16.util.MakeTypeAssertion(AbortSignal);
 	webidl$16.is.MessagePort = webidl$16.util.MakeTypeAssertion(MessagePort);
-	webidl$16.converters.DOMString = function(V, prefix, argument, opts) {
-		if (V === null && opts?.legacyNullToEmptyString) return "";
+	webidl$16.is.BufferSource = function(V) {
+		return types.isArrayBuffer(V) || ArrayBuffer.isView(V) && types.isArrayBuffer(V.buffer);
+	};
+	webidl$16.converters.DOMString = function(V, prefix, argument, flags) {
+		if (V === null && webidl$16.util.HasFlag(flags, webidl$16.attributes.LegacyNullToEmptyString)) return "";
 		if (typeof V === "symbol") throw webidl$16.errors.exception({
 			header: prefix,
 			message: `${argument} is a symbol, which cannot be converted to a DOMString.`
@@ -3786,69 +3972,145 @@ var require_webidl = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/w
 		return V;
 	};
 	webidl$16.converters["long long"] = function(V, prefix, argument) {
-		return webidl$16.util.ConvertToInt(V, 64, "signed", void 0, prefix, argument);
+		return webidl$16.util.ConvertToInt(V, 64, "signed", 0, prefix, argument);
 	};
 	webidl$16.converters["unsigned long long"] = function(V, prefix, argument) {
-		return webidl$16.util.ConvertToInt(V, 64, "unsigned", void 0, prefix, argument);
+		return webidl$16.util.ConvertToInt(V, 64, "unsigned", 0, prefix, argument);
 	};
 	webidl$16.converters["unsigned long"] = function(V, prefix, argument) {
-		return webidl$16.util.ConvertToInt(V, 32, "unsigned", void 0, prefix, argument);
+		return webidl$16.util.ConvertToInt(V, 32, "unsigned", 0, prefix, argument);
 	};
-	webidl$16.converters["unsigned short"] = function(V, prefix, argument, opts) {
-		return webidl$16.util.ConvertToInt(V, 16, "unsigned", opts, prefix, argument);
+	webidl$16.converters["unsigned short"] = function(V, prefix, argument, flags) {
+		return webidl$16.util.ConvertToInt(V, 16, "unsigned", flags, prefix, argument);
 	};
-	webidl$16.converters.ArrayBuffer = function(V, prefix, argument, opts) {
-		if (webidl$16.util.Type(V) !== OBJECT || !types.isAnyArrayBuffer(V)) throw webidl$16.errors.conversionFailed({
+	webidl$16.converters.ArrayBuffer = function(V, prefix, argument, flags) {
+		if (webidl$16.util.Type(V) !== OBJECT || !types.isArrayBuffer(V)) throw webidl$16.errors.conversionFailed({
 			prefix,
 			argument: `${argument} ("${webidl$16.util.Stringify(V)}")`,
 			types: ["ArrayBuffer"]
 		});
-		if (opts?.allowShared === false && types.isSharedArrayBuffer(V)) throw webidl$16.errors.exception({
-			header: "ArrayBuffer",
-			message: "SharedArrayBuffer is not allowed."
-		});
-		if (V.resizable || V.growable) throw webidl$16.errors.exception({
-			header: "ArrayBuffer",
-			message: "Received a resizable ArrayBuffer."
+		if (!webidl$16.util.HasFlag(flags, webidl$16.attributes.AllowResizable) && webidl$16.util.IsResizableArrayBuffer(V)) throw webidl$16.errors.exception({
+			header: prefix,
+			message: `${argument} cannot be a resizable ArrayBuffer.`
 		});
 		return V;
 	};
-	webidl$16.converters.TypedArray = function(V, T, prefix, name, opts) {
+	webidl$16.converters.SharedArrayBuffer = function(V, prefix, argument, flags) {
+		if (webidl$16.util.Type(V) !== OBJECT || !types.isSharedArrayBuffer(V)) throw webidl$16.errors.conversionFailed({
+			prefix,
+			argument: `${argument} ("${webidl$16.util.Stringify(V)}")`,
+			types: ["SharedArrayBuffer"]
+		});
+		if (!webidl$16.util.HasFlag(flags, webidl$16.attributes.AllowResizable) && webidl$16.util.IsResizableArrayBuffer(V)) throw webidl$16.errors.exception({
+			header: prefix,
+			message: `${argument} cannot be a resizable SharedArrayBuffer.`
+		});
+		return V;
+	};
+	webidl$16.converters.TypedArray = function(V, T, prefix, argument, flags) {
 		if (webidl$16.util.Type(V) !== OBJECT || !types.isTypedArray(V) || V.constructor.name !== T.name) throw webidl$16.errors.conversionFailed({
 			prefix,
-			argument: `${name} ("${webidl$16.util.Stringify(V)}")`,
+			argument: `${argument} ("${webidl$16.util.Stringify(V)}")`,
 			types: [T.name]
 		});
-		if (opts?.allowShared === false && types.isSharedArrayBuffer(V.buffer)) throw webidl$16.errors.exception({
-			header: "ArrayBuffer",
-			message: "SharedArrayBuffer is not allowed."
+		if (!webidl$16.util.HasFlag(flags, webidl$16.attributes.AllowShared) && types.isSharedArrayBuffer(V.buffer)) throw webidl$16.errors.exception({
+			header: prefix,
+			message: `${argument} cannot be a view on a shared array buffer.`
 		});
-		if (V.buffer.resizable || V.buffer.growable) throw webidl$16.errors.exception({
-			header: "ArrayBuffer",
-			message: "Received a resizable ArrayBuffer."
+		if (!webidl$16.util.HasFlag(flags, webidl$16.attributes.AllowResizable) && webidl$16.util.IsResizableArrayBuffer(V.buffer)) throw webidl$16.errors.exception({
+			header: prefix,
+			message: `${argument} cannot be a view on a resizable array buffer.`
 		});
 		return V;
 	};
-	webidl$16.converters.DataView = function(V, prefix, name, opts) {
-		if (webidl$16.util.Type(V) !== OBJECT || !types.isDataView(V)) throw webidl$16.errors.exception({
+	webidl$16.converters.DataView = function(V, prefix, argument, flags) {
+		if (webidl$16.util.Type(V) !== OBJECT || !types.isDataView(V)) throw webidl$16.errors.conversionFailed({
+			prefix,
+			argument: `${argument} ("${webidl$16.util.Stringify(V)}")`,
+			types: ["DataView"]
+		});
+		if (!webidl$16.util.HasFlag(flags, webidl$16.attributes.AllowShared) && types.isSharedArrayBuffer(V.buffer)) throw webidl$16.errors.exception({
 			header: prefix,
-			message: `${name} is not a DataView.`
+			message: `${argument} cannot be a view on a shared array buffer.`
 		});
-		if (opts?.allowShared === false && types.isSharedArrayBuffer(V.buffer)) throw webidl$16.errors.exception({
-			header: "ArrayBuffer",
-			message: "SharedArrayBuffer is not allowed."
-		});
-		if (V.buffer.resizable || V.buffer.growable) throw webidl$16.errors.exception({
-			header: "ArrayBuffer",
-			message: "Received a resizable ArrayBuffer."
+		if (!webidl$16.util.HasFlag(flags, webidl$16.attributes.AllowResizable) && webidl$16.util.IsResizableArrayBuffer(V.buffer)) throw webidl$16.errors.exception({
+			header: prefix,
+			message: `${argument} cannot be a view on a resizable array buffer.`
 		});
 		return V;
+	};
+	webidl$16.converters.ArrayBufferView = function(V, prefix, argument, flags) {
+		if (webidl$16.util.Type(V) !== OBJECT || !types.isArrayBufferView(V)) throw webidl$16.errors.conversionFailed({
+			prefix,
+			argument: `${argument} ("${webidl$16.util.Stringify(V)}")`,
+			types: ["ArrayBufferView"]
+		});
+		if (!webidl$16.util.HasFlag(flags, webidl$16.attributes.AllowShared) && types.isSharedArrayBuffer(V.buffer)) throw webidl$16.errors.exception({
+			header: prefix,
+			message: `${argument} cannot be a view on a shared array buffer.`
+		});
+		if (!webidl$16.util.HasFlag(flags, webidl$16.attributes.AllowResizable) && webidl$16.util.IsResizableArrayBuffer(V.buffer)) throw webidl$16.errors.exception({
+			header: prefix,
+			message: `${argument} cannot be a view on a resizable array buffer.`
+		});
+		return V;
+	};
+	webidl$16.converters.BufferSource = function(V, prefix, argument, flags) {
+		if (types.isArrayBuffer(V)) return webidl$16.converters.ArrayBuffer(V, prefix, argument, flags);
+		if (types.isArrayBufferView(V)) {
+			flags &= ~webidl$16.attributes.AllowShared;
+			return webidl$16.converters.ArrayBufferView(V, prefix, argument, flags);
+		}
+		if (types.isSharedArrayBuffer(V)) throw webidl$16.errors.exception({
+			header: prefix,
+			message: `${argument} cannot be a SharedArrayBuffer.`
+		});
+		throw webidl$16.errors.conversionFailed({
+			prefix,
+			argument: `${argument} ("${webidl$16.util.Stringify(V)}")`,
+			types: ["ArrayBuffer", "ArrayBufferView"]
+		});
+	};
+	webidl$16.converters.AllowSharedBufferSource = function(V, prefix, argument, flags) {
+		if (types.isArrayBuffer(V)) return webidl$16.converters.ArrayBuffer(V, prefix, argument, flags);
+		if (types.isSharedArrayBuffer(V)) return webidl$16.converters.SharedArrayBuffer(V, prefix, argument, flags);
+		if (types.isArrayBufferView(V)) {
+			flags |= webidl$16.attributes.AllowShared;
+			return webidl$16.converters.ArrayBufferView(V, prefix, argument, flags);
+		}
+		throw webidl$16.errors.conversionFailed({
+			prefix,
+			argument: `${argument} ("${webidl$16.util.Stringify(V)}")`,
+			types: [
+				"ArrayBuffer",
+				"SharedArrayBuffer",
+				"ArrayBufferView"
+			]
+		});
 	};
 	webidl$16.converters["sequence<ByteString>"] = webidl$16.sequenceConverter(webidl$16.converters.ByteString);
 	webidl$16.converters["sequence<sequence<ByteString>>"] = webidl$16.sequenceConverter(webidl$16.converters["sequence<ByteString>"]);
 	webidl$16.converters["record<ByteString, ByteString>"] = webidl$16.recordConverter(webidl$16.converters.ByteString, webidl$16.converters.ByteString);
 	webidl$16.converters.Blob = webidl$16.interfaceConverter(webidl$16.is.Blob, "Blob");
 	webidl$16.converters.AbortSignal = webidl$16.interfaceConverter(webidl$16.is.AbortSignal, "AbortSignal");
+	/**
+	* [LegacyTreatNonObjectAsNull]
+	* callback EventHandlerNonNull = any (Event event);
+	* typedef EventHandlerNonNull? EventHandler;
+	* @param {*} V
+	*/
+	webidl$16.converters.EventHandlerNonNull = function(V) {
+		if (webidl$16.util.Type(V) !== OBJECT) return null;
+		if (typeof V === "function") return V;
+		return () => {};
+	};
+	webidl$16.attributes = {
+		Clamp: 1,
+		EnforceRange: 2,
+		AllowShared: 4,
+		AllowResizable: 8,
+		LegacyNullToEmptyString: 16
+	};
 	module.exports = { webidl: webidl$16 };
 }) });
 
@@ -4084,7 +4346,7 @@ var require_util$4 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/f
 			case "no-referrer-when-downgrade": {
 				const currentURL = requestCurrentURL$1(request$2);
 				if (isURLPotentiallyTrustworthy(referrerURL) && !isURLPotentiallyTrustworthy(currentURL)) return "no-referrer";
-				return referrerOrigin;
+				return referrerURL;
 			}
 		}
 	}
@@ -4113,8 +4375,8 @@ var require_util$4 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/f
 		}
 		return url;
 	}
-	const potentialleTrustworthyIPv4RegExp = /* @__PURE__ */ new RegExp("^(?:(?:127\\.)(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\\.){2}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[1-9]))$");
-	const potentialleTrustworthyIPv6RegExp = /* @__PURE__ */ new RegExp("^(?:(?:(?:0{1,4}):){7}(?:(?:0{0,3}1))|(?:(?:0{1,4}):){1,6}(?::(?:0{0,3}1))|(?:::(?:0{0,3}1))|)$");
+	const isPotentialleTrustworthyIPv4 = RegExp.prototype.test.bind(/^127\.(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)\.){2}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)$/);
+	const isPotentiallyTrustworthyIPv6 = RegExp.prototype.test.bind(/^(?:(?:0{1,4}:){7}|(?:0{1,4}:){1,6}:|::)0{0,3}1$/);
 	/**
 	* Check if host matches one of the CIDR notations 127.0.0.0/8 or ::1/128.
 	*
@@ -4124,9 +4386,9 @@ var require_util$4 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/f
 	function isOriginIPPotentiallyTrustworthy(origin) {
 		if (origin.includes(":")) {
 			if (origin[0] === "[" && origin[origin.length - 1] === "]") origin = origin.slice(1, -1);
-			return potentialleTrustworthyIPv6RegExp.test(origin);
+			return isPotentiallyTrustworthyIPv6(origin);
 		}
-		return potentialleTrustworthyIPv4RegExp.test(origin);
+		return isPotentialleTrustworthyIPv4(origin);
 	}
 	/**
 	* A potentially trustworthy origin is one which a user agent can generally
@@ -5040,7 +5302,7 @@ var require_body = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/fet
 	const { webidl: webidl$12 } = require_webidl();
 	const assert$24 = __require("node:assert");
 	const { isErrored: isErrored$1, isDisturbed: isDisturbed$2 } = __require("node:stream");
-	const { isArrayBuffer: isArrayBuffer$3 } = __require("node:util/types");
+	const { isArrayBuffer: isArrayBuffer$1 } = __require("node:util/types");
 	const { serializeAMimeType: serializeAMimeType$2 } = require_data_url();
 	const { multipartFormDataParser } = require_formdata_parser();
 	const { createDeferredPromise: createDeferredPromise$3 } = require_promise();
@@ -5071,7 +5333,7 @@ var require_body = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/fet
 		if (webidl$12.is.ReadableStream(object)) stream$2 = object;
 		else if (webidl$12.is.Blob(object)) stream$2 = object.stream();
 		else stream$2 = new ReadableStream({
-			async pull(controller) {
+			pull(controller) {
 				const buffer$1 = typeof source === "string" ? textEncoder$1.encode(source) : source;
 				if (buffer$1.byteLength) controller.enqueue(buffer$1);
 				queueMicrotask(() => readableStreamClose$1(controller));
@@ -5090,8 +5352,7 @@ var require_body = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/fet
 		} else if (webidl$12.is.URLSearchParams(object)) {
 			source = object.toString();
 			type = "application/x-www-form-urlencoded;charset=UTF-8";
-		} else if (isArrayBuffer$3(object)) source = new Uint8Array(object.slice());
-		else if (ArrayBuffer.isView(object)) source = new Uint8Array(object.buffer.slice(object.byteOffset, object.byteOffset + object.byteLength));
+		} else if (webidl$12.is.BufferSource(object)) source = isArrayBuffer$1(object) ? new Uint8Array(object.slice()) : new Uint8Array(object.buffer.slice(object.byteOffset, object.byteOffset + object.byteLength));
 		else if (webidl$12.is.FormData(object)) {
 			const boundary = `----formdata-undici-0${`${random(1e11)}`.padStart(11, "0")}`;
 			const prefix = `--${boundary}\r\nContent-Disposition: form-data`;
@@ -5194,9 +5455,6 @@ Content-Type: ${value.type || "application/octet-stream"}\r\n\r\n`);
 			source: body.source
 		};
 	}
-	function throwIfAborted(state) {
-		if (state.aborted) throw new DOMException("The operation was aborted.", "AbortError");
-	}
 	function bodyMixinMethods(instance, getInternalState) {
 		return {
 			blob() {
@@ -5255,13 +5513,17 @@ Content-Type: ${value.type || "application/octet-stream"}\r\n\r\n`);
 	* @param {any} instance
 	* @param {(target: any) => any} getInternalState
 	*/
-	async function consumeBody(object, convertBytesToJSValue, instance, getInternalState) {
-		webidl$12.brandCheck(object, instance);
+	function consumeBody(object, convertBytesToJSValue, instance, getInternalState) {
+		try {
+			webidl$12.brandCheck(object, instance);
+		} catch (e) {
+			return Promise.reject(e);
+		}
 		const state = getInternalState(object);
-		if (bodyUnusable$2(state)) throw new TypeError("Body is unusable: Body has already been read");
-		throwIfAborted(state);
+		if (bodyUnusable$2(state)) return Promise.reject(/* @__PURE__ */ new TypeError("Body is unusable: Body has already been read"));
+		if (state.aborted) return Promise.reject(new DOMException("The operation was aborted.", "AbortError"));
 		const promise = createDeferredPromise$3();
-		const errorSteps = (error) => promise.reject(error);
+		const errorSteps = promise.reject;
 		const successSteps = (data) => {
 			try {
 				promise.resolve(convertBytesToJSValue(data));
@@ -5329,12 +5591,14 @@ var require_client_h1 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/di
 	function lazyllhttp() {
 		const llhttpWasmData = process.env.JEST_WORKER_ID ? require_llhttp_wasm() : void 0;
 		let mod;
-		try {
+		let useWasmSIMD = process.arch !== "ppc64";
+		if (process.env.UNDICI_NO_WASM_SIMD === "1") useWasmSIMD = true;
+		else if (process.env.UNDICI_NO_WASM_SIMD === "0") useWasmSIMD = false;
+		if (useWasmSIMD) try {
 			mod = new WebAssembly.Module(require_llhttp_simd_wasm());
-		} catch {
-			/* istanbul ignore next */
-			mod = new WebAssembly.Module(llhttpWasmData || require_llhttp_wasm());
-		}
+		} catch {}
+		/* istanbul ignore next */
+		if (!mod) mod = new WebAssembly.Module(llhttpWasmData || require_llhttp_wasm());
 		return new WebAssembly.Instance(mod, { env: {
 			wasm_on_url: (p, at, len) => {
 				/* istanbul ignore next */
@@ -5422,18 +5686,18 @@ var require_client_h1 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/di
 			this.connection = "";
 			this.maxResponseSize = client[kMaxResponseSize$1];
 		}
-		setTimeout(delay$2, type) {
-			if (delay$2 !== this.timeoutValue || type & USE_FAST_TIMER ^ this.timeoutType & USE_FAST_TIMER) {
+		setTimeout(delay, type) {
+			if (delay !== this.timeoutValue || type & USE_FAST_TIMER ^ this.timeoutType & USE_FAST_TIMER) {
 				if (this.timeout) {
 					timers.clearTimeout(this.timeout);
 					this.timeout = null;
 				}
-				if (delay$2) if (type & USE_FAST_TIMER) this.timeout = timers.setFastTimeout(onParserTimeout, delay$2, new WeakRef(this));
+				if (delay) if (type & USE_FAST_TIMER) this.timeout = timers.setFastTimeout(onParserTimeout, delay, new WeakRef(this));
 				else {
-					this.timeout = setTimeout(onParserTimeout, delay$2, new WeakRef(this));
+					this.timeout = setTimeout(onParserTimeout, delay, new WeakRef(this));
 					this.timeout?.unref();
 				}
-				this.timeoutValue = delay$2;
+				this.timeoutValue = delay;
 			} else if (this.timeout) {
 				// istanbul ignore else: only for jest
 				if (this.timeout.refresh) this.timeout.refresh();
@@ -5481,9 +5745,6 @@ var require_client_h1 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/di
 					currentBufferRef = chunk;
 					currentParser = this;
 					ret = llhttp.llhttp_execute(this.ptr, currentBufferPtr, chunk.length);
-				} catch (err) {
-					/* istanbul ignore next: difficult to make a test case for */
-					throw err;
 				} finally {
 					currentParser = null;
 					currentBufferRef = null;
@@ -5761,7 +6022,7 @@ var require_client_h1 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/di
 	* @param {import('net').Socket} socket
 	* @returns
 	*/
-	async function connectH1$1(client, socket) {
+	function connectH1$1(client, socket) {
 		client[kSocket$1] = socket;
 		if (!llhttpInstance) llhttpInstance = lazyllhttp();
 		if (socket.errored) throw socket.errored;
@@ -6276,7 +6537,7 @@ var require_client_h2 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/di
 		else result.push(Buffer.from(name), Buffer.from(value));
 		return result;
 	}
-	async function connectH2$1(client, socket) {
+	function connectH2$1(client, socket) {
 		client[kSocket] = socket;
 		const session = http2.connect(client[kUrl$5], {
 			createConnection: () => socket,
@@ -6418,7 +6679,7 @@ var require_client_h2 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/di
 	function writeH2(client, request$2) {
 		const requestTimeout = request$2.bodyTimeout ?? client[kBodyTimeout$1];
 		const session = client[kHTTP2Session];
-		const { method, path: path$1, host, upgrade: upgrade$1, expectContinue, signal, headers: reqHeaders } = request$2;
+		const { method, path: path$1, host, upgrade: upgrade$1, expectContinue, signal, protocol, headers: reqHeaders } = request$2;
 		let { body } = request$2;
 		if (upgrade$1) {
 			util$17.errorRequest(client, request$2, /* @__PURE__ */ new Error("Upgrade not supported for H2"));
@@ -6428,6 +6689,11 @@ var require_client_h2 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/di
 		for (let n = 0; n < reqHeaders.length; n += 2) {
 			const key = reqHeaders[n + 0];
 			const val = reqHeaders[n + 1];
+			if (key === "cookie") {
+				if (headers[key] != null) headers[key] = Array.isArray(headers[key]) ? (headers[key].push(val), headers[key]) : [headers[key], val];
+				else headers[key] = val;
+				continue;
+			}
 			if (Array.isArray(val)) for (let i = 0; i < val.length; i++) if (headers[key]) headers[key] += `, ${val[i]}`;
 			else headers[key] = val[i];
 			else if (headers[key]) headers[key] += `, ${val}`;
@@ -6479,7 +6745,7 @@ var require_client_h2 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/di
 			return true;
 		}
 		headers[HTTP2_HEADER_PATH] = path$1;
-		headers[HTTP2_HEADER_SCHEME] = "https";
+		headers[HTTP2_HEADER_SCHEME] = protocol === "http:" ? "http" : "https";
 		const expectsPayload = method === "PUT" || method === "POST" || method === "PATCH";
 		if (body && typeof body.read === "function") body.read(0);
 		let contentLength = util$17.bodyLength(body);
@@ -6811,8 +7077,7 @@ var require_client = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/dispa
 			this.once("connect", cb);
 		}
 		[kDispatch$4](opts, handler) {
-			const origin = opts.origin || this[kUrl$4].origin;
-			const request$2 = new Request$3(origin, opts, handler);
+			const request$2 = new Request$3(this[kUrl$4].origin, opts, handler);
 			this[kQueue$1].push(request$2);
 			if (this[kResuming]) {} else if (util$16.bodyLength(request$2.body) == null && util$16.isIterable(request$2.body)) {
 				this[kResuming] = 1;
@@ -6821,13 +7086,13 @@ var require_client = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/dispa
 			if (this[kResuming] && this[kNeedDrain$3] !== 2 && this[kBusy$1]) this[kNeedDrain$3] = 2;
 			return this[kNeedDrain$3] < 2;
 		}
-		async [kClose$7]() {
+		[kClose$7]() {
 			return new Promise((resolve$1) => {
 				if (this[kSize$2]) this[kClosedResolve$1] = resolve$1;
 				else resolve$1(null);
 			});
 		}
-		async [kDestroy$5](err) {
+		[kDestroy$5](err) {
 			return new Promise((resolve$1) => {
 				const requests = this[kQueue$1].splice(this[kPendingIdx]);
 				for (let i = 0; i < requests.length; i++) {
@@ -6862,9 +7127,9 @@ var require_client = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/dispa
 	}
 	/**
 	* @param {Client} client
-	* @returns
+	* @returns {void}
 	*/
-	async function connect$2(client) {
+	function connect$2(client) {
 		assert$21(!client[kConnecting]);
 		assert$21(!client[kHTTPContext]);
 		let { host, hostname: hostname$1, protocol, port: port$1 } = client[kUrl$4];
@@ -6888,30 +7153,42 @@ var require_client = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/dispa
 			},
 			connector: client[kConnector]
 		});
-		try {
-			const socket = await new Promise((resolve$1, reject) => {
-				client[kConnector]({
+		client[kConnector]({
+			host,
+			hostname: hostname$1,
+			protocol,
+			port: port$1,
+			servername: client[kServerName],
+			localAddress: client[kLocalAddress]
+		}, (err, socket) => {
+			if (err) {
+				handleConnectError(client, err, {
 					host,
 					hostname: hostname$1,
 					protocol,
-					port: port$1,
-					servername: client[kServerName],
-					localAddress: client[kLocalAddress]
-				}, (err, socket$1) => {
-					if (err) reject(err);
-					else resolve$1(socket$1);
+					port: port$1
 				});
-			});
+				client[kResume$1]();
+				return;
+			}
 			if (client.destroyed) {
 				util$16.destroy(socket.on("error", noop$7), new ClientDestroyedError());
+				client[kResume$1]();
 				return;
 			}
 			assert$21(socket);
 			try {
-				client[kHTTPContext] = socket.alpnProtocol === "h2" ? await connectH2(client, socket) : await connectH1(client, socket);
-			} catch (err) {
+				client[kHTTPContext] = socket.alpnProtocol === "h2" ? connectH2(client, socket) : connectH1(client, socket);
+			} catch (err$1) {
 				socket.destroy().on("error", noop$7);
-				throw err;
+				handleConnectError(client, err$1, {
+					host,
+					hostname: hostname$1,
+					protocol,
+					port: port$1
+				});
+				client[kResume$1]();
+				return;
 			}
 			client[kConnecting] = false;
 			socket[kCounter] = 0;
@@ -6932,32 +7209,33 @@ var require_client = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/dispa
 				socket
 			});
 			client.emit("connect", client[kUrl$4], [client]);
-		} catch (err) {
-			if (client.destroyed) return;
-			client[kConnecting] = false;
-			if (channels$2.connectError.hasSubscribers) channels$2.connectError.publish({
-				connectParams: {
-					host,
-					hostname: hostname$1,
-					protocol,
-					port: port$1,
-					version: client[kHTTPContext]?.version,
-					servername: client[kServerName],
-					localAddress: client[kLocalAddress]
-				},
-				connector: client[kConnector],
-				error: err
-			});
-			if (err.code === "ERR_TLS_CERT_ALTNAME_INVALID") {
-				assert$21(client[kRunning$2] === 0);
-				while (client[kPending$1] > 0 && client[kQueue$1][client[kPendingIdx]].servername === client[kServerName]) {
-					const request$2 = client[kQueue$1][client[kPendingIdx]++];
-					util$16.errorRequest(client, request$2, err);
-				}
-			} else onError(client, err);
-			client.emit("connectionError", client[kUrl$4], [client], err);
-		}
-		client[kResume$1]();
+			client[kResume$1]();
+		});
+	}
+	function handleConnectError(client, err, { host, hostname: hostname$1, protocol, port: port$1 }) {
+		if (client.destroyed) return;
+		client[kConnecting] = false;
+		if (channels$2.connectError.hasSubscribers) channels$2.connectError.publish({
+			connectParams: {
+				host,
+				hostname: hostname$1,
+				protocol,
+				port: port$1,
+				version: client[kHTTPContext]?.version,
+				servername: client[kServerName],
+				localAddress: client[kLocalAddress]
+			},
+			connector: client[kConnector],
+			error: err
+		});
+		if (err.code === "ERR_TLS_CERT_ALTNAME_INVALID") {
+			assert$21(client[kRunning$2] === 0);
+			while (client[kPending$1] > 0 && client[kQueue$1][client[kPendingIdx]].servername === client[kServerName]) {
+				const request$2 = client[kQueue$1][client[kPendingIdx]++];
+				util$16.errorRequest(client, request$2, err);
+			}
+		} else onError(client, err);
+		client.emit("connectionError", client[kUrl$4], [client], err);
 	}
 	function emitDrain(client) {
 		client[kNeedDrain$3] = 0;
@@ -7029,33 +7307,19 @@ var require_fixed_queue = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 	* @template T
 	*/
 	var FixedCircularBuffer = class {
-		constructor() {
-			/**
-			* @type {number}
-			*/
-			this.bottom = 0;
-			/**
-			* @type {number}
-			*/
-			this.top = 0;
-			/**
-			* @type {Array<T|undefined>}
-			*/
-			this.list = new Array(kSize$1).fill(void 0);
-			/**
-			* @type {T|null}
-			*/
-			this.next = null;
-		}
-		/**
-		* @returns {boolean}
-		*/
+		/** @type {number} */
+		bottom = 0;
+		/** @type {number} */
+		top = 0;
+		/** @type {Array<T|undefined>} */
+		list = new Array(kSize$1).fill(void 0);
+		/** @type {T|null} */
+		next = null;
+		/** @returns {boolean} */
 		isEmpty() {
 			return this.top === this.bottom;
 		}
-		/**
-		* @returns {boolean}
-		*/
+		/** @returns {boolean} */
 		isFull() {
 			return (this.top + 1 & kMask) === this.bottom;
 		}
@@ -7067,9 +7331,7 @@ var require_fixed_queue = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 			this.list[this.top] = data;
 			this.top = this.top + 1 & kMask;
 		}
-		/**
-		* @returns {T|null}
-		*/
+		/** @returns {T|null} */
 		shift() {
 			const nextItem = this.list[this.bottom];
 			if (nextItem === void 0) return null;
@@ -7083,27 +7345,19 @@ var require_fixed_queue = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 	*/
 	module.exports = class FixedQueue$2 {
 		constructor() {
-			/**
-			* @type {FixedCircularBuffer<T>}
-			*/
+			/** @type {FixedCircularBuffer<T>} */
 			this.head = this.tail = new FixedCircularBuffer();
 		}
-		/**
-		* @returns {boolean}
-		*/
+		/** @returns {boolean} */
 		isEmpty() {
 			return this.head.isEmpty();
 		}
-		/**
-		* @param {T} data
-		*/
+		/** @param {T} data */
 		push(data) {
 			if (this.head.isFull()) this.head = this.head.next = new FixedCircularBuffer();
 			this.head.push(data);
 		}
-		/**
-		* @returns {T|null}
-		*/
+		/** @returns {T|null} */
 		shift() {
 			const tail$1 = this.tail;
 			const next = tail$1.shift();
@@ -7135,46 +7389,51 @@ var require_pool_base = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/di
 	const kAddClient$2 = Symbol("add client");
 	const kRemoveClient$2 = Symbol("remove client");
 	var PoolBase$2 = class extends DispatcherBase$4 {
-		constructor() {
-			super();
-			this[kQueue] = new FixedQueue$1();
-			this[kClients$4] = [];
-			this[kQueued] = 0;
-			const pool = this;
-			this[kOnDrain$1] = function onDrain(origin, targets) {
-				const queue = pool[kQueue];
-				let needDrain = false;
-				while (!needDrain) {
-					const item = queue.shift();
-					if (!item) break;
-					pool[kQueued]--;
-					needDrain = !this.dispatch(item.opts, item.handler);
-				}
-				this[kNeedDrain$2] = needDrain;
-				if (!this[kNeedDrain$2] && pool[kNeedDrain$2]) {
-					pool[kNeedDrain$2] = false;
-					pool.emit("drain", origin, [pool, ...targets]);
-				}
-				if (pool[kClosedResolve] && queue.isEmpty()) Promise.all(pool[kClients$4].map((c) => c.close())).then(pool[kClosedResolve]);
-			};
-			this[kOnConnect$1] = (origin, targets) => {
-				pool.emit("connect", origin, [pool, ...targets]);
-			};
-			this[kOnDisconnect$1] = (origin, targets, err) => {
-				pool.emit("disconnect", origin, [pool, ...targets], err);
-			};
-			this[kOnConnectionError$1] = (origin, targets, err) => {
-				pool.emit("connectionError", origin, [pool, ...targets], err);
-			};
+		[kQueue] = new FixedQueue$1();
+		[kQueued] = 0;
+		[kClients$4] = [];
+		[kNeedDrain$2] = false;
+		[kOnDrain$1](client, origin, targets) {
+			const queue = this[kQueue];
+			let needDrain = false;
+			while (!needDrain) {
+				const item = queue.shift();
+				if (!item) break;
+				this[kQueued]--;
+				needDrain = !client.dispatch(item.opts, item.handler);
+			}
+			client[kNeedDrain$2] = needDrain;
+			if (!needDrain && this[kNeedDrain$2]) {
+				this[kNeedDrain$2] = false;
+				this.emit("drain", origin, [this, ...targets]);
+			}
+			if (this[kClosedResolve] && queue.isEmpty()) {
+				const closeAll = new Array(this[kClients$4].length);
+				for (let i = 0; i < this[kClients$4].length; i++) closeAll[i] = this[kClients$4][i].close();
+				Promise.all(closeAll).then(this[kClosedResolve]);
+			}
 		}
+		[kOnConnect$1] = (origin, targets) => {
+			this.emit("connect", origin, [this, ...targets]);
+		};
+		[kOnDisconnect$1] = (origin, targets, err) => {
+			this.emit("disconnect", origin, [this, ...targets], err);
+		};
+		[kOnConnectionError$1] = (origin, targets, err) => {
+			this.emit("connectionError", origin, [this, ...targets], err);
+		};
 		get [kBusy]() {
 			return this[kNeedDrain$2];
 		}
 		get [kConnected$2]() {
-			return this[kClients$4].filter((client) => client[kConnected$2]).length;
+			let ret = 0;
+			for (const { [kConnected$2]: connected } of this[kClients$4]) ret += connected;
+			return ret;
 		}
 		get [kFree]() {
-			return this[kClients$4].filter((client) => client[kConnected$2] && !client[kNeedDrain$2]).length;
+			let ret = 0;
+			for (const { [kConnected$2]: connected, [kNeedDrain$2]: needDrain } of this[kClients$4]) ret += connected && !needDrain;
+			return ret;
 		}
 		get [kPending]() {
 			let ret = this[kQueued];
@@ -7194,19 +7453,24 @@ var require_pool_base = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/di
 		get stats() {
 			return new PoolStats(this);
 		}
-		async [kClose$6]() {
-			if (this[kQueue].isEmpty()) await Promise.all(this[kClients$4].map((c) => c.close()));
-			else await new Promise((resolve$1) => {
+		[kClose$6]() {
+			if (this[kQueue].isEmpty()) {
+				const closeAll = new Array(this[kClients$4].length);
+				for (let i = 0; i < this[kClients$4].length; i++) closeAll[i] = this[kClients$4][i].close();
+				return Promise.all(closeAll);
+			} else return new Promise((resolve$1) => {
 				this[kClosedResolve] = resolve$1;
 			});
 		}
-		async [kDestroy$4](err) {
+		[kDestroy$4](err) {
 			while (true) {
 				const item = this[kQueue].shift();
 				if (!item) break;
 				item.handler.onError(err);
 			}
-			await Promise.all(this[kClients$4].map((c) => c.destroy(err)));
+			const destroyAll = new Array(this[kClients$4].length);
+			for (let i = 0; i < this[kClients$4].length; i++) destroyAll[i] = this[kClients$4][i].destroy(err);
+			return Promise.all(destroyAll);
 		}
 		[kDispatch$3](opts, handler) {
 			const dispatcher = this[kGetDispatcher$2]();
@@ -7224,10 +7488,10 @@ var require_pool_base = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/di
 			return !this[kNeedDrain$2];
 		}
 		[kAddClient$2](client) {
-			client.on("drain", this[kOnDrain$1]).on("connect", this[kOnConnect$1]).on("disconnect", this[kOnDisconnect$1]).on("connectionError", this[kOnConnectionError$1]);
+			client.on("drain", this[kOnDrain$1].bind(this, client)).on("connect", this[kOnConnect$1]).on("disconnect", this[kOnDisconnect$1]).on("connectionError", this[kOnConnectionError$1]);
 			this[kClients$4].push(client);
 			if (this[kNeedDrain$2]) queueMicrotask(() => {
-				if (this[kNeedDrain$2]) this[kOnDrain$1](client[kUrl$3], [this, client]);
+				if (this[kNeedDrain$2]) this[kOnDrain$1](client, client[kUrl$3], [client, this]);
 			});
 			return this;
 		}
@@ -7269,7 +7533,6 @@ var require_pool = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/dispatc
 			if (connections != null && (!Number.isFinite(connections) || connections < 0)) throw new InvalidArgumentError$24("invalid connections");
 			if (typeof factory !== "function") throw new InvalidArgumentError$24("factory must be a function.");
 			if (connect$3 != null && typeof connect$3 !== "function" && typeof connect$3 !== "object") throw new InvalidArgumentError$24("connect must be a function or an object");
-			super();
 			if (typeof connect$3 !== "function") connect$3 = buildConnector$2({
 				...tls$1,
 				maxCachedSessions,
@@ -7282,6 +7545,7 @@ var require_pool = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/dispatc
 				} : void 0,
 				...connect$3
 			});
+			super();
 			this[kConnections] = connections || null;
 			this[kUrl$2] = util$15.parseOrigin(origin);
 			this[kOptions$3] = {
@@ -7430,7 +7694,7 @@ var require_balanced_pool = /* @__PURE__ */ __commonJS({ "node_modules/undici/li
 //#endregion
 //#region node_modules/undici/lib/dispatcher/agent.js
 var require_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/dispatcher/agent.js": ((exports, module) => {
-	const { InvalidArgumentError: InvalidArgumentError$22 } = require_errors();
+	const { InvalidArgumentError: InvalidArgumentError$22, MaxOriginsReachedError } = require_errors();
 	const { kClients: kClients$1, kRunning, kClose: kClose$5, kDestroy: kDestroy$3, kDispatch: kDispatch$2, kUrl } = require_symbols();
 	const DispatcherBase$3 = require_dispatcher_base();
 	const Pool$3 = require_pool();
@@ -7442,21 +7706,25 @@ var require_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/dispat
 	const kOnDrain = Symbol("onDrain");
 	const kFactory$1 = Symbol("factory");
 	const kOptions$1 = Symbol("options");
+	const kOrigins = Symbol("origins");
 	function defaultFactory$1(origin, opts) {
 		return opts && opts.connections === 1 ? new Client$4(origin, opts) : new Pool$3(origin, opts);
 	}
 	var Agent$6 = class extends DispatcherBase$3 {
-		constructor({ factory = defaultFactory$1, connect: connect$3,...options } = {}) {
+		constructor({ factory = defaultFactory$1, maxOrigins = Infinity, connect: connect$3,...options } = {}) {
 			if (typeof factory !== "function") throw new InvalidArgumentError$22("factory must be a function.");
 			if (connect$3 != null && typeof connect$3 !== "function" && typeof connect$3 !== "object") throw new InvalidArgumentError$22("connect must be a function or an object");
+			if (typeof maxOrigins !== "number" || Number.isNaN(maxOrigins) || maxOrigins <= 0) throw new InvalidArgumentError$22("maxOrigins must be a number greater than 0");
 			super();
 			if (connect$3 && typeof connect$3 !== "function") connect$3 = { ...connect$3 };
 			this[kOptions$1] = {
 				...util$14.deepClone(options),
+				maxOrigins,
 				connect: connect$3
 			};
 			this[kFactory$1] = factory;
 			this[kClients$1] = /* @__PURE__ */ new Map();
+			this[kOrigins] = /* @__PURE__ */ new Set();
 			this[kOnDrain] = (origin, targets) => {
 				this.emit("drain", origin, [this, ...targets]);
 			};
@@ -7479,6 +7747,7 @@ var require_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/dispat
 			let key;
 			if (opts.origin && (typeof opts.origin === "string" || opts.origin instanceof URL)) key = String(opts.origin);
 			else throw new InvalidArgumentError$22("opts.origin must be a non-empty string or URL.");
+			if (this[kOrigins].size >= this[kOptions$1].maxOrigins && !this[kOrigins].has(key)) throw new MaxOriginsReachedError();
 			const result = this[kClients$1].get(key);
 			let dispatcher = result && result.dispatcher;
 			if (!dispatcher) {
@@ -7490,6 +7759,7 @@ var require_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/dispat
 							this[kClients$1].delete(key);
 							result$1.dispatcher.close();
 						}
+						this[kOrigins].delete(key);
 					}
 				};
 				dispatcher = this[kFactory$1](opts.origin, this[kOptions$1]).on("drain", this[kOnDrain]).on("connect", (origin, targets) => {
@@ -7507,20 +7777,21 @@ var require_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/dispat
 					count: 0,
 					dispatcher
 				});
+				this[kOrigins].add(key);
 			}
 			return dispatcher.dispatch(opts, handler);
 		}
-		async [kClose$5]() {
+		[kClose$5]() {
 			const closePromises = [];
 			for (const { dispatcher } of this[kClients$1].values()) closePromises.push(dispatcher.close());
 			this[kClients$1].clear();
-			await Promise.all(closePromises);
+			return Promise.all(closePromises);
 		}
-		async [kDestroy$3](err) {
+		[kDestroy$3](err) {
 			const destroyPromises = [];
 			for (const { dispatcher } of this[kClients$1].values()) destroyPromises.push(dispatcher.destroy(err));
 			this[kClients$1].clear();
-			await Promise.all(destroyPromises);
+			return Promise.all(destroyPromises);
 		}
 		get stats() {
 			const allClientStats = {};
@@ -7562,8 +7833,8 @@ var require_proxy_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 	var Http1ProxyWrapper = class extends DispatcherBase$2 {
 		#client;
 		constructor(proxyUrl, { headers = {}, connect: connect$3, factory }) {
-			super();
 			if (!proxyUrl) throw new InvalidArgumentError$21("Proxy URL is mandatory");
+			super();
 			this[kProxyHeaders] = headers;
 			if (factory) this.#client = factory(proxyUrl, { connect: connect$3 });
 			else this.#client = new Client$3(proxyUrl, { connect: connect$3 });
@@ -7589,10 +7860,10 @@ var require_proxy_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 			};
 			return this.#client[kDispatch$1](opts, handler);
 		}
-		async [kClose$4]() {
+		[kClose$4]() {
 			return this.#client.close();
 		}
-		async [kDestroy$2](err) {
+		[kDestroy$2](err) {
 			return this.#client.destroy(err);
 		}
 	};
@@ -7693,13 +7964,11 @@ var require_proxy_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 			else if (opts instanceof URL) return opts;
 			else return new URL(opts.uri);
 		}
-		async [kClose$4]() {
-			await this[kAgent$1].close();
-			await this[kClient].close();
+		[kClose$4]() {
+			return Promise.all([this[kAgent$1].close(), this[kClient].close()]);
 		}
-		async [kDestroy$2]() {
-			await this[kAgent$1].destroy();
-			await this[kClient].destroy();
+		[kDestroy$2]() {
+			return Promise.all([this[kAgent$1].destroy(), this[kClient].destroy()]);
 		}
 	};
 	/**
@@ -7767,15 +8036,19 @@ var require_env_http_proxy_agent = /* @__PURE__ */ __commonJS({ "node_modules/un
 			const url = new URL(opts.origin);
 			return this.#getProxyAgentForUrl(url).dispatch(opts, handler);
 		}
-		async [kClose$3]() {
-			await this[kNoProxyAgent].close();
-			if (!this[kHttpProxyAgent][kClosed]) await this[kHttpProxyAgent].close();
-			if (!this[kHttpsProxyAgent][kClosed]) await this[kHttpsProxyAgent].close();
+		[kClose$3]() {
+			return Promise.all([
+				this[kNoProxyAgent].close(),
+				!this[kHttpProxyAgent][kClosed] && this[kHttpProxyAgent].close(),
+				!this[kHttpsProxyAgent][kClosed] && this[kHttpsProxyAgent].close()
+			]);
 		}
-		async [kDestroy$1](err) {
-			await this[kNoProxyAgent].destroy(err);
-			if (!this[kHttpProxyAgent][kDestroyed]) await this[kHttpProxyAgent].destroy(err);
-			if (!this[kHttpsProxyAgent][kDestroyed]) await this[kHttpsProxyAgent].destroy(err);
+		[kDestroy$1](err) {
+			return Promise.all([
+				this[kNoProxyAgent].destroy(err),
+				!this[kHttpProxyAgent][kDestroyed] && this[kHttpProxyAgent].destroy(err),
+				!this[kHttpsProxyAgent][kDestroyed] && this[kHttpsProxyAgent].destroy(err)
+			]);
 		}
 		#getProxyAgentForUrl(url) {
 			let { protocol, host: hostname$1, port: port$1 } = url;
@@ -8121,7 +8394,6 @@ var require_h2c_client = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/d
 	var H2CClient$1 = class extends DispatcherBase {
 		#client = null;
 		constructor(origin, clientOpts) {
-			super();
 			if (typeof origin === "string") origin = new URL(origin);
 			if (origin.protocol !== "http:") throw new InvalidArgumentError$20("h2c-client: Only h2c protocol is supported");
 			const { connect: connect$3, maxConcurrentStreams, pipelining,...opts } = clientOpts ?? {};
@@ -8130,6 +8402,7 @@ var require_h2c_client = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/d
 			if (maxConcurrentStreams != null && Number.isInteger(maxConcurrentStreams) && maxConcurrentStreams > 0) defaultMaxConcurrentStreams = maxConcurrentStreams;
 			if (pipelining != null && Number.isInteger(pipelining) && pipelining > 0) defaultPipelining = pipelining;
 			if (defaultPipelining > defaultMaxConcurrentStreams) throw new InvalidArgumentError$20("h2c-client: pipelining cannot be greater than maxConcurrentStreams");
+			super();
 			this.#client = new Client$2(origin, {
 				...opts,
 				connect: this.#buildConnector(connect$3),
@@ -8179,11 +8452,11 @@ var require_h2c_client = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/d
 		dispatch(opts, handler) {
 			return this.#client.dispatch(opts, handler);
 		}
-		async [kClose$2]() {
-			await this.#client.close();
+		[kClose$2]() {
+			return this.#client.close();
 		}
-		async [kDestroy]() {
-			await this.#client.destroy();
+		[kDestroy]() {
+			return this.#client.destroy();
 		}
 	};
 	module.exports = H2CClient$1;
@@ -8400,13 +8673,13 @@ var require_readable = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/api
 		* @param {AbortSignal} [opts.signal] An AbortSignal to cancel the dump.
 		* @returns {Promise<null>}
 		*/
-		async dump(opts) {
+		dump(opts) {
 			const signal = opts?.signal;
-			if (signal != null && (typeof signal !== "object" || !("aborted" in signal))) throw new InvalidArgumentError$19("signal must be an AbortSignal");
+			if (signal != null && (typeof signal !== "object" || !("aborted" in signal))) return Promise.reject(new InvalidArgumentError$19("signal must be an AbortSignal"));
 			const limit = opts?.limit && Number.isFinite(opts.limit) ? opts.limit : 128 * 1024;
-			signal?.throwIfAborted();
-			if (this._readableState.closeEmitted) return null;
-			return await new Promise((resolve$1, reject) => {
+			if (signal?.aborted) return Promise.reject(signal.reason ?? new AbortError$1());
+			if (this._readableState.closeEmitted) return Promise.resolve(null);
+			return new Promise((resolve$1, reject) => {
 				if (this[kContentLength$1] && this[kContentLength$1] > limit || this[kBytesRead] > limit) this.destroy(new AbortError$1());
 				if (signal) {
 					const onAbort = () => {
@@ -8682,14 +8955,22 @@ var require_api_request = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 			}
 			this.callback = null;
 			this.res = res;
-			if (callback !== null) this.runInAsyncScope(callback, null, null, {
-				statusCode,
-				headers,
-				trailers: this.trailers,
-				opaque,
-				body: res,
-				context
-			});
+			if (callback !== null) try {
+				this.runInAsyncScope(callback, null, null, {
+					statusCode,
+					headers,
+					trailers: this.trailers,
+					opaque,
+					body: res,
+					context
+				});
+			} catch (err) {
+				this.res = null;
+				util$11.destroy(res.on("error", noop$4), err);
+				queueMicrotask(() => {
+					throw err;
+				});
+			}
 		}
 		onData(chunk) {
 			return this.res.push(chunk);
@@ -9259,6 +9540,7 @@ var require_api = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/api/inde
 //#region node_modules/undici/lib/mock/mock-errors.js
 var require_mock_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/mock/mock-errors.js": ((exports, module) => {
 	const { UndiciError: UndiciError$3 } = require_errors();
+	const kMockNotMatchedError = Symbol.for("undici.error.UND_MOCK_ERR_MOCK_NOT_MATCHED");
 	/**
 	* The request does not match any registered mock dispatches.
 	*/
@@ -9268,6 +9550,12 @@ var require_mock_errors = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 			this.name = "MockNotMatchedError";
 			this.message = message || "The request does not match any registered mock dispatches";
 			this.code = "UND_MOCK_ERR_MOCK_NOT_MATCHED";
+		}
+		static [Symbol.hasInstance](instance) {
+			return instance && instance[kMockNotMatchedError] === true;
+		}
+		get [kMockNotMatchedError]() {
+			return true;
 		}
 	};
 	module.exports = { MockNotMatchedError: MockNotMatchedError$1 };
@@ -9500,7 +9788,7 @@ var require_mock_utils = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/m
 			...mockDispatch$1.data,
 			...mockDispatch$1.data.callback(opts)
 		};
-		const { data: { statusCode, data, headers, trailers, error }, delay: delay$2, persist } = mockDispatch$1;
+		const { data: { statusCode, data, headers, trailers, error }, delay, persist } = mockDispatch$1;
 		const { timesInvoked, times } = mockDispatch$1;
 		mockDispatch$1.consumed = !persist && timesInvoked >= times;
 		mockDispatch$1.pending = timesInvoked < times;
@@ -9509,9 +9797,9 @@ var require_mock_utils = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/m
 			handler.onError(error);
 			return true;
 		}
-		if (typeof delay$2 === "number" && delay$2 > 0) setTimeout(() => {
+		if (typeof delay === "number" && delay > 0) setTimeout(() => {
 			handleReply(this[kDispatches$4]);
-		}, delay$2);
+		}, delay);
 		else handleReply(this[kDispatches$4]);
 		function handleReply(mockDispatches, _data = data) {
 			const optsHeaders = Array.isArray(opts.headers) ? buildHeadersFromArray(opts.headers) : opts.headers;
@@ -9543,7 +9831,7 @@ var require_mock_utils = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/m
 			if (agent.isMockActive) try {
 				mockDispatch.call(this, opts, handler);
 			} catch (error) {
-				if (error instanceof MockNotMatchedError) {
+				if (error.code === "UND_MOCK_ERR_MOCK_NOT_MATCHED") {
 					const netConnect = agent[kGetNetConnect$1]();
 					if (netConnect === false) throw new MockNotMatchedError(`${error.message}: subsequent request to origin ${origin} was not allowed (net.connect disabled)`);
 					if (checkNetConnect(netConnect, origin)) originalDispatch.call(this, opts, handler);
@@ -9560,12 +9848,11 @@ var require_mock_utils = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/m
 		return false;
 	}
 	function buildAndValidateMockOptions$1(opts) {
-		if (opts) {
-			const { agent,...mockOptions } = opts;
-			if ("enableCallHistory" in mockOptions && typeof mockOptions.enableCallHistory !== "boolean") throw new InvalidArgumentError$13("options.enableCallHistory must to be a boolean");
-			if ("acceptNonStandardSearchParameters" in mockOptions && typeof mockOptions.acceptNonStandardSearchParameters !== "boolean") throw new InvalidArgumentError$13("options.acceptNonStandardSearchParameters must to be a boolean");
-			return mockOptions;
-		}
+		const { agent,...mockOptions } = opts;
+		if ("enableCallHistory" in mockOptions && typeof mockOptions.enableCallHistory !== "boolean") throw new InvalidArgumentError$13("options.enableCallHistory must to be a boolean");
+		if ("acceptNonStandardSearchParameters" in mockOptions && typeof mockOptions.acceptNonStandardSearchParameters !== "boolean") throw new InvalidArgumentError$13("options.acceptNonStandardSearchParameters must to be a boolean");
+		if ("ignoreTrailingSlash" in mockOptions && typeof mockOptions.ignoreTrailingSlash !== "boolean") throw new InvalidArgumentError$13("options.ignoreTrailingSlash must to be a boolean");
+		return mockOptions;
 	}
 	module.exports = {
 		getResponseData: getResponseData$1,
@@ -10041,14 +10328,14 @@ var require_mock_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/m
 	const PendingInterceptorsFormatter = require_pending_interceptors_formatter();
 	const { MockCallHistory: MockCallHistory$1 } = require_mock_call_history();
 	var MockAgent$2 = class extends Dispatcher$1 {
-		constructor(opts) {
+		constructor(opts = {}) {
 			super(opts);
 			const mockOptions = buildAndValidateMockOptions(opts);
 			this[kNetConnect] = true;
 			this[kIsMockActive] = true;
-			this[kMockAgentIsCallHistoryEnabled] = mockOptions?.enableCallHistory ?? false;
-			this[kMockAgentAcceptsNonStandardSearchParameters] = mockOptions?.acceptNonStandardSearchParameters ?? false;
-			this[kIgnoreTrailingSlash] = mockOptions?.ignoreTrailingSlash ?? false;
+			this[kMockAgentIsCallHistoryEnabled] = mockOptions.enableCallHistory ?? false;
+			this[kMockAgentAcceptsNonStandardSearchParameters] = mockOptions.acceptNonStandardSearchParameters ?? false;
+			this[kIgnoreTrailingSlash] = mockOptions.ignoreTrailingSlash ?? false;
 			if (opts?.agent && typeof opts.agent.dispatch !== "function") throw new InvalidArgumentError$8("Argument opts.agent must implement Agent");
 			const agent = opts?.agent ? opts.agent : new Agent$3(opts);
 			this[kAgent] = agent;
@@ -10984,9 +11271,22 @@ var require_global = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/globa
 	function getGlobalDispatcher$3() {
 		return globalThis[globalDispatcher];
 	}
+	const installedExports = [
+		"fetch",
+		"Headers",
+		"Response",
+		"Request",
+		"FormData",
+		"WebSocket",
+		"CloseEvent",
+		"ErrorEvent",
+		"MessageEvent",
+		"EventSource"
+	];
 	module.exports = {
 		setGlobalDispatcher: setGlobalDispatcher$1,
-		getGlobalDispatcher: getGlobalDispatcher$3
+		getGlobalDispatcher: getGlobalDispatcher$3,
+		installedExports
 	};
 }) });
 
@@ -11816,65 +12116,17 @@ var require_cache$2 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/util
 //#endregion
 //#region node_modules/undici/lib/util/date.js
 var require_date = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/util/date.js": ((exports, module) => {
-	const IMF_DAYS = [
-		"mon",
-		"tue",
-		"wed",
-		"thu",
-		"fri",
-		"sat",
-		"sun"
-	];
-	const IMF_SPACES = [
-		4,
-		7,
-		11,
-		16,
-		25
-	];
-	const IMF_MONTHS = [
-		"jan",
-		"feb",
-		"mar",
-		"apr",
-		"may",
-		"jun",
-		"jul",
-		"aug",
-		"sep",
-		"oct",
-		"nov",
-		"dec"
-	];
-	const IMF_COLONS = [19, 22];
-	const ASCTIME_SPACES = [
-		3,
-		7,
-		10,
-		19
-	];
-	const RFC850_DAYS = [
-		"monday",
-		"tuesday",
-		"wednesday",
-		"thursday",
-		"friday",
-		"saturday",
-		"sunday"
-	];
 	/**
 	* @see https://www.rfc-editor.org/rfc/rfc9110.html#name-date-time-formats
 	*
 	* @param {string} date
-	* @param {Date} [now]
 	* @returns {Date | undefined}
 	*/
-	function parseHttpDate$1(date, now) {
-		date = date.toLowerCase();
+	function parseHttpDate$1(date) {
 		switch (date[3]) {
 			case ",": return parseImfDate(date);
 			case " ": return parseAscTimeDate(date);
-			default: return parseRfc850Date(date, now);
+			default: return parseRfc850Date(date);
 		}
 	}
 	/**
@@ -11884,30 +12136,95 @@ var require_date = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/util/da
 	* @returns {Date | undefined}
 	*/
 	function parseImfDate(date) {
-		if (date.length !== 29) return;
-		if (!date.endsWith("gmt")) return;
-		for (const spaceInx of IMF_SPACES) if (date[spaceInx] !== " ") return;
-		for (const colonIdx of IMF_COLONS) if (date[colonIdx] !== ":") return;
-		const dayName = date.substring(0, 3);
-		if (!IMF_DAYS.includes(dayName)) return;
-		const dayString = date.substring(5, 7);
-		const day = Number.parseInt(dayString);
-		if (isNaN(day) || day < 10 && dayString[0] !== "0") return;
-		const month = date.substring(8, 11);
-		const monthIdx = IMF_MONTHS.indexOf(month);
-		if (monthIdx === -1) return;
-		const year = Number.parseInt(date.substring(12, 16));
-		if (isNaN(year)) return;
-		const hourString = date.substring(17, 19);
-		const hour = Number.parseInt(hourString);
-		if (isNaN(hour) || hour < 10 && hourString[0] !== "0") return;
-		const minuteString = date.substring(20, 22);
-		const minute = Number.parseInt(minuteString);
-		if (isNaN(minute) || minute < 10 && minuteString[0] !== "0") return;
-		const secondString = date.substring(23, 25);
-		const second = Number.parseInt(secondString);
-		if (isNaN(second) || second < 10 && secondString[0] !== "0") return;
-		return new Date(Date.UTC(year, monthIdx, day, hour, minute, second));
+		if (date.length !== 29 || date[4] !== " " || date[7] !== " " || date[11] !== " " || date[16] !== " " || date[19] !== ":" || date[22] !== ":" || date[25] !== " " || date[26] !== "G" || date[27] !== "M" || date[28] !== "T") return;
+		let weekday = -1;
+		if (date[0] === "S" && date[1] === "u" && date[2] === "n") weekday = 0;
+		else if (date[0] === "M" && date[1] === "o" && date[2] === "n") weekday = 1;
+		else if (date[0] === "T" && date[1] === "u" && date[2] === "e") weekday = 2;
+		else if (date[0] === "W" && date[1] === "e" && date[2] === "d") weekday = 3;
+		else if (date[0] === "T" && date[1] === "h" && date[2] === "u") weekday = 4;
+		else if (date[0] === "F" && date[1] === "r" && date[2] === "i") weekday = 5;
+		else if (date[0] === "S" && date[1] === "a" && date[2] === "t") weekday = 6;
+		else return;
+		let day = 0;
+		if (date[5] === "0") {
+			const code = date.charCodeAt(6);
+			if (code < 49 || code > 57) return;
+			day = code - 48;
+		} else {
+			const code1 = date.charCodeAt(5);
+			if (code1 < 49 || code1 > 51) return;
+			const code2 = date.charCodeAt(6);
+			if (code2 < 48 || code2 > 57) return;
+			day = (code1 - 48) * 10 + (code2 - 48);
+		}
+		let monthIdx = -1;
+		if (date[8] === "J" && date[9] === "a" && date[10] === "n") monthIdx = 0;
+		else if (date[8] === "F" && date[9] === "e" && date[10] === "b") monthIdx = 1;
+		else if (date[8] === "M" && date[9] === "a") if (date[10] === "r") monthIdx = 2;
+		else if (date[10] === "y") monthIdx = 4;
+		else return;
+		else if (date[8] === "J") if (date[9] === "a" && date[10] === "n") monthIdx = 0;
+		else if (date[9] === "u") if (date[10] === "n") monthIdx = 5;
+		else if (date[10] === "l") monthIdx = 6;
+		else return;
+		else return;
+		else if (date[8] === "A") if (date[9] === "p" && date[10] === "r") monthIdx = 3;
+		else if (date[9] === "u" && date[10] === "g") monthIdx = 7;
+		else return;
+		else if (date[8] === "S" && date[9] === "e" && date[10] === "p") monthIdx = 8;
+		else if (date[8] === "O" && date[9] === "c" && date[10] === "t") monthIdx = 9;
+		else if (date[8] === "N" && date[9] === "o" && date[10] === "v") monthIdx = 10;
+		else if (date[8] === "D" && date[9] === "e" && date[10] === "c") monthIdx = 11;
+		else return;
+		const yearDigit1 = date.charCodeAt(12);
+		if (yearDigit1 < 48 || yearDigit1 > 57) return;
+		const yearDigit2 = date.charCodeAt(13);
+		if (yearDigit2 < 48 || yearDigit2 > 57) return;
+		const yearDigit3 = date.charCodeAt(14);
+		if (yearDigit3 < 48 || yearDigit3 > 57) return;
+		const yearDigit4 = date.charCodeAt(15);
+		if (yearDigit4 < 48 || yearDigit4 > 57) return;
+		const year = (yearDigit1 - 48) * 1e3 + (yearDigit2 - 48) * 100 + (yearDigit3 - 48) * 10 + (yearDigit4 - 48);
+		let hour = 0;
+		if (date[17] === "0") {
+			const code = date.charCodeAt(18);
+			if (code < 48 || code > 57) return;
+			hour = code - 48;
+		} else {
+			const code1 = date.charCodeAt(17);
+			if (code1 < 48 || code1 > 50) return;
+			const code2 = date.charCodeAt(18);
+			if (code2 < 48 || code2 > 57) return;
+			if (code1 === 50 && code2 > 51) return;
+			hour = (code1 - 48) * 10 + (code2 - 48);
+		}
+		let minute = 0;
+		if (date[20] === "0") {
+			const code = date.charCodeAt(21);
+			if (code < 48 || code > 57) return;
+			minute = code - 48;
+		} else {
+			const code1 = date.charCodeAt(20);
+			if (code1 < 48 || code1 > 53) return;
+			const code2 = date.charCodeAt(21);
+			if (code2 < 48 || code2 > 57) return;
+			minute = (code1 - 48) * 10 + (code2 - 48);
+		}
+		let second = 0;
+		if (date[23] === "0") {
+			const code = date.charCodeAt(24);
+			if (code < 48 || code > 57) return;
+			second = code - 48;
+		} else {
+			const code1 = date.charCodeAt(23);
+			if (code1 < 48 || code1 > 53) return;
+			const code2 = date.charCodeAt(24);
+			if (code2 < 48 || code2 > 57) return;
+			second = (code1 - 48) * 10 + (code2 - 48);
+		}
+		const result = new Date(Date.UTC(year, monthIdx, day, hour, minute, second));
+		return result.getUTCDay() === weekday ? result : void 0;
 	}
 	/**
 	* @see https://httpwg.org/specs/rfc9110.html#obsolete.date.formats
@@ -11916,67 +12233,203 @@ var require_date = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/util/da
 	* @returns {Date | undefined}
 	*/
 	function parseAscTimeDate(date) {
-		if (date.length !== 24) return;
-		for (const spaceIdx of ASCTIME_SPACES) if (date[spaceIdx] !== " ") return;
-		const dayName = date.substring(0, 3);
-		if (!IMF_DAYS.includes(dayName)) return;
-		const month = date.substring(4, 7);
-		const monthIdx = IMF_MONTHS.indexOf(month);
-		if (monthIdx === -1) return;
-		const dayString = date.substring(8, 10);
-		const day = Number.parseInt(dayString);
-		if (isNaN(day) || day < 10 && dayString[0] !== " ") return;
-		const hourString = date.substring(11, 13);
-		const hour = Number.parseInt(hourString);
-		if (isNaN(hour) || hour < 10 && hourString[0] !== "0") return;
-		const minuteString = date.substring(14, 16);
-		const minute = Number.parseInt(minuteString);
-		if (isNaN(minute) || minute < 10 && minuteString[0] !== "0") return;
-		const secondString = date.substring(17, 19);
-		const second = Number.parseInt(secondString);
-		if (isNaN(second) || second < 10 && secondString[0] !== "0") return;
-		const year = Number.parseInt(date.substring(20, 24));
-		if (isNaN(year)) return;
-		return new Date(Date.UTC(year, monthIdx, day, hour, minute, second));
+		if (date.length !== 24 || date[7] !== " " || date[10] !== " " || date[19] !== " ") return;
+		let weekday = -1;
+		if (date[0] === "S" && date[1] === "u" && date[2] === "n") weekday = 0;
+		else if (date[0] === "M" && date[1] === "o" && date[2] === "n") weekday = 1;
+		else if (date[0] === "T" && date[1] === "u" && date[2] === "e") weekday = 2;
+		else if (date[0] === "W" && date[1] === "e" && date[2] === "d") weekday = 3;
+		else if (date[0] === "T" && date[1] === "h" && date[2] === "u") weekday = 4;
+		else if (date[0] === "F" && date[1] === "r" && date[2] === "i") weekday = 5;
+		else if (date[0] === "S" && date[1] === "a" && date[2] === "t") weekday = 6;
+		else return;
+		let monthIdx = -1;
+		if (date[4] === "J" && date[5] === "a" && date[6] === "n") monthIdx = 0;
+		else if (date[4] === "F" && date[5] === "e" && date[6] === "b") monthIdx = 1;
+		else if (date[4] === "M" && date[5] === "a") if (date[6] === "r") monthIdx = 2;
+		else if (date[6] === "y") monthIdx = 4;
+		else return;
+		else if (date[4] === "J") if (date[5] === "a" && date[6] === "n") monthIdx = 0;
+		else if (date[5] === "u") if (date[6] === "n") monthIdx = 5;
+		else if (date[6] === "l") monthIdx = 6;
+		else return;
+		else return;
+		else if (date[4] === "A") if (date[5] === "p" && date[6] === "r") monthIdx = 3;
+		else if (date[5] === "u" && date[6] === "g") monthIdx = 7;
+		else return;
+		else if (date[4] === "S" && date[5] === "e" && date[6] === "p") monthIdx = 8;
+		else if (date[4] === "O" && date[5] === "c" && date[6] === "t") monthIdx = 9;
+		else if (date[4] === "N" && date[5] === "o" && date[6] === "v") monthIdx = 10;
+		else if (date[4] === "D" && date[5] === "e" && date[6] === "c") monthIdx = 11;
+		else return;
+		let day = 0;
+		if (date[8] === " ") {
+			const code = date.charCodeAt(9);
+			if (code < 49 || code > 57) return;
+			day = code - 48;
+		} else {
+			const code1 = date.charCodeAt(8);
+			if (code1 < 49 || code1 > 51) return;
+			const code2 = date.charCodeAt(9);
+			if (code2 < 48 || code2 > 57) return;
+			day = (code1 - 48) * 10 + (code2 - 48);
+		}
+		let hour = 0;
+		if (date[11] === "0") {
+			const code = date.charCodeAt(12);
+			if (code < 48 || code > 57) return;
+			hour = code - 48;
+		} else {
+			const code1 = date.charCodeAt(11);
+			if (code1 < 48 || code1 > 50) return;
+			const code2 = date.charCodeAt(12);
+			if (code2 < 48 || code2 > 57) return;
+			if (code1 === 50 && code2 > 51) return;
+			hour = (code1 - 48) * 10 + (code2 - 48);
+		}
+		let minute = 0;
+		if (date[14] === "0") {
+			const code = date.charCodeAt(15);
+			if (code < 48 || code > 57) return;
+			minute = code - 48;
+		} else {
+			const code1 = date.charCodeAt(14);
+			if (code1 < 48 || code1 > 53) return;
+			const code2 = date.charCodeAt(15);
+			if (code2 < 48 || code2 > 57) return;
+			minute = (code1 - 48) * 10 + (code2 - 48);
+		}
+		let second = 0;
+		if (date[17] === "0") {
+			const code = date.charCodeAt(18);
+			if (code < 48 || code > 57) return;
+			second = code - 48;
+		} else {
+			const code1 = date.charCodeAt(17);
+			if (code1 < 48 || code1 > 53) return;
+			const code2 = date.charCodeAt(18);
+			if (code2 < 48 || code2 > 57) return;
+			second = (code1 - 48) * 10 + (code2 - 48);
+		}
+		const yearDigit1 = date.charCodeAt(20);
+		if (yearDigit1 < 48 || yearDigit1 > 57) return;
+		const yearDigit2 = date.charCodeAt(21);
+		if (yearDigit2 < 48 || yearDigit2 > 57) return;
+		const yearDigit3 = date.charCodeAt(22);
+		if (yearDigit3 < 48 || yearDigit3 > 57) return;
+		const yearDigit4 = date.charCodeAt(23);
+		if (yearDigit4 < 48 || yearDigit4 > 57) return;
+		const year = (yearDigit1 - 48) * 1e3 + (yearDigit2 - 48) * 100 + (yearDigit3 - 48) * 10 + (yearDigit4 - 48);
+		const result = new Date(Date.UTC(year, monthIdx, day, hour, minute, second));
+		return result.getUTCDay() === weekday ? result : void 0;
 	}
 	/**
 	* @see https://httpwg.org/specs/rfc9110.html#obsolete.date.formats
 	*
 	* @param {string} date
-	* @param {Date} [now]
 	* @returns {Date | undefined}
 	*/
-	function parseRfc850Date(date, now = /* @__PURE__ */ new Date()) {
-		if (!date.endsWith("gmt")) return;
-		const commaIndex = date.indexOf(",");
-		if (commaIndex === -1) return;
-		if (date.length - commaIndex - 1 !== 23) return;
-		const dayName = date.substring(0, commaIndex);
-		if (!RFC850_DAYS.includes(dayName)) return;
-		if (date[commaIndex + 1] !== " " || date[commaIndex + 4] !== "-" || date[commaIndex + 8] !== "-" || date[commaIndex + 11] !== " " || date[commaIndex + 14] !== ":" || date[commaIndex + 17] !== ":" || date[commaIndex + 20] !== " ") return;
-		const dayString = date.substring(commaIndex + 2, commaIndex + 4);
-		const day = Number.parseInt(dayString);
-		if (isNaN(day) || day < 10 && dayString[0] !== "0") return;
-		const month = date.substring(commaIndex + 5, commaIndex + 8);
-		const monthIdx = IMF_MONTHS.indexOf(month);
-		if (monthIdx === -1) return;
-		let year = Number.parseInt(date.substring(commaIndex + 9, commaIndex + 11));
-		if (isNaN(year)) return;
-		const currentYear = now.getUTCFullYear();
-		const currentDecade = currentYear % 100;
-		const currentCentury = Math.floor(currentYear / 100);
-		if (year > currentDecade && year - currentDecade >= 50) year += (currentCentury - 1) * 100;
-		else year += currentCentury * 100;
-		const hourString = date.substring(commaIndex + 12, commaIndex + 14);
-		const hour = Number.parseInt(hourString);
-		if (isNaN(hour) || hour < 10 && hourString[0] !== "0") return;
-		const minuteString = date.substring(commaIndex + 15, commaIndex + 17);
-		const minute = Number.parseInt(minuteString);
-		if (isNaN(minute) || minute < 10 && minuteString[0] !== "0") return;
-		const secondString = date.substring(commaIndex + 18, commaIndex + 20);
-		const second = Number.parseInt(secondString);
-		if (isNaN(second) || second < 10 && secondString[0] !== "0") return;
-		return new Date(Date.UTC(year, monthIdx, day, hour, minute, second));
+	function parseRfc850Date(date) {
+		let commaIndex = -1;
+		let weekday = -1;
+		if (date[0] === "S") {
+			if (date[1] === "u" && date[2] === "n" && date[3] === "d" && date[4] === "a" && date[5] === "y") {
+				weekday = 0;
+				commaIndex = 6;
+			} else if (date[1] === "a" && date[2] === "t" && date[3] === "u" && date[4] === "r" && date[5] === "d" && date[6] === "a" && date[7] === "y") {
+				weekday = 6;
+				commaIndex = 8;
+			}
+		} else if (date[0] === "M" && date[1] === "o" && date[2] === "n" && date[3] === "d" && date[4] === "a" && date[5] === "y") {
+			weekday = 1;
+			commaIndex = 6;
+		} else if (date[0] === "T") {
+			if (date[1] === "u" && date[2] === "e" && date[3] === "s" && date[4] === "d" && date[5] === "a" && date[6] === "y") {
+				weekday = 2;
+				commaIndex = 7;
+			} else if (date[1] === "h" && date[2] === "u" && date[3] === "r" && date[4] === "s" && date[5] === "d" && date[6] === "a" && date[7] === "y") {
+				weekday = 4;
+				commaIndex = 8;
+			}
+		} else if (date[0] === "W" && date[1] === "e" && date[2] === "d" && date[3] === "n" && date[4] === "e" && date[5] === "s" && date[6] === "d" && date[7] === "a" && date[8] === "y") {
+			weekday = 3;
+			commaIndex = 9;
+		} else if (date[0] === "F" && date[1] === "r" && date[2] === "i" && date[3] === "d" && date[4] === "a" && date[5] === "y") {
+			weekday = 5;
+			commaIndex = 6;
+		} else return;
+		if (date[commaIndex] !== "," || date.length - commaIndex - 1 !== 23 || date[commaIndex + 1] !== " " || date[commaIndex + 4] !== "-" || date[commaIndex + 8] !== "-" || date[commaIndex + 11] !== " " || date[commaIndex + 14] !== ":" || date[commaIndex + 17] !== ":" || date[commaIndex + 20] !== " " || date[commaIndex + 21] !== "G" || date[commaIndex + 22] !== "M" || date[commaIndex + 23] !== "T") return;
+		let day = 0;
+		if (date[commaIndex + 2] === "0") {
+			const code = date.charCodeAt(commaIndex + 3);
+			if (code < 49 || code > 57) return;
+			day = code - 48;
+		} else {
+			const code1 = date.charCodeAt(commaIndex + 2);
+			if (code1 < 49 || code1 > 51) return;
+			const code2 = date.charCodeAt(commaIndex + 3);
+			if (code2 < 48 || code2 > 57) return;
+			day = (code1 - 48) * 10 + (code2 - 48);
+		}
+		let monthIdx = -1;
+		if (date[commaIndex + 5] === "J" && date[commaIndex + 6] === "a" && date[commaIndex + 7] === "n") monthIdx = 0;
+		else if (date[commaIndex + 5] === "F" && date[commaIndex + 6] === "e" && date[commaIndex + 7] === "b") monthIdx = 1;
+		else if (date[commaIndex + 5] === "M" && date[commaIndex + 6] === "a" && date[commaIndex + 7] === "r") monthIdx = 2;
+		else if (date[commaIndex + 5] === "A" && date[commaIndex + 6] === "p" && date[commaIndex + 7] === "r") monthIdx = 3;
+		else if (date[commaIndex + 5] === "M" && date[commaIndex + 6] === "a" && date[commaIndex + 7] === "y") monthIdx = 4;
+		else if (date[commaIndex + 5] === "J" && date[commaIndex + 6] === "u" && date[commaIndex + 7] === "n") monthIdx = 5;
+		else if (date[commaIndex + 5] === "J" && date[commaIndex + 6] === "u" && date[commaIndex + 7] === "l") monthIdx = 6;
+		else if (date[commaIndex + 5] === "A" && date[commaIndex + 6] === "u" && date[commaIndex + 7] === "g") monthIdx = 7;
+		else if (date[commaIndex + 5] === "S" && date[commaIndex + 6] === "e" && date[commaIndex + 7] === "p") monthIdx = 8;
+		else if (date[commaIndex + 5] === "O" && date[commaIndex + 6] === "c" && date[commaIndex + 7] === "t") monthIdx = 9;
+		else if (date[commaIndex + 5] === "N" && date[commaIndex + 6] === "o" && date[commaIndex + 7] === "v") monthIdx = 10;
+		else if (date[commaIndex + 5] === "D" && date[commaIndex + 6] === "e" && date[commaIndex + 7] === "c") monthIdx = 11;
+		else return;
+		const yearDigit1 = date.charCodeAt(commaIndex + 9);
+		if (yearDigit1 < 48 || yearDigit1 > 57) return;
+		const yearDigit2 = date.charCodeAt(commaIndex + 10);
+		if (yearDigit2 < 48 || yearDigit2 > 57) return;
+		let year = (yearDigit1 - 48) * 10 + (yearDigit2 - 48);
+		year += year < 70 ? 2e3 : 1900;
+		let hour = 0;
+		if (date[commaIndex + 12] === "0") {
+			const code = date.charCodeAt(commaIndex + 13);
+			if (code < 48 || code > 57) return;
+			hour = code - 48;
+		} else {
+			const code1 = date.charCodeAt(commaIndex + 12);
+			if (code1 < 48 || code1 > 50) return;
+			const code2 = date.charCodeAt(commaIndex + 13);
+			if (code2 < 48 || code2 > 57) return;
+			if (code1 === 50 && code2 > 51) return;
+			hour = (code1 - 48) * 10 + (code2 - 48);
+		}
+		let minute = 0;
+		if (date[commaIndex + 15] === "0") {
+			const code = date.charCodeAt(commaIndex + 16);
+			if (code < 48 || code > 57) return;
+			minute = code - 48;
+		} else {
+			const code1 = date.charCodeAt(commaIndex + 15);
+			if (code1 < 48 || code1 > 53) return;
+			const code2 = date.charCodeAt(commaIndex + 16);
+			if (code2 < 48 || code2 > 57) return;
+			minute = (code1 - 48) * 10 + (code2 - 48);
+		}
+		let second = 0;
+		if (date[commaIndex + 18] === "0") {
+			const code = date.charCodeAt(commaIndex + 19);
+			if (code < 48 || code > 57) return;
+			second = code - 48;
+		} else {
+			const code1 = date.charCodeAt(commaIndex + 18);
+			if (code1 < 48 || code1 > 53) return;
+			const code2 = date.charCodeAt(commaIndex + 19);
+			if (code2 < 48 || code2 > 57) return;
+			second = (code1 - 48) * 10 + (code2 - 48);
+		}
+		const result = new Date(Date.UTC(year, monthIdx, day, hour, minute, second));
+		return result.getUTCDay() === weekday ? result : void 0;
 	}
 	module.exports = { parseHttpDate: parseHttpDate$1 };
 }) });
@@ -12533,6 +12986,18 @@ var require_cache$1 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/inte
 		return false;
 	}
 	/**
+	* Check if we're within the stale-while-revalidate window for a stale response
+	* @param {import('../../types/cache-interceptor.d.ts').default.GetResult} result
+	* @returns {boolean}
+	*/
+	function withinStaleWhileRevalidateWindow(result) {
+		const staleWhileRevalidate = result.cacheControlDirectives?.["stale-while-revalidate"];
+		if (!staleWhileRevalidate) return false;
+		const now = Date.now();
+		const staleWhileRevalidateExpiry = result.staleAt + staleWhileRevalidate * 1e3;
+		return now <= staleWhileRevalidateExpiry;
+	}
+	/**
 	* @param {DispatchFn} dispatch
 	* @param {import('../../types/cache-interceptor.d.ts').default.CacheHandlerOptions} globalOpts
 	* @param {import('../../types/cache-interceptor.d.ts').default.CacheKey} cacheKey
@@ -12630,6 +13095,32 @@ var require_cache$1 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/inte
 		if (reqCacheControl?.["max-age"] && age >= reqCacheControl["max-age"]) return dispatch(opts, handler);
 		if (needsRevalidation(result, reqCacheControl)) {
 			if (util$4.isStream(opts.body) && util$4.bodyLength(opts.body) !== 0) return dispatch(opts, new CacheHandler(globalOpts, cacheKey, handler));
+			if (withinStaleWhileRevalidateWindow(result)) {
+				sendCachedValue(handler, opts, result, age, null, true);
+				queueMicrotask(() => {
+					let headers$1 = {
+						...opts.headers,
+						"if-modified-since": new Date(result.cachedAt).toUTCString()
+					};
+					if (result.etag) headers$1["if-none-match"] = result.etag;
+					if (result.vary) headers$1 = {
+						...headers$1,
+						...result.vary
+					};
+					dispatch({
+						...opts,
+						headers: headers$1
+					}, new CacheHandler(globalOpts, cacheKey, {
+						onRequestStart() {},
+						onRequestUpgrade() {},
+						onResponseStart() {},
+						onResponseData() {},
+						onResponseEnd() {},
+						onResponseError() {}
+					}));
+				});
+				return true;
+			}
 			let withinStaleIfErrorThreshold = false;
 			const staleIfErrorExpiry = result.cacheControlDirectives["stale-if-error"] ?? reqCacheControl?.["stale-if-error"];
 			if (staleIfErrorExpiry) withinStaleIfErrorThreshold = now < result.staleAt + staleIfErrorExpiry * 1e3;
@@ -13626,7 +14117,6 @@ var require_response = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web
 	const { URLSerializer: URLSerializer$3 } = require_data_url();
 	const { kConstruct: kConstruct$6 } = require_symbols();
 	const assert$8 = __require("node:assert");
-	const { isArrayBuffer: isArrayBuffer$2 } = nodeUtil$1.types;
 	const textEncoder = new TextEncoder("utf-8");
 	var Response = class Response {
 		/** @type {Headers} */
@@ -13667,7 +14157,7 @@ var require_response = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web
 		constructor(body = null, init = void 0) {
 			webidl$10.util.markAsUncloneable(this);
 			if (body === kConstruct$6) return;
-			if (body !== null) body = webidl$10.converters.BodyInit(body);
+			if (body !== null) body = webidl$10.converters.BodyInit(body, "Response", "body");
 			init = webidl$10.converters.ResponseInit(init);
 			this.#state = makeResponse$1({});
 			this.#headers = new Headers$3(kConstruct$6);
@@ -13920,7 +14410,7 @@ var require_response = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web
 	webidl$10.converters.XMLHttpRequestBodyInit = function(V, prefix, name) {
 		if (typeof V === "string") return webidl$10.converters.USVString(V, prefix, name);
 		if (webidl$10.is.Blob(V)) return V;
-		if (ArrayBuffer.isView(V) || isArrayBuffer$2(V)) return V;
+		if (webidl$10.is.BufferSource(V)) return V;
 		if (webidl$10.is.FormData(V)) return V;
 		if (webidl$10.is.URLSearchParams(V)) return V;
 		return webidl$10.converters.DOMString(V, prefix, name);
@@ -14728,6 +15218,7 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/fe
 	const { STATUS_CODES } = __require("node:http");
 	const { bytesMatch } = require_subresource_integrity();
 	const { createDeferredPromise: createDeferredPromise$2 } = require_promise();
+	const hasZstd = typeof zlib.createZstdDecompress === "function";
 	const GET_OR_HEAD = ["GET", "HEAD"];
 	const defaultUserAgent = typeof __UNDICI_IS_NODE__ !== "undefined" || typeof esbuildDetection !== "undefined" ? "node" : "undici";
 	/** @type {import('buffer').resolveObjectURL} */
@@ -15322,37 +15813,38 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/fe
 				},
 				onHeaders(status, rawHeaders, resume$1, statusText) {
 					if (status < 200) return false;
-					/** @type {string[]} */
-					let codings = [];
 					const headersList = new HeadersList();
 					for (let i = 0; i < rawHeaders.length; i += 2) headersList.append(bufferToLowerCasedHeaderName(rawHeaders[i]), rawHeaders[i + 1].toString("latin1"), true);
-					const contentEncoding = headersList.get("content-encoding", true);
-					if (contentEncoding) codings = contentEncoding.toLowerCase().split(",").map((x) => x.trim());
 					const location = headersList.get("location", true);
 					this.body = new Readable({ read: resume$1 });
-					const decoders = [];
 					const willFollow = location && request$2.redirect === "follow" && redirectStatusSet.has(status);
-					if (codings.length !== 0 && request$2.method !== "HEAD" && request$2.method !== "CONNECT" && !nullBodyStatus.includes(status) && !willFollow) for (let i = codings.length - 1; i >= 0; --i) {
-						const coding = codings[i];
-						if (coding === "x-gzip" || coding === "gzip") decoders.push(zlib.createGunzip({
-							flush: zlib.constants.Z_SYNC_FLUSH,
-							finishFlush: zlib.constants.Z_SYNC_FLUSH
-						}));
-						else if (coding === "deflate") decoders.push(createInflate({
-							flush: zlib.constants.Z_SYNC_FLUSH,
-							finishFlush: zlib.constants.Z_SYNC_FLUSH
-						}));
-						else if (coding === "br") decoders.push(zlib.createBrotliDecompress({
-							flush: zlib.constants.BROTLI_OPERATION_FLUSH,
-							finishFlush: zlib.constants.BROTLI_OPERATION_FLUSH
-						}));
-						else if (coding === "zstd" && typeof zlib.createZstdDecompress === "function") decoders.push(zlib.createZstdDecompress({
-							flush: zlib.constants.ZSTD_e_continue,
-							finishFlush: zlib.constants.ZSTD_e_end
-						}));
-						else {
-							decoders.length = 0;
-							break;
+					const decoders = [];
+					if (request$2.method !== "HEAD" && request$2.method !== "CONNECT" && !nullBodyStatus.includes(status) && !willFollow) {
+						const contentEncoding = headersList.get("content-encoding", true);
+						/** @type {string[]} */
+						const codings = contentEncoding ? contentEncoding.toLowerCase().split(",") : [];
+						for (let i = codings.length - 1; i >= 0; --i) {
+							const coding = codings[i].trim();
+							if (coding === "x-gzip" || coding === "gzip") decoders.push(zlib.createGunzip({
+								flush: zlib.constants.Z_SYNC_FLUSH,
+								finishFlush: zlib.constants.Z_SYNC_FLUSH
+							}));
+							else if (coding === "deflate") decoders.push(createInflate({
+								flush: zlib.constants.Z_SYNC_FLUSH,
+								finishFlush: zlib.constants.Z_SYNC_FLUSH
+							}));
+							else if (coding === "br") decoders.push(zlib.createBrotliDecompress({
+								flush: zlib.constants.BROTLI_OPERATION_FLUSH,
+								finishFlush: zlib.constants.BROTLI_OPERATION_FLUSH
+							}));
+							else if (coding === "zstd" && hasZstd) decoders.push(zlib.createZstdDecompress({
+								flush: zlib.constants.ZSTD_e_continue,
+								finishFlush: zlib.constants.ZSTD_e_end
+							}));
+							else {
+								decoders.length = 0;
+								break;
+							}
 						}
 					}
 					const onError$1 = this.onError.bind(this);
@@ -16456,7 +16948,7 @@ var require_cookies = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/
 		{
 			converter: webidl$5.sequenceConverter(webidl$5.converters.DOMString),
 			key: "unparsed",
-			defaultValue: () => new Array(0)
+			defaultValue: () => []
 		}
 	]);
 	module.exports = {
@@ -16675,7 +17167,7 @@ var require_events = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/w
 		{
 			key: "ports",
 			converter: webidl$4.converters["sequence<MessagePort>"],
-			defaultValue: () => new Array(0)
+			defaultValue: () => []
 		}
 	]);
 	webidl$4.converters.CloseEventInit = webidl$4.dictionaryConverter([
@@ -17301,8 +17793,8 @@ var require_connection = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/w
 	function failWebsocketConnection$3(handler, code, reason, cause) {
 		if (isEstablished$2(handler.readyState)) closeWebSocketConnection$2(handler, code, reason, false);
 		handler.controller.abort();
-		if (handler.socket?.destroyed === false) handler.socket.destroy();
-		handler.onFail(code, reason, cause);
+		if (!handler.socket) handler.onSocketClose();
+		else if (handler.socket.destroyed === false) handler.socket.destroy();
 	}
 	module.exports = {
 		establishWebSocketConnection: establishWebSocketConnection$2,
@@ -17737,7 +18229,7 @@ var require_sender = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/w
 //#endregion
 //#region node_modules/undici/lib/web/websocket/websocket.js
 var require_websocket = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/websocket/websocket.js": ((exports, module) => {
-	const { isArrayBuffer: isArrayBuffer$1 } = __require("node:util/types");
+	const { isArrayBuffer } = __require("node:util/types");
 	const { webidl: webidl$3 } = require_webidl();
 	const { URLSerializer } = require_data_url();
 	const { environmentSettingsObject: environmentSettingsObject$2 } = require_util$4();
@@ -17754,7 +18246,6 @@ var require_websocket = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/we
 	/**
 	* @typedef {object} Handler
 	* @property {(response: any, extensions?: string[]) => void} onConnectionEstablished
-	* @property {(code: number, reason: any) => void} onFail
 	* @property {(opcode: number, data: Buffer) => void} onMessage
 	* @property {(error: Error) => void} onParserError
 	* @property {() => void} onParserDrain
@@ -17785,7 +18276,6 @@ var require_websocket = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/we
 		/** @type {Handler} */
 		#handler = {
 			onConnectionEstablished: (response, extensions) => this.#onConnectionEstablished(response, extensions),
-			onFail: (code, reason, cause) => this.#onFail(code, reason, cause),
 			onMessage: (opcode, data) => this.#onMessage(opcode, data),
 			onParserError: (err) => failWebsocketConnection$1(this.#handler, null, err.message),
 			onParserDrain: () => this.#onParserDrain(),
@@ -17851,7 +18341,7 @@ var require_websocket = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/we
 		close(code = void 0, reason = void 0) {
 			webidl$3.brandCheck(this, WebSocket$1);
 			const prefix = "WebSocket.close";
-			if (code !== void 0) code = webidl$3.converters["unsigned short"](code, prefix, "code", { clamp: true });
+			if (code !== void 0) code = webidl$3.converters["unsigned short"](code, prefix, "code", webidl$3.attributes.Clamp);
 			if (reason !== void 0) reason = webidl$3.converters.USVString(reason);
 			code ??= null;
 			reason ??= "";
@@ -17874,7 +18364,7 @@ var require_websocket = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/we
 				this.#sendQueue.add(buffer$1, () => {
 					this.#bufferedAmount -= buffer$1.byteLength;
 				}, sendHints.text);
-			} else if (isArrayBuffer$1(data)) {
+			} else if (isArrayBuffer(data)) {
 				this.#bufferedAmount += data.byteLength;
 				this.#sendQueue.add(data, () => {
 					this.#bufferedAmount -= data.byteLength;
@@ -17918,9 +18408,10 @@ var require_websocket = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/we
 		set onopen(fn) {
 			webidl$3.brandCheck(this, WebSocket$1);
 			if (this.#events.open) this.removeEventListener("open", this.#events.open);
-			if (typeof fn === "function") {
+			const listener = webidl$3.converters.EventHandlerNonNull(fn);
+			if (listener !== null) {
+				this.addEventListener("open", listener);
 				this.#events.open = fn;
-				this.addEventListener("open", fn);
 			} else this.#events.open = null;
 		}
 		get onerror() {
@@ -17930,9 +18421,10 @@ var require_websocket = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/we
 		set onerror(fn) {
 			webidl$3.brandCheck(this, WebSocket$1);
 			if (this.#events.error) this.removeEventListener("error", this.#events.error);
-			if (typeof fn === "function") {
+			const listener = webidl$3.converters.EventHandlerNonNull(fn);
+			if (listener !== null) {
+				this.addEventListener("error", listener);
 				this.#events.error = fn;
-				this.addEventListener("error", fn);
 			} else this.#events.error = null;
 		}
 		get onclose() {
@@ -17942,9 +18434,10 @@ var require_websocket = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/we
 		set onclose(fn) {
 			webidl$3.brandCheck(this, WebSocket$1);
 			if (this.#events.close) this.removeEventListener("close", this.#events.close);
-			if (typeof fn === "function") {
+			const listener = webidl$3.converters.EventHandlerNonNull(fn);
+			if (listener !== null) {
+				this.addEventListener("close", listener);
 				this.#events.close = fn;
-				this.addEventListener("close", fn);
 			} else this.#events.close = null;
 		}
 		get onmessage() {
@@ -17954,9 +18447,10 @@ var require_websocket = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/we
 		set onmessage(fn) {
 			webidl$3.brandCheck(this, WebSocket$1);
 			if (this.#events.message) this.removeEventListener("message", this.#events.message);
-			if (typeof fn === "function") {
+			const listener = webidl$3.converters.EventHandlerNonNull(fn);
+			if (listener !== null) {
+				this.addEventListener("message", listener);
 				this.#events.message = fn;
-				this.addEventListener("message", fn);
 			} else this.#events.message = null;
 		}
 		get binaryType() {
@@ -17999,20 +18493,6 @@ var require_websocket = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/we
 				});
 			}
 		}
-		#onFail(code, reason, cause) {
-			if (reason) fireEvent("error", this, (type, init) => new ErrorEvent$1(type, init), {
-				error: new Error(reason, cause ? { cause } : void 0),
-				message: reason
-			});
-			if (!this.#handler.wasEverConnected) {
-				this.#handler.readyState = states$1.CLOSED;
-				fireEvent("close", this, (type, init) => new CloseEvent$1(type, init), {
-					wasClean: false,
-					code,
-					reason
-				});
-			}
-		}
 		#onMessage(type, data) {
 			if (this.#handler.readyState !== states$1.OPEN) return;
 			let dataForEvent;
@@ -18040,12 +18520,16 @@ var require_websocket = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/we
 			const wasClean = this.#handler.closeState.has(sentCloseFrameState$1.SENT) && this.#handler.closeState.has(sentCloseFrameState$1.RECEIVED);
 			let code = 1005;
 			let reason = "";
-			const result = this.#parser.closingInfo;
+			const result = this.#parser?.closingInfo;
 			if (result && !result.error) {
 				code = result.code ?? 1005;
 				reason = result.reason;
-			} else if (!this.#handler.closeState.has(sentCloseFrameState$1.RECEIVED)) code = 1006;
+			}
 			this.#handler.readyState = states$1.CLOSED;
+			if (!this.#handler.closeState.has(sentCloseFrameState$1.RECEIVED)) {
+				code = 1006;
+				fireEvent("error", this, (type, init) => new ErrorEvent$1(type, init), { error: new TypeError(reason) });
+			}
 			fireEvent("close", this, (type, init) => new CloseEvent$1(type, init), {
 				wasClean,
 				code,
@@ -18117,7 +18601,7 @@ var require_websocket = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/we
 		{
 			key: "protocols",
 			converter: webidl$3.converters["DOMString or sequence<DOMString>"],
-			defaultValue: () => new Array(0)
+			defaultValue: () => []
 		},
 		{
 			key: "dispatcher",
@@ -18136,7 +18620,7 @@ var require_websocket = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/we
 	webidl$3.converters.WebSocketSendData = function(V) {
 		if (webidl$3.util.Type(V) === webidl$3.util.Types.OBJECT) {
 			if (webidl$3.is.Blob(V)) return V;
-			if (ArrayBuffer.isView(V) || isArrayBuffer$1(V)) return V;
+			if (webidl$3.is.BufferSource(V)) return V;
 		}
 		return webidl$3.converters.USVString(V);
 	};
@@ -18153,7 +18637,20 @@ var require_websocketerror = /* @__PURE__ */ __commonJS({ "node_modules/undici/l
 	const { validateCloseCodeAndReason } = require_util$1();
 	const { kConstruct: kConstruct$1 } = require_symbols();
 	const { kEnumerableProperty: kEnumerableProperty$2 } = require_util$5();
-	var WebSocketError$1 = class WebSocketError$1 extends DOMException {
+	function createInheritableDOMException() {
+		class Test extends DOMException {
+			get reason() {
+				return "";
+			}
+		}
+		if (new Test().reason !== void 0) return DOMException;
+		return new Proxy(DOMException, { construct(target, args, newTarget) {
+			const instance = Reflect.construct(target, args, target);
+			Object.setPrototypeOf(instance, newTarget.prototype);
+			return instance;
+		} });
+	}
+	var WebSocketError$1 = class WebSocketError$1 extends createInheritableDOMException() {
 		#closeCode;
 		#reason;
 		constructor(message = "", init = void 0) {
@@ -18214,7 +18711,6 @@ var require_websocketstream = /* @__PURE__ */ __commonJS({ "node_modules/undici/
 	const { webidl: webidl$1 } = require_webidl();
 	const { getURLRecord, isValidSubprotocol, isEstablished, utf8Decode } = require_util$1();
 	const { establishWebSocketConnection, failWebsocketConnection, closeWebSocketConnection } = require_connection();
-	const { isArrayBuffer } = __require("node:util/types");
 	const { channels } = require_diagnostics();
 	const { WebsocketFrameSend } = require_frame();
 	const { ByteParser } = require_receiver();
@@ -18239,7 +18735,6 @@ var require_websocketstream = /* @__PURE__ */ __commonJS({ "node_modules/undici/
 		/** @type {import('../websocket').Handler} */
 		#handler = {
 			onConnectionEstablished: (response, extensions) => this.#onConnectionEstablished(response, extensions),
-			onFail: (_code, _reason) => {},
 			onMessage: (opcode, data) => this.#onMessage(opcode, data),
 			onParserError: (err) => failWebsocketConnection(this.#handler, null, err.message),
 			onParserDrain: () => this.#handler.socket.resume(),
@@ -18314,11 +18809,12 @@ var require_websocketstream = /* @__PURE__ */ __commonJS({ "node_modules/undici/
 			closeWebSocketConnection(this.#handler, code, reason, true);
 		}
 		#write(chunk) {
+			chunk = webidl$1.converters.WebSocketStreamWrite(chunk);
 			const promise = createDeferredPromise();
 			let data = null;
 			let opcode = null;
-			if (ArrayBuffer.isView(chunk) || isArrayBuffer(chunk)) {
-				data = new Uint8Array(ArrayBuffer.isView(chunk) ? new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength) : chunk);
+			if (webidl$1.is.BufferSource(chunk)) {
+				data = new Uint8Array(ArrayBuffer.isView(chunk) ? new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength) : chunk.slice());
 				opcode = opcodes.BINARY;
 			} else {
 				let string;
@@ -18326,7 +18822,7 @@ var require_websocketstream = /* @__PURE__ */ __commonJS({ "node_modules/undici/
 					string = webidl$1.converters.DOMString(chunk);
 				} catch (e) {
 					promise.reject(e);
-					return;
+					return promise.promise;
 				}
 				data = new TextEncoder().encode(string);
 				opcode = opcodes.TEXT;
@@ -18337,7 +18833,7 @@ var require_websocketstream = /* @__PURE__ */ __commonJS({ "node_modules/undici/
 					promise.resolve(void 0);
 				});
 			}
-			return promise;
+			return promise.promise;
 		}
 		/** @type {import('../websocket').Handler['onConnectionEstablished']} */
 		#onConnectionEstablished(response, parsedExtensions) {
@@ -18446,12 +18942,16 @@ var require_websocketstream = /* @__PURE__ */ __commonJS({ "node_modules/undici/
 	}]);
 	webidl$1.converters.WebSocketCloseInfo = webidl$1.dictionaryConverter([{
 		key: "closeCode",
-		converter: (V) => webidl$1.converters["unsigned short"](V, { enforceRange: true })
+		converter: (V) => webidl$1.converters["unsigned short"](V, webidl$1.attributes.EnforceRange)
 	}, {
 		key: "reason",
 		converter: webidl$1.converters.USVString,
 		defaultValue: () => ""
 	}]);
+	webidl$1.converters.WebSocketStreamWrite = function(V) {
+		if (typeof V === "string") return webidl$1.converters.USVString(V);
+		return webidl$1.converters.BufferSource(V);
+	};
 	module.exports = { WebSocketStream };
 }) });
 
@@ -18476,15 +18976,9 @@ var require_util = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/eve
 		for (let i = 0; i < value.length; i++) if (value.charCodeAt(i) < 48 || value.charCodeAt(i) > 57) return false;
 		return true;
 	}
-	function delay$1(ms) {
-		return new Promise((resolve$1) => {
-			setTimeout(resolve$1, ms);
-		});
-	}
 	module.exports = {
 		isValidLastEventId: isValidLastEventId$1,
-		isASCIINumber: isASCIINumber$1,
-		delay: delay$1
+		isASCIINumber: isASCIINumber$1
 	};
 }) });
 
@@ -18631,7 +19125,7 @@ var require_eventsource_stream = /* @__PURE__ */ __commonJS({ "node_modules/undi
 						if (this.buffer[this.pos] === CR) this.crlfCheck = true;
 						this.buffer = this.buffer.subarray(this.pos + 1);
 						this.pos = 0;
-						if (this.event.data !== void 0 || this.event.event || this.event.id || this.event.retry) this.processEvent(this.event);
+						if (this.event.data !== void 0 || this.event.event || this.event.id !== void 0 || this.event.retry) this.processEvent(this.event);
 						this.clearEvent();
 						continue;
 					}
@@ -18690,7 +19184,7 @@ var require_eventsource_stream = /* @__PURE__ */ __commonJS({ "node_modules/undi
 		*/
 		processEvent(event) {
 			if (event.retry && isASCIINumber(event.retry)) this.state.reconnectionTime = parseInt(event.retry, 10);
-			if (event.id && isValidLastEventId(event.id)) this.state.lastEventId = event.id;
+			if (event.id !== void 0 && isValidLastEventId(event.id)) this.state.lastEventId = event.id;
 			if (event.data !== void 0) this.push({
 				type: event.event || "message",
 				options: {
@@ -18723,7 +19217,6 @@ var require_eventsource = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 	const { parseMIMEType: parseMIMEType$1 } = require_data_url();
 	const { createFastMessageEvent } = require_events();
 	const { isNetworkError } = require_response();
-	const { delay } = require_util();
 	const { kEnumerableProperty } = require_util$5();
 	const { environmentSettingsObject } = require_util$4();
 	let experimentalWarned = false;
@@ -18925,16 +19418,17 @@ var require_eventsource = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 		}
 		/**
 		* @see https://html.spec.whatwg.org/multipage/server-sent-events.html#sse-processing-model
-		* @returns {Promise<void>}
+		* @returns {void}
 		*/
-		async #reconnect() {
+		#reconnect() {
 			if (this.#readyState === CLOSED) return;
 			this.#readyState = CONNECTING;
 			this.dispatchEvent(new Event("error"));
-			await delay(this.#state.reconnectionTime);
-			if (this.#readyState !== CONNECTING) return;
-			if (this.#state.lastEventId.length) this.#request.headersList.set("last-event-id", this.#state.lastEventId, true);
-			this.#connect();
+			setTimeout(() => {
+				if (this.#readyState !== CONNECTING) return;
+				if (this.#state.lastEventId.length) this.#request.headersList.set("last-event-id", this.#state.lastEventId, true);
+				this.#connect();
+			}, this.#state.reconnectionTime)?.unref();
 		}
 		/**
 		* Closes the connection, if any, and sets the readyState attribute to
@@ -18952,9 +19446,10 @@ var require_eventsource = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 		}
 		set onopen(fn) {
 			if (this.#events.open) this.removeEventListener("open", this.#events.open);
-			if (typeof fn === "function") {
+			const listener = webidl.converters.EventHandlerNonNull(fn);
+			if (listener !== null) {
+				this.addEventListener("open", listener);
 				this.#events.open = fn;
-				this.addEventListener("open", fn);
 			} else this.#events.open = null;
 		}
 		get onmessage() {
@@ -18962,9 +19457,10 @@ var require_eventsource = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 		}
 		set onmessage(fn) {
 			if (this.#events.message) this.removeEventListener("message", this.#events.message);
-			if (typeof fn === "function") {
+			const listener = webidl.converters.EventHandlerNonNull(fn);
+			if (listener !== null) {
+				this.addEventListener("message", listener);
 				this.#events.message = fn;
-				this.addEventListener("message", fn);
 			} else this.#events.message = null;
 		}
 		get onerror() {
@@ -18972,9 +19468,10 @@ var require_eventsource = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 		}
 		set onerror(fn) {
 			if (this.#events.error) this.removeEventListener("error", this.#events.error);
-			if (typeof fn === "function") {
+			const listener = webidl.converters.EventHandlerNonNull(fn);
+			if (listener !== null) {
+				this.addEventListener("error", listener);
 				this.#events.error = fn;
-				this.addEventListener("error", fn);
 			} else this.#events.error = null;
 		}
 	};
@@ -19129,13 +19626,11 @@ var require_undici = /* @__PURE__ */ __commonJS({ "node_modules/undici/index.js"
 	module.exports.setGlobalDispatcher = setGlobalDispatcher;
 	module.exports.getGlobalDispatcher = getGlobalDispatcher;
 	const fetchImpl = require_fetch().fetch;
-	module.exports.fetch = async function fetch$1(init, options = void 0) {
-		try {
-			return await fetchImpl(init, options);
-		} catch (err) {
+	module.exports.fetch = function fetch$1(init, options = void 0) {
+		return fetchImpl(init, options).catch((err) => {
 			if (err && typeof err === "object") Error.captureStackTrace(err);
 			throw err;
-		}
+		});
 	};
 	module.exports.Headers = require_headers().Headers;
 	module.exports.Response = require_response().Response;
