@@ -19744,7 +19744,7 @@ var require_cacheUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/cac
 
 //#endregion
 //#region node_modules/tslib/tslib.es6.mjs
-var tslib_es6_exports = __export({
+var tslib_es6_exports = /* @__PURE__ */ __export({
 	__addDisposableResource: () => __addDisposableResource,
 	__assign: () => __assign,
 	__asyncDelegator: () => __asyncDelegator,
@@ -29857,7 +29857,8 @@ var require_fxp = /* @__PURE__ */ __commonJS({ "node_modules/fast-xml-parser/lib
 			},
 			captureMetaData: !1
 		};
-		let y$1 = "function" != typeof Symbol ? "@@xmlMetadata" : Symbol("XML Node Metadata");
+		let y$1;
+		y$1 = "function" != typeof Symbol ? "@@xmlMetadata" : Symbol("XML Node Metadata");
 		class T {
 			constructor(t$2) {
 				this.tagname = t$2, this.child = [], this[":@"] = {};
