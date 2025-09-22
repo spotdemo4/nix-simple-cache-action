@@ -111,7 +111,7 @@ var require_command = /* @__PURE__ */ __commonJS({ "node_modules/@actions/core/l
 		return result;
 	};
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const os$6 = __importStar$28(__require("os"));
+	const os$4 = __importStar$28(__require("os"));
 	const utils_1$3 = require_utils$3();
 	/**
 	* Commands
@@ -125,7 +125,7 @@ var require_command = /* @__PURE__ */ __commonJS({ "node_modules/@actions/core/l
 	*/
 	function issueCommand(command, properties, message) {
 		const cmd = new Command(command, properties, message);
-		process.stdout.write(cmd.toString() + os$6.EOL);
+		process.stdout.write(cmd.toString() + os$4.EOL);
 	}
 	exports.issueCommand = issueCommand;
 	function issue(name, message = "") {
@@ -203,13 +203,13 @@ var require_file_command = /* @__PURE__ */ __commonJS({ "node_modules/@actions/c
 	Object.defineProperty(exports, "__esModule", { value: true });
 	const crypto$4 = __importStar$27(__require("crypto"));
 	const fs$5 = __importStar$27(__require("fs"));
-	const os$5 = __importStar$27(__require("os"));
+	const os$3 = __importStar$27(__require("os"));
 	const utils_1$2 = require_utils$3();
 	function issueFileCommand(command, message) {
 		const filePath = process.env[`GITHUB_${command}`];
 		if (!filePath) throw new Error(`Unable to find environment variable for file command ${command}`);
 		if (!fs$5.existsSync(filePath)) throw new Error(`Missing file at path: ${filePath}`);
-		fs$5.appendFileSync(filePath, `${(0, utils_1$2.toCommandValue)(message)}${os$5.EOL}`, { encoding: "utf8" });
+		fs$5.appendFileSync(filePath, `${(0, utils_1$2.toCommandValue)(message)}${os$3.EOL}`, { encoding: "utf8" });
 	}
 	exports.issueFileCommand = issueFileCommand;
 	function prepareKeyValueMessage(key, value) {
@@ -217,7 +217,7 @@ var require_file_command = /* @__PURE__ */ __commonJS({ "node_modules/@actions/c
 		const convertedValue = (0, utils_1$2.toCommandValue)(value);
 		if (key.includes(delimiter)) throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
 		if (convertedValue.includes(delimiter)) throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
-		return `${key}<<${delimiter}${os$5.EOL}${convertedValue}${os$5.EOL}${delimiter}`;
+		return `${key}<<${delimiter}${os$3.EOL}${convertedValue}${os$3.EOL}${delimiter}`;
 	}
 	exports.prepareKeyValueMessage = prepareKeyValueMessage;
 }) });
@@ -235,7 +235,7 @@ var require_proxy = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cli
 		})();
 		if (proxyVar) try {
 			return new DecodedURL(proxyVar);
-		} catch (_a$3) {
+		} catch (_a$1) {
 			if (!proxyVar.startsWith("http://") && !proxyVar.startsWith("https://")) return new DecodedURL(`http://${proxyVar}`);
 		}
 		else return;
@@ -281,8 +281,8 @@ var require_proxy = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cli
 var require_tunnel$1 = /* @__PURE__ */ __commonJS({ "node_modules/tunnel/lib/tunnel.js": ((exports) => {
 	__require("net");
 	var tls$3 = __require("tls");
-	var http$5 = __require("http");
-	var https$3 = __require("https");
+	var http$4 = __require("http");
+	var https$2 = __require("https");
 	var events$1 = __require("events");
 	__require("assert");
 	var util$20 = __require("util");
@@ -292,24 +292,24 @@ var require_tunnel$1 = /* @__PURE__ */ __commonJS({ "node_modules/tunnel/lib/tun
 	exports.httpsOverHttps = httpsOverHttps;
 	function httpOverHttp(options) {
 		var agent = new TunnelingAgent(options);
-		agent.request = http$5.request;
+		agent.request = http$4.request;
 		return agent;
 	}
 	function httpsOverHttp(options) {
 		var agent = new TunnelingAgent(options);
-		agent.request = http$5.request;
+		agent.request = http$4.request;
 		agent.createSocket = createSecureSocket;
 		agent.defaultPort = 443;
 		return agent;
 	}
 	function httpOverHttps(options) {
 		var agent = new TunnelingAgent(options);
-		agent.request = https$3.request;
+		agent.request = https$2.request;
 		return agent;
 	}
 	function httpsOverHttps(options) {
 		var agent = new TunnelingAgent(options);
-		agent.request = https$3.request;
+		agent.request = https$2.request;
 		agent.createSocket = createSecureSocket;
 		agent.defaultPort = 443;
 		return agent;
@@ -318,7 +318,7 @@ var require_tunnel$1 = /* @__PURE__ */ __commonJS({ "node_modules/tunnel/lib/tun
 		var self$1 = this;
 		self$1.options = options || {};
 		self$1.proxyOptions = self$1.options.proxy || {};
-		self$1.maxSockets = self$1.options.maxSockets || http$5.Agent.defaultMaxSockets;
+		self$1.maxSockets = self$1.options.maxSockets || http$4.Agent.defaultMaxSockets;
 		self$1.requests = [];
 		self$1.sockets = [];
 		self$1.on("free", function onFree(socket, host, port, localAddress) {
@@ -5981,7 +5981,7 @@ var require_llhttp_simd_wasm = /* @__PURE__ */ __commonJS({ "node_modules/@actio
 var require_client = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-client/node_modules/undici/lib/client.js": ((exports, module) => {
 	const assert$13 = __require("assert");
 	const net$3 = __require("net");
-	const http$4 = __require("http");
+	const http$3 = __require("http");
 	const { pipeline: pipeline$2 } = __require("stream");
 	const util$15 = require_util$8();
 	const timers = require_timers();
@@ -6063,7 +6063,7 @@ var require_client = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cl
 			this[kConnector] = connect$2;
 			this[kSocket] = null;
 			this[kPipelining] = pipelining != null ? pipelining : 1;
-			this[kMaxHeadersSize] = maxHeaderSize || http$4.maxHeaderSize;
+			this[kMaxHeadersSize] = maxHeaderSize || http$3.maxHeaderSize;
 			this[kKeepAliveDefaultTimeout] = keepAliveTimeout == null ? 4e3 : keepAliveTimeout;
 			this[kKeepAliveMaxTimeout] = keepAliveMaxTimeout == null ? 6e5 : keepAliveMaxTimeout;
 			this[kKeepAliveTimeoutThreshold] = keepAliveTimeoutThreshold == null ? 1e3 : keepAliveTimeoutThreshold;
@@ -10841,7 +10841,7 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cli
 	const { Response: Response$1, makeNetworkError, makeAppropriateNetworkError, filterResponse, makeResponse } = require_response$1();
 	const { Headers: Headers$3 } = require_headers();
 	const { Request: Request$1, makeRequest: makeRequest$1 } = require_request();
-	const zlib$1 = __require("zlib");
+	const zlib = __require("zlib");
 	const { bytesMatch, makePolicyContainer, clonePolicyContainer, requestBadPort, TAOCheck, appendRequestOriginHeader, responseLocationURL, requestCurrentURL, setRequestReferrerPolicyOnRedirect, tryUpgradeRequestToAPotentiallyTrustworthyURL, createOpaqueTimingInfo, appendFetchMetadata, corsCheck, crossOriginResourcePolicyCheck, determineRequestsReferrer, coarsenedSharedCurrentTime, createDeferredPromise: createDeferredPromise$1, isBlobLike: isBlobLike$1, sameOrigin, isCancelled, isAborted, isErrorLike, fullyReadBody, readableStreamClose, isomorphicEncode, urlIsLocal, urlIsHttpHttpsScheme: urlIsHttpHttpsScheme$1, urlHasHttpsScheme } = require_util$7();
 	const { kState: kState$4, kHeaders: kHeaders$1, kGuard: kGuard$1, kRealm: kRealm$1 } = require_symbols$3();
 	const assert$4 = __require("assert");
@@ -11450,12 +11450,12 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cli
 					this.body = new Readable({ read: resume$2 });
 					const decoders$1 = [];
 					const willFollow = request$1.redirect === "follow" && location && redirectStatusSet.has(status);
-					if (request$1.method !== "HEAD" && request$1.method !== "CONNECT" && !nullBodyStatus.includes(status) && !willFollow) for (const coding of codings) if (coding === "x-gzip" || coding === "gzip") decoders$1.push(zlib$1.createGunzip({
-						flush: zlib$1.constants.Z_SYNC_FLUSH,
-						finishFlush: zlib$1.constants.Z_SYNC_FLUSH
+					if (request$1.method !== "HEAD" && request$1.method !== "CONNECT" && !nullBodyStatus.includes(status) && !willFollow) for (const coding of codings) if (coding === "x-gzip" || coding === "gzip") decoders$1.push(zlib.createGunzip({
+						flush: zlib.constants.Z_SYNC_FLUSH,
+						finishFlush: zlib.constants.Z_SYNC_FLUSH
 					}));
-					else if (coding === "deflate") decoders$1.push(zlib$1.createInflate());
-					else if (coding === "br") decoders$1.push(zlib$1.createBrotliDecompress());
+					else if (coding === "deflate") decoders$1.push(zlib.createInflate());
+					else if (coding === "br") decoders$1.push(zlib.createBrotliDecompress());
 					else {
 						decoders$1.length = 0;
 						break;
@@ -14554,8 +14554,8 @@ var require_lib = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-clien
 		});
 	};
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const http$3 = __importStar$26(__require("http"));
-	const https$2 = __importStar$26(__require("https"));
+	const http$2 = __importStar$26(__require("http"));
+	const https$1 = __importStar$26(__require("https"));
 	const pm = __importStar$26(require_proxy());
 	const tunnel = __importStar$26(require_tunnel());
 	const undici_1 = require_undici();
@@ -14906,7 +14906,7 @@ var require_lib = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-clien
 			const info$1 = {};
 			info$1.parsedUrl = requestUrl;
 			const usingSsl = info$1.parsedUrl.protocol === "https:";
-			info$1.httpModule = usingSsl ? https$2 : http$3;
+			info$1.httpModule = usingSsl ? https$1 : http$2;
 			const defaultPort = usingSsl ? 443 : 80;
 			info$1.options = {};
 			info$1.options.host = info$1.parsedUrl.hostname;
@@ -14937,7 +14937,7 @@ var require_lib = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-clien
 			if (agent) return agent;
 			const usingSsl = parsedUrl.protocol === "https:";
 			let maxSockets = 100;
-			if (this.requestOptions) maxSockets = this.requestOptions.maxSockets || http$3.globalAgent.maxSockets;
+			if (this.requestOptions) maxSockets = this.requestOptions.maxSockets || http$2.globalAgent.maxSockets;
 			if (proxyUrl && proxyUrl.hostname) {
 				const agentOptions = {
 					maxSockets,
@@ -14959,7 +14959,7 @@ var require_lib = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-clien
 					keepAlive: this._keepAlive,
 					maxSockets
 				};
-				agent = usingSsl ? new https$2.Agent(options) : new http$3.Agent(options);
+				agent = usingSsl ? new https$1.Agent(options) : new http$2.Agent(options);
 				this._agent = agent;
 			}
 			if (usingSsl && this._ignoreSslError) agent.options = Object.assign(agent.options || {}, { rejectUnauthorized: false });
@@ -15171,13 +15171,13 @@ var require_oidc_utils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/cor
 			return runtimeUrl;
 		}
 		static getCall(id_token_url) {
-			var _a$3;
+			var _a$1;
 			return __awaiter$23(this, void 0, void 0, function* () {
-				const id_token = (_a$3 = (yield OidcClient.createHttpClient().getJson(id_token_url).catch((error$1) => {
+				const id_token = (_a$1 = (yield OidcClient.createHttpClient().getJson(id_token_url).catch((error$1) => {
 					throw new Error(`Failed to get ID Token. \n 
         Error Code : ${error$1.statusCode}\n 
         Error Message: ${error$1.message}`);
-				})).result) === null || _a$3 === void 0 ? void 0 : _a$3.value;
+				})).result) === null || _a$1 === void 0 ? void 0 : _a$1.value;
 				if (!id_token) throw new Error("Response json body do not have ID Token field");
 				return id_token;
 			});
@@ -15253,7 +15253,7 @@ var require_summary = /* @__PURE__ */ __commonJS({ "node_modules/@actions/core/l
 				if (!pathFromEnv) throw new Error(`Unable to find environment variable for $${exports.SUMMARY_ENV_VAR}. Check if your runtime environment supports job summaries.`);
 				try {
 					yield access(pathFromEnv, fs_1$1.constants.R_OK | fs_1$1.constants.W_OK);
-				} catch (_a$3) {
+				} catch (_a$1) {
 					throw new Error(`Unable to access summary file: '${pathFromEnv}'. Check if the file has correct read/write permissions.`);
 				}
 				this._filePath = pathFromEnv;
@@ -15626,11 +15626,11 @@ var require_io_util = /* @__PURE__ */ __commonJS({ "node_modules/@actions/io/lib
 			step((generator = generator.apply(thisArg, _arguments || [])).next());
 		});
 	};
-	var _a$2;
+	var _a;
 	Object.defineProperty(exports, "__esModule", { value: true });
 	const fs$4 = __importStar$24(__require("fs"));
 	const path$11 = __importStar$24(__require("path"));
-	_a$2 = fs$4.promises, exports.chmod = _a$2.chmod, exports.copyFile = _a$2.copyFile, exports.lstat = _a$2.lstat, exports.mkdir = _a$2.mkdir, exports.open = _a$2.open, exports.readdir = _a$2.readdir, exports.readlink = _a$2.readlink, exports.rename = _a$2.rename, exports.rm = _a$2.rm, exports.rmdir = _a$2.rmdir, exports.stat = _a$2.stat, exports.symlink = _a$2.symlink, exports.unlink = _a$2.unlink;
+	_a = fs$4.promises, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.open = _a.open, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rm = _a.rm, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
 	exports.IS_WINDOWS = process.platform === "win32";
 	exports.UV_FS_O_EXLOCK = 268435456;
 	exports.READONLY = fs$4.constants.O_RDONLY;
@@ -15724,8 +15724,8 @@ var require_io_util = /* @__PURE__ */ __commonJS({ "node_modules/@actions/io/lib
 		return (stats.mode & 1) > 0 || (stats.mode & 8) > 0 && stats.gid === process.getgid() || (stats.mode & 64) > 0 && stats.uid === process.getuid();
 	}
 	function getCmdPath() {
-		var _a$3;
-		return (_a$3 = process.env["COMSPEC"]) !== null && _a$3 !== void 0 ? _a$3 : `cmd.exe`;
+		var _a$1;
+		return (_a$1 = process.env["COMSPEC"]) !== null && _a$1 !== void 0 ? _a$1 : `cmd.exe`;
 	}
 	exports.getCmdPath = getCmdPath;
 }) });
@@ -16035,7 +16035,7 @@ var require_toolrunner = /* @__PURE__ */ __commonJS({ "node_modules/@actions/exe
 		});
 	};
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const os$4 = __importStar$22(__require("os"));
+	const os$2 = __importStar$22(__require("os"));
 	const events = __importStar$22(__require("events"));
 	const child = __importStar$22(__require("child_process"));
 	const path$9 = __importStar$22(__require("path"));
@@ -16077,12 +16077,12 @@ var require_toolrunner = /* @__PURE__ */ __commonJS({ "node_modules/@actions/exe
 		_processLineBuffer(data, strBuffer, onLine) {
 			try {
 				let s$1 = strBuffer + data.toString();
-				let n = s$1.indexOf(os$4.EOL);
+				let n = s$1.indexOf(os$2.EOL);
 				while (n > -1) {
 					const line = s$1.substring(0, n);
 					onLine(line);
-					s$1 = s$1.substring(n + os$4.EOL.length);
-					n = s$1.indexOf(os$4.EOL);
+					s$1 = s$1.substring(n + os$2.EOL.length);
+					n = s$1.indexOf(os$2.EOL);
 				}
 				return s$1;
 			} catch (err) {
@@ -16222,7 +16222,7 @@ var require_toolrunner = /* @__PURE__ */ __commonJS({ "node_modules/@actions/exe
 					this._debug("arguments:");
 					for (const arg of this.args) this._debug(`   ${arg}`);
 					const optionsNonNull = this._cloneExecOptions(this.options);
-					if (!optionsNonNull.silent && optionsNonNull.outStream) optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + os$4.EOL);
+					if (!optionsNonNull.silent && optionsNonNull.outStream) optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + os$2.EOL);
 					const state = new ExecState(optionsNonNull, this.toolPath);
 					state.on("debug", (message) => {
 						this._debug(message);
@@ -16468,14 +16468,14 @@ var require_exec = /* @__PURE__ */ __commonJS({ "node_modules/@actions/exec/lib/
 	* @returns   Promise<ExecOutput>   exit code, stdout, and stderr
 	*/
 	function getExecOutput(commandLine, args, options) {
-		var _a$3, _b$1;
+		var _a$1, _b;
 		return __awaiter$18(this, void 0, void 0, function* () {
 			let stdout = "";
 			let stderr = "";
 			const stdoutDecoder = new string_decoder_1.StringDecoder("utf8");
 			const stderrDecoder = new string_decoder_1.StringDecoder("utf8");
-			const originalStdoutListener = (_a$3 = options === null || options === void 0 ? void 0 : options.listeners) === null || _a$3 === void 0 ? void 0 : _a$3.stdout;
-			const originalStdErrListener = (_b$1 = options === null || options === void 0 ? void 0 : options.listeners) === null || _b$1 === void 0 ? void 0 : _b$1.stderr;
+			const originalStdoutListener = (_a$1 = options === null || options === void 0 ? void 0 : options.listeners) === null || _a$1 === void 0 ? void 0 : _a$1.stdout;
+			const originalStdErrListener = (_b = options === null || options === void 0 ? void 0 : options.listeners) === null || _b === void 0 ? void 0 : _b.stderr;
 			const stdErrListener = (data) => {
 				stderr += stderrDecoder.write(data);
 				if (originalStdErrListener) originalStdErrListener(data);
@@ -16577,11 +16577,11 @@ var require_platform = /* @__PURE__ */ __commonJS({ "node_modules/@actions/core/
 		};
 	});
 	const getMacOsInfo = () => __awaiter$17(void 0, void 0, void 0, function* () {
-		var _a$3, _b$1, _c$1, _d$1;
+		var _a$1, _b, _c, _d;
 		const { stdout } = yield exec$1.getExecOutput("sw_vers", void 0, { silent: true });
-		const version = (_b$1 = (_a$3 = stdout.match(/ProductVersion:\s*(.+)/)) === null || _a$3 === void 0 ? void 0 : _a$3[1]) !== null && _b$1 !== void 0 ? _b$1 : "";
+		const version = (_b = (_a$1 = stdout.match(/ProductVersion:\s*(.+)/)) === null || _a$1 === void 0 ? void 0 : _a$1[1]) !== null && _b !== void 0 ? _b : "";
 		return {
-			name: (_d$1 = (_c$1 = stdout.match(/ProductName:\s*(.+)/)) === null || _c$1 === void 0 ? void 0 : _c$1[1]) !== null && _d$1 !== void 0 ? _d$1 : "",
+			name: (_d = (_c = stdout.match(/ProductName:\s*(.+)/)) === null || _c === void 0 ? void 0 : _c[1]) !== null && _d !== void 0 ? _d : "",
 			version
 		};
 	});
@@ -16682,7 +16682,7 @@ var require_core = /* @__PURE__ */ __commonJS({ "node_modules/@actions/core/lib/
 	const command_1 = require_command();
 	const file_command_1 = require_file_command();
 	const utils_1 = require_utils$3();
-	const os$3 = __importStar$19(__require("os"));
+	const os$1 = __importStar$19(__require("os"));
 	const path$8 = __importStar$19(__require("path"));
 	const oidc_utils_1 = require_oidc_utils();
 	/**
@@ -16794,7 +16794,7 @@ var require_core = /* @__PURE__ */ __commonJS({ "node_modules/@actions/core/lib/
 	*/
 	function setOutput(name, value) {
 		if (process.env["GITHUB_OUTPUT"] || "") return (0, file_command_1.issueFileCommand)("OUTPUT", (0, file_command_1.prepareKeyValueMessage)(name, value));
-		process.stdout.write(os$3.EOL);
+		process.stdout.write(os$1.EOL);
 		(0, command_1.issueCommand)("set-output", { name }, (0, utils_1.toCommandValue)(value));
 	}
 	exports.setOutput = setOutput;
@@ -16864,7 +16864,7 @@ var require_core = /* @__PURE__ */ __commonJS({ "node_modules/@actions/core/lib/
 	* @param message info message
 	*/
 	function info(message) {
-		process.stdout.write(message + os$3.EOL);
+		process.stdout.write(message + os$1.EOL);
 	}
 	exports.info = info;
 	/**
@@ -18147,7 +18147,7 @@ var require_internal_pattern = /* @__PURE__ */ __commonJS({ "node_modules/@actio
 		return mod && mod.__esModule ? mod : { "default": mod };
 	};
 	Object.defineProperty(exports, "__esModule", { value: true });
-	const os$2 = __importStar$14(__require("os"));
+	const os = __importStar$14(__require("os"));
 	const path$4 = __importStar$14(__require("path"));
 	const pathHelper = __importStar$14(require_internal_path_helper());
 	const assert_1$6 = __importDefault$4(__require("assert"));
@@ -18231,7 +18231,7 @@ var require_internal_pattern = /* @__PURE__ */ __commonJS({ "node_modules/@actio
 			pattern = pathHelper.normalizeSeparators(pattern);
 			if (pattern === "." || pattern.startsWith(`.${path$4.sep}`)) pattern = Pattern.globEscape(process.cwd()) + pattern.substr(1);
 			else if (pattern === "~" || pattern.startsWith(`~${path$4.sep}`)) {
-				homedir = homedir || os$2.homedir();
+				homedir = homedir || os.homedir();
 				assert_1$6.default(homedir, "Unable to determine HOME directory");
 				assert_1$6.default(pathHelper.hasAbsoluteRoot(homedir), `Expected HOME directory to be a rooted path. Actual '${homedir}'`);
 				pattern = Pattern.globEscape(homedir) + pattern.substr(1);
@@ -18450,19 +18450,19 @@ var require_internal_globber = /* @__PURE__ */ __commonJS({ "node_modules/@actio
 			return this.searchPaths.slice();
 		}
 		glob() {
-			var e_1, _a$3;
+			var e_1, _a$1;
 			return __awaiter$15(this, void 0, void 0, function* () {
 				const result = [];
 				try {
-					for (var _b$1 = __asyncValues$2(this.globGenerator()), _c$1; _c$1 = yield _b$1.next(), !_c$1.done;) {
-						const itemPath = _c$1.value;
+					for (var _b = __asyncValues$2(this.globGenerator()), _c; _c = yield _b.next(), !_c.done;) {
+						const itemPath = _c.value;
 						result.push(itemPath);
 					}
 				} catch (e_1_1) {
 					e_1 = { error: e_1_1 };
 				} finally {
 					try {
-						if (_c$1 && !_c$1.done && (_a$3 = _b$1.return)) yield _a$3.call(_b$1);
+						if (_c && !_c.done && (_a$1 = _b.return)) yield _a$1.call(_b);
 					} finally {
 						if (e_1) throw e_1.error;
 					}
@@ -19643,17 +19643,17 @@ var require_cacheUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/cac
 	}
 	exports.getArchiveFileSizeInBytes = getArchiveFileSizeInBytes;
 	function resolvePaths(patterns) {
-		var _a$3, e_1, _b$1, _c$1;
-		var _d$1;
+		var _a$1, e_1, _b, _c;
+		var _d;
 		return __awaiter$13(this, void 0, void 0, function* () {
 			const paths = [];
-			const workspace = (_d$1 = process.env["GITHUB_WORKSPACE"]) !== null && _d$1 !== void 0 ? _d$1 : process.cwd();
+			const workspace = (_d = process.env["GITHUB_WORKSPACE"]) !== null && _d !== void 0 ? _d : process.cwd();
 			const globber = yield glob.create(patterns.join("\n"), { implicitDescendants: false });
 			try {
-				for (var _e = true, _f = __asyncValues$1(globber.globGenerator()), _g; _g = yield _f.next(), _a$3 = _g.done, !_a$3; _e = true) {
-					_c$1 = _g.value;
+				for (var _e = true, _f = __asyncValues$1(globber.globGenerator()), _g; _g = yield _f.next(), _a$1 = _g.done, !_a$1; _e = true) {
+					_c = _g.value;
 					_e = false;
-					const file = _c$1;
+					const file = _c;
 					const relativeFile = path$2.relative(workspace, file).replace(new RegExp(`\\${path$2.sep}`, "g"), "/");
 					core$6.debug(`Matched: ${relativeFile}`);
 					if (relativeFile === "") paths.push(".");
@@ -19663,7 +19663,7 @@ var require_cacheUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/cac
 				e_1 = { error: e_1_1 };
 			} finally {
 				try {
-					if (!_e && !_a$3 && (_b$1 = _f.return)) yield _b$1.call(_f);
+					if (!_e && !_a$1 && (_b = _f.return)) yield _b.call(_f);
 				} finally {
 					if (e_1) throw e_1.error;
 				}
@@ -20331,12 +20331,12 @@ var require_AbortError$3 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/
 var require_log$5 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-http-runtime/dist/commonjs/logger/log.js": ((exports) => {
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.log = log$1;
-	const tslib_1$19 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
-	const node_os_1 = __require("node:os");
-	const node_util_1$2 = tslib_1$19.__importDefault(__require("node:util"));
-	const process$3 = tslib_1$19.__importStar(__require("node:process"));
+	const tslib_1$18 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
+	const node_os_1$2 = __require("node:os");
+	const node_util_1$2 = tslib_1$18.__importDefault(__require("node:util"));
+	const node_process_1$2 = tslib_1$18.__importDefault(__require("node:process"));
 	function log$1(message, ...args) {
-		process$3.stderr.write(`${node_util_1$2.default.format(message, ...args)}${node_os_1.EOL}`);
+		node_process_1$2.default.stderr.write(`${node_util_1$2.default.format(message, ...args)}${node_os_1$2.EOL}`);
 	}
 }) });
 
@@ -20363,17 +20363,73 @@ var require_debug = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-http
 		enabledString = namespaces;
 		enabledNamespaces = [];
 		skippedNamespaces = [];
-		const wildcard = /\*/g;
-		const namespaceList = namespaces.split(",").map((ns) => ns.trim().replace(wildcard, ".*?"));
-		for (const ns of namespaceList) if (ns.startsWith("-")) skippedNamespaces.push(/* @__PURE__ */ new RegExp(`^${ns.substr(1)}$`));
-		else enabledNamespaces.push(/* @__PURE__ */ new RegExp(`^${ns}$`));
+		const namespaceList = namespaces.split(",").map((ns) => ns.trim());
+		for (const ns of namespaceList) if (ns.startsWith("-")) skippedNamespaces.push(ns.substring(1));
+		else enabledNamespaces.push(ns);
 		for (const instance of debuggers) instance.enabled = enabled(instance.namespace);
 	}
 	function enabled(namespace) {
 		if (namespace.endsWith("*")) return true;
-		for (const skipped of skippedNamespaces) if (skipped.test(namespace)) return false;
-		for (const enabledNamespace of enabledNamespaces) if (enabledNamespace.test(namespace)) return true;
+		for (const skipped of skippedNamespaces) if (namespaceMatches(namespace, skipped)) return false;
+		for (const enabledNamespace of enabledNamespaces) if (namespaceMatches(namespace, enabledNamespace)) return true;
 		return false;
+	}
+	/**
+	* Given a namespace, check if it matches a pattern.
+	* Patterns only have a single wildcard character which is *.
+	* The behavior of * is that it matches zero or more other characters.
+	*/
+	function namespaceMatches(namespace, patternToMatch) {
+		if (patternToMatch.indexOf("*") === -1) return namespace === patternToMatch;
+		let pattern = patternToMatch;
+		if (patternToMatch.indexOf("**") !== -1) {
+			const patternParts = [];
+			let lastCharacter = "";
+			for (const character of patternToMatch) if (character === "*" && lastCharacter === "*") continue;
+			else {
+				lastCharacter = character;
+				patternParts.push(character);
+			}
+			pattern = patternParts.join("");
+		}
+		let namespaceIndex = 0;
+		let patternIndex = 0;
+		const patternLength = pattern.length;
+		const namespaceLength = namespace.length;
+		let lastWildcard = -1;
+		let lastWildcardNamespace = -1;
+		while (namespaceIndex < namespaceLength && patternIndex < patternLength) if (pattern[patternIndex] === "*") {
+			lastWildcard = patternIndex;
+			patternIndex++;
+			if (patternIndex === patternLength) return true;
+			while (namespace[namespaceIndex] !== pattern[patternIndex]) {
+				namespaceIndex++;
+				if (namespaceIndex === namespaceLength) return false;
+			}
+			lastWildcardNamespace = namespaceIndex;
+			namespaceIndex++;
+			patternIndex++;
+			continue;
+		} else if (pattern[patternIndex] === namespace[namespaceIndex]) {
+			patternIndex++;
+			namespaceIndex++;
+		} else if (lastWildcard >= 0) {
+			patternIndex = lastWildcard + 1;
+			namespaceIndex = lastWildcardNamespace + 1;
+			if (namespaceIndex === namespaceLength) return false;
+			while (namespace[namespaceIndex] !== pattern[patternIndex]) {
+				namespaceIndex++;
+				if (namespaceIndex === namespaceLength) return false;
+			}
+			lastWildcardNamespace = namespaceIndex;
+			namespaceIndex++;
+			patternIndex++;
+			continue;
+		} else return false;
+		const namespaceDone = namespaceIndex === namespace.length;
+		const patternDone = patternIndex === pattern.length;
+		const trailingWildCard = patternIndex === pattern.length - 1 && pattern[patternIndex] === "*";
+		return namespaceDone && (patternDone || trailingWildCard);
 	}
 	function disable() {
 		const result = enabledString || "";
@@ -20544,6 +20600,7 @@ var require_httpHeaders$1 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec
 		for (const entry of map.values()) yield [entry.name, entry.value];
 	}
 	var HttpHeadersImpl = class {
+		_headersMap;
 		constructor(rawHeaders) {
 			this._headersMap = /* @__PURE__ */ new Map();
 			if (rawHeaders) for (const headerName of Object.keys(rawHeaders)) this.set(headerName, rawHeaders[headerName]);
@@ -20566,8 +20623,7 @@ var require_httpHeaders$1 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec
 		* @param name - The name of the header. This value is case-insensitive.
 		*/
 		get(name) {
-			var _a$3;
-			return (_a$3 = this._headersMap.get(normalizeName(name))) === null || _a$3 === void 0 ? void 0 : _a$3.value;
+			return this._headersMap.get(normalizeName(name))?.value;
 		}
 		/**
 		* Get whether or not this header collection contains a header entry for the provided header name.
@@ -20629,11 +20685,10 @@ var require_oauth2Flows = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/t
 //#endregion
 //#region node_modules/@typespec/ts-http-runtime/dist/commonjs/util/uuidUtils.js
 var require_uuidUtils = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-http-runtime/dist/commonjs/util/uuidUtils.js": ((exports) => {
-	var _a$1;
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.randomUUID = randomUUID$1;
 	const node_crypto_1$6 = __require("node:crypto");
-	const uuidFunction = typeof ((_a$1 = globalThis === null || globalThis === void 0 ? void 0 : globalThis.crypto) === null || _a$1 === void 0 ? void 0 : _a$1.randomUUID) === "function" ? globalThis.crypto.randomUUID.bind(globalThis.crypto) : node_crypto_1$6.randomUUID;
+	const uuidFunction = typeof globalThis?.crypto?.randomUUID === "function" ? globalThis.crypto.randomUUID.bind(globalThis.crypto) : node_crypto_1$6.randomUUID;
 	/**
 	* Generated Universally Unique Identifier
 	*
@@ -20652,25 +20707,43 @@ var require_pipelineRequest$1 = /* @__PURE__ */ __commonJS({ "node_modules/@type
 	const httpHeaders_js_1$7 = require_httpHeaders$1();
 	const uuidUtils_js_1$2 = require_uuidUtils();
 	var PipelineRequestImpl = class {
+		url;
+		method;
+		headers;
+		timeout;
+		withCredentials;
+		body;
+		multipartBody;
+		formData;
+		streamResponseStatusCodes;
+		enableBrowserStreams;
+		proxySettings;
+		disableKeepAlive;
+		abortSignal;
+		requestId;
+		allowInsecureConnection;
+		onUploadProgress;
+		onDownloadProgress;
+		requestOverrides;
+		authSchemes;
 		constructor(options) {
-			var _a$3, _b$1, _c$1, _d$1, _e, _f, _g;
 			this.url = options.url;
 			this.body = options.body;
-			this.headers = (_a$3 = options.headers) !== null && _a$3 !== void 0 ? _a$3 : (0, httpHeaders_js_1$7.createHttpHeaders)();
-			this.method = (_b$1 = options.method) !== null && _b$1 !== void 0 ? _b$1 : "GET";
-			this.timeout = (_c$1 = options.timeout) !== null && _c$1 !== void 0 ? _c$1 : 0;
+			this.headers = options.headers ?? (0, httpHeaders_js_1$7.createHttpHeaders)();
+			this.method = options.method ?? "GET";
+			this.timeout = options.timeout ?? 0;
 			this.multipartBody = options.multipartBody;
 			this.formData = options.formData;
-			this.disableKeepAlive = (_d$1 = options.disableKeepAlive) !== null && _d$1 !== void 0 ? _d$1 : false;
+			this.disableKeepAlive = options.disableKeepAlive ?? false;
 			this.proxySettings = options.proxySettings;
 			this.streamResponseStatusCodes = options.streamResponseStatusCodes;
-			this.withCredentials = (_e = options.withCredentials) !== null && _e !== void 0 ? _e : false;
+			this.withCredentials = options.withCredentials ?? false;
 			this.abortSignal = options.abortSignal;
 			this.onUploadProgress = options.onUploadProgress;
 			this.onDownloadProgress = options.onDownloadProgress;
 			this.requestId = options.requestId || (0, uuidUtils_js_1$2.randomUUID)();
-			this.allowInsecureConnection = (_f = options.allowInsecureConnection) !== null && _f !== void 0 ? _f : false;
-			this.enableBrowserStreams = (_g = options.enableBrowserStreams) !== null && _g !== void 0 ? _g : false;
+			this.allowInsecureConnection = options.allowInsecureConnection ?? false;
+			this.enableBrowserStreams = options.enableBrowserStreams ?? false;
 			this.requestOverrides = options.requestOverrides;
 			this.authSchemes = options.authSchemes;
 		}
@@ -20702,10 +20775,10 @@ var require_pipeline$2 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts
 	* @internal
 	*/
 	var HttpPipeline = class HttpPipeline {
+		_policies = [];
+		_orderedPolicies;
 		constructor(policies) {
-			var _a$3;
-			this._policies = [];
-			this._policies = (_a$3 = policies === null || policies === void 0 ? void 0 : policies.slice(0)) !== null && _a$3 !== void 0 ? _a$3 : [];
+			this._policies = policies?.slice(0) ?? [];
 			this._orderedPolicies = void 0;
 		}
 		addPolicy(policy, options = {}) {
@@ -20983,6 +21056,8 @@ var require_sanitizer = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-
 	* A utility class to sanitize objects for logging.
 	*/
 	var Sanitizer = class {
+		allowedHeaderNames;
+		allowedQueryParameters;
 		constructor({ additionalAllowedHeaderNames: allowedHeaderNames = [], additionalAllowedQueryParameters: allowedQueryParameters = [] } = {}) {
 			allowedHeaderNames = defaultAllowedHeaderNames.concat(allowedHeaderNames);
 			allowedQueryParameters = defaultAllowedQueryParameters.concat(allowedQueryParameters);
@@ -20997,10 +21072,11 @@ var require_sanitizer = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-
 		sanitize(obj) {
 			const seen = /* @__PURE__ */ new Set();
 			return JSON.stringify(obj, (key, value) => {
-				if (value instanceof Error) return Object.assign(Object.assign({}, value), {
+				if (value instanceof Error) return {
+					...value,
 					name: value.name,
 					message: value.message
-				});
+				};
 				if (key === "headers") return this.sanitizeHeaders(value);
 				else if (key === "url") return this.sanitizeUrl(value);
 				else if (key === "query") return this.sanitizeQuery(value);
@@ -21055,6 +21131,39 @@ var require_restError$2 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/t
 	* A custom error type for failed pipeline requests.
 	*/
 	var RestError = class RestError extends Error {
+		/**
+		* Something went wrong when making the request.
+		* This means the actual request failed for some reason,
+		* such as a DNS issue or the connection being lost.
+		*/
+		static REQUEST_SEND_ERROR = "REQUEST_SEND_ERROR";
+		/**
+		* This means that parsing the response from the server failed.
+		* It may have been malformed.
+		*/
+		static PARSE_ERROR = "PARSE_ERROR";
+		/**
+		* The code of the error itself (use statics on RestError if possible.)
+		*/
+		code;
+		/**
+		* The HTTP status code of the request (if applicable.)
+		*/
+		statusCode;
+		/**
+		* The request that was made.
+		* This property is non-enumerable.
+		*/
+		request;
+		/**
+		* The response received (if any.)
+		* This property is non-enumerable.
+		*/
+		response;
+		/**
+		* Bonus property set by the throw site.
+		*/
+		details;
 		constructor(message, options = {}) {
 			super(message);
 			this.name = "RestError";
@@ -21068,12 +21177,20 @@ var require_restError$2 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/t
 				value: options.response,
 				enumerable: false
 			});
+			const agent = this.request?.agent ? {
+				maxFreeSockets: this.request.agent.maxFreeSockets,
+				maxSockets: this.request.agent.maxSockets
+			} : void 0;
 			Object.defineProperty(this, inspect_js_1.custom, {
 				value: () => {
-					return `RestError: ${this.message} \n ${errorSanitizer.sanitize(Object.assign(Object.assign({}, this), {
-						request: this.request,
+					return `RestError: ${this.message} \n ${errorSanitizer.sanitize({
+						...this,
+						request: {
+							...this.request,
+							agent
+						},
 						response: this.response
-					}))}`;
+					})}`;
 				},
 				enumerable: false
 			});
@@ -21081,17 +21198,6 @@ var require_restError$2 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/t
 		}
 	};
 	exports.RestError = RestError;
-	/**
-	* Something went wrong when making the request.
-	* This means the actual request failed for some reason,
-	* such as a DNS issue or the connection being lost.
-	*/
-	RestError.REQUEST_SEND_ERROR = "REQUEST_SEND_ERROR";
-	/**
-	* This means that parsing the response from the server failed.
-	* It may have been malformed.
-	*/
-	RestError.PARSE_ERROR = "PARSE_ERROR";
 	/**
 	* Typeguard for RestError
 	* @param e - Something caught by a catch clause.
@@ -21142,10 +21248,10 @@ var require_nodeHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@typespe
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.getBodyLength = getBodyLength;
 	exports.createNodeHttpClient = createNodeHttpClient;
-	const tslib_1$18 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
-	const http$2 = tslib_1$18.__importStar(__require("node:http"));
-	const https$1 = tslib_1$18.__importStar(__require("node:https"));
-	const zlib = tslib_1$18.__importStar(__require("node:zlib"));
+	const tslib_1$17 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
+	const node_http_1 = tslib_1$17.__importDefault(__require("node:http"));
+	const node_https_1 = tslib_1$17.__importDefault(__require("node:https"));
+	const node_zlib_1 = tslib_1$17.__importDefault(__require("node:zlib"));
 	const node_stream_1$3 = __require("node:stream");
 	const AbortError_js_1$6 = require_AbortError$3();
 	const httpHeaders_js_1$6 = require_httpHeaders$1();
@@ -21174,6 +21280,8 @@ var require_nodeHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@typespe
 		return body && typeof body.byteLength === "number";
 	}
 	var ReportTransform = class extends node_stream_1$3.Transform {
+		loadedBytes = 0;
+		progressCallback;
 		_transform(chunk, _encoding, callback) {
 			this.push(chunk);
 			this.loadedBytes += chunk.length;
@@ -21186,7 +21294,6 @@ var require_nodeHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@typespe
 		}
 		constructor(progressCallback) {
 			super();
-			this.loadedBytes = 0;
 			this.progressCallback = progressCallback;
 		}
 	};
@@ -21195,15 +21302,13 @@ var require_nodeHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@typespe
 	* @internal
 	*/
 	var NodeHttpClient = class {
-		constructor() {
-			this.cachedHttpsAgents = /* @__PURE__ */ new WeakMap();
-		}
+		cachedHttpAgent;
+		cachedHttpsAgents = /* @__PURE__ */ new WeakMap();
 		/**
 		* Makes a request over an underlying transport layer and returns the response.
 		* @param request - The request to be made.
 		*/
 		async sendRequest(request$1) {
-			var _a$3, _b$1, _c$1;
 			const abortController = new AbortController();
 			let abortListener;
 			if (request$1.abortSignal) {
@@ -21220,7 +21325,7 @@ var require_nodeHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@typespe
 				abortController.abort();
 			}, request$1.timeout);
 			const acceptEncoding = request$1.headers.get("Accept-Encoding");
-			const shouldDecompress = (acceptEncoding === null || acceptEncoding === void 0 ? void 0 : acceptEncoding.includes("gzip")) || (acceptEncoding === null || acceptEncoding === void 0 ? void 0 : acceptEncoding.includes("deflate"));
+			const shouldDecompress = acceptEncoding?.includes("gzip") || acceptEncoding?.includes("deflate");
 			let body = typeof request$1.body === "function" ? request$1.body() : request$1.body;
 			if (body && !request$1.headers.has("Content-Length")) {
 				const bodyLength$1 = getBodyLength(body);
@@ -21242,7 +21347,7 @@ var require_nodeHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@typespe
 				if (timeoutId !== void 0) clearTimeout(timeoutId);
 				const headers = getResponseHeaders(res);
 				const response = {
-					status: (_a$3 = res.statusCode) !== null && _a$3 !== void 0 ? _a$3 : 0,
+					status: res.statusCode ?? 0,
 					headers,
 					request: request$1
 				};
@@ -21260,7 +21365,7 @@ var require_nodeHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@typespe
 					responseStream.pipe(downloadReportStream);
 					responseStream = downloadReportStream;
 				}
-				if (((_b$1 = request$1.streamResponseStatusCodes) === null || _b$1 === void 0 ? void 0 : _b$1.has(Number.POSITIVE_INFINITY)) || ((_c$1 = request$1.streamResponseStatusCodes) === null || _c$1 === void 0 ? void 0 : _c$1.has(response.status))) response.readableStreamBody = responseStream;
+				if (request$1.streamResponseStatusCodes?.has(Number.POSITIVE_INFINITY) || request$1.streamResponseStatusCodes?.has(response.status)) response.readableStreamBody = responseStream;
 				else response.bodyAsText = await streamToText(responseStream);
 				return response;
 			} finally {
@@ -21270,8 +21375,7 @@ var require_nodeHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@typespe
 					let downloadStreamDone = Promise.resolve();
 					if (isReadableStream$1(responseStream)) downloadStreamDone = isStreamComplete(responseStream);
 					Promise.all([uploadStreamDone, downloadStreamDone]).then(() => {
-						var _a$4;
-						if (abortListener) (_a$4 = request$1.abortSignal) === null || _a$4 === void 0 || _a$4.removeEventListener("abort", abortListener);
+						if (abortListener) request$1.abortSignal?.removeEventListener("abort", abortListener);
 					}).catch((e) => {
 						log_js_1$16.logger.warning("Error when cleaning up abortListener on httpRequest", e);
 					});
@@ -21279,25 +21383,23 @@ var require_nodeHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@typespe
 			}
 		}
 		makeRequest(request$1, abortController, body) {
-			var _a$3;
 			const url = new URL(request$1.url);
 			const isInsecure = url.protocol !== "https:";
 			if (isInsecure && !request$1.allowInsecureConnection) throw new Error(`Cannot connect to ${request$1.url} while allowInsecureConnection is false.`);
-			const agent = (_a$3 = request$1.agent) !== null && _a$3 !== void 0 ? _a$3 : this.getOrCreateAgent(request$1, isInsecure);
-			const options = Object.assign({
-				agent,
+			const options = {
+				agent: request$1.agent ?? this.getOrCreateAgent(request$1, isInsecure),
 				hostname: url.hostname,
 				path: `${url.pathname}${url.search}`,
 				port: url.port,
 				method: request$1.method,
-				headers: request$1.headers.toJSON({ preserveCase: true })
-			}, request$1.requestOverrides);
+				headers: request$1.headers.toJSON({ preserveCase: true }),
+				...request$1.requestOverrides
+			};
 			return new Promise((resolve, reject) => {
-				const req$1 = isInsecure ? http$2.request(options, resolve) : https$1.request(options, resolve);
+				const req$1 = isInsecure ? node_http_1.default.request(options, resolve) : node_https_1.default.request(options, resolve);
 				req$1.once("error", (err) => {
-					var _a$4;
 					reject(new restError_js_1$7.RestError(err.message, {
-						code: (_a$4 = err.code) !== null && _a$4 !== void 0 ? _a$4 : restError_js_1$7.RestError.REQUEST_SEND_ERROR,
+						code: err.code ?? restError_js_1$7.RestError.REQUEST_SEND_ERROR,
 						request: request$1
 					}));
 				});
@@ -21317,19 +21419,21 @@ var require_nodeHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@typespe
 			});
 		}
 		getOrCreateAgent(request$1, isInsecure) {
-			var _a$3;
 			const disableKeepAlive = request$1.disableKeepAlive;
 			if (isInsecure) {
-				if (disableKeepAlive) return http$2.globalAgent;
-				if (!this.cachedHttpAgent) this.cachedHttpAgent = new http$2.Agent({ keepAlive: true });
+				if (disableKeepAlive) return node_http_1.default.globalAgent;
+				if (!this.cachedHttpAgent) this.cachedHttpAgent = new node_http_1.default.Agent({ keepAlive: true });
 				return this.cachedHttpAgent;
 			} else {
-				if (disableKeepAlive && !request$1.tlsSettings) return https$1.globalAgent;
-				const tlsSettings = (_a$3 = request$1.tlsSettings) !== null && _a$3 !== void 0 ? _a$3 : DEFAULT_TLS_SETTINGS;
+				if (disableKeepAlive && !request$1.tlsSettings) return node_https_1.default.globalAgent;
+				const tlsSettings = request$1.tlsSettings ?? DEFAULT_TLS_SETTINGS;
 				let agent = this.cachedHttpsAgents.get(tlsSettings);
 				if (agent && agent.options.keepAlive === !disableKeepAlive) return agent;
 				log_js_1$16.logger.info("No cached TLS Agent exist, creating a new Agent");
-				agent = new https$1.Agent(Object.assign({ keepAlive: !disableKeepAlive }, tlsSettings));
+				agent = new node_https_1.default.Agent({
+					keepAlive: !disableKeepAlive,
+					...tlsSettings
+				});
 				this.cachedHttpsAgents.set(tlsSettings, agent);
 				return agent;
 			}
@@ -21348,11 +21452,11 @@ var require_nodeHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@typespe
 	function getDecodedResponseStream(stream$3, headers) {
 		const contentEncoding = headers.get("Content-Encoding");
 		if (contentEncoding === "gzip") {
-			const unzip = zlib.createGunzip();
+			const unzip = node_zlib_1.default.createGunzip();
 			stream$3.pipe(unzip);
 			return unzip;
 		} else if (contentEncoding === "deflate") {
-			const inflate = zlib.createInflate();
+			const inflate = node_zlib_1.default.createInflate();
 			stream$3.pipe(inflate);
 			return inflate;
 		}
@@ -21369,7 +21473,7 @@ var require_nodeHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@typespe
 				resolve(Buffer.concat(buffer$1).toString("utf8"));
 			});
 			stream$3.on("error", (e) => {
-				if (e && (e === null || e === void 0 ? void 0 : e.name) === "AbortError") reject(e);
+				if (e && e?.name === "AbortError") reject(e);
 				else reject(new restError_js_1$7.RestError(`Error reading response as text: ${e.message}`, { code: restError_js_1$7.RestError.PARSE_ERROR }));
 			});
 		});
@@ -21422,8 +21526,7 @@ var require_logPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/t
 	* @param options - Options to configure logPolicy.
 	*/
 	function logPolicy$1(options = {}) {
-		var _a$3;
-		const logger = (_a$3 = options.logger) !== null && _a$3 !== void 0 ? _a$3 : log_js_1$15.logger.info;
+		const logger = options.logger ?? log_js_1$15.logger.info;
 		const sanitizer = new sanitizer_js_1$1.Sanitizer({
 			additionalAllowedHeaderNames: options.additionalAllowedHeaderNames,
 			additionalAllowedQueryParameters: options.additionalAllowedQueryParameters
@@ -21495,9 +21598,9 @@ var require_userAgentPlatform$1 = /* @__PURE__ */ __commonJS({ "node_modules/@ty
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.getHeaderName = getHeaderName$1;
 	exports.setPlatformSpecificData = setPlatformSpecificData$1;
-	const tslib_1$17 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
-	const os$1 = tslib_1$17.__importStar(__require("node:os"));
-	const process$2 = tslib_1$17.__importStar(__require("node:process"));
+	const tslib_1$16 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
+	const node_os_1$1 = tslib_1$16.__importDefault(__require("node:os"));
+	const node_process_1$1 = tslib_1$16.__importDefault(__require("node:process"));
 	/**
 	* @internal
 	*/
@@ -21508,13 +21611,13 @@ var require_userAgentPlatform$1 = /* @__PURE__ */ __commonJS({ "node_modules/@ty
 	* @internal
 	*/
 	async function setPlatformSpecificData$1(map) {
-		if (process$2 && process$2.versions) {
-			const versions = process$2.versions;
+		if (node_process_1$1.default && node_process_1$1.default.versions) {
+			const versions = node_process_1$1.default.versions;
 			if (versions.bun) map.set("Bun", versions.bun);
 			else if (versions.deno) map.set("Deno", versions.deno);
 			else if (versions.node) map.set("Node", versions.node);
 		}
-		map.set("OS", `(${os$1.arch()}-${os$1.type()}-${os$1.release()})`);
+		map.set("OS", `(${node_os_1$1.default.arch()}-${node_os_1$1.default.type()}-${node_os_1$1.default.release()})`);
 	}
 }) });
 
@@ -21522,7 +21625,7 @@ var require_userAgentPlatform$1 = /* @__PURE__ */ __commonJS({ "node_modules/@ty
 //#region node_modules/@typespec/ts-http-runtime/dist/commonjs/constants.js
 var require_constants$4 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-http-runtime/dist/commonjs/constants.js": ((exports) => {
 	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.SDK_VERSION = "0.3.0";
+	exports.SDK_VERSION = "0.3.1";
 	exports.DEFAULT_RETRY_POLICY_COUNT = 3;
 }) });
 
@@ -21673,22 +21776,22 @@ var require_helpers$1 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-
 			let timer = void 0;
 			let onAborted = void 0;
 			const rejectOnAbort = () => {
-				return reject(new AbortError_js_1$5.AbortError((options === null || options === void 0 ? void 0 : options.abortErrorMsg) ? options === null || options === void 0 ? void 0 : options.abortErrorMsg : StandardAbortMessage$1));
+				return reject(new AbortError_js_1$5.AbortError(options?.abortErrorMsg ? options?.abortErrorMsg : StandardAbortMessage$1));
 			};
 			const removeListeners = () => {
-				if ((options === null || options === void 0 ? void 0 : options.abortSignal) && onAborted) options.abortSignal.removeEventListener("abort", onAborted);
+				if (options?.abortSignal && onAborted) options.abortSignal.removeEventListener("abort", onAborted);
 			};
 			onAborted = () => {
 				if (timer) clearTimeout(timer);
 				removeListeners();
 				return rejectOnAbort();
 			};
-			if ((options === null || options === void 0 ? void 0 : options.abortSignal) && options.abortSignal.aborted) return rejectOnAbort();
+			if (options?.abortSignal && options.abortSignal.aborted) return rejectOnAbort();
 			timer = setTimeout(() => {
 				removeListeners();
 				resolve(value);
 			}, delayInMs);
-			if (options === null || options === void 0 ? void 0 : options.abortSignal) options.abortSignal.addEventListener("abort", onAborted);
+			if (options?.abortSignal) options.abortSignal.addEventListener("abort", onAborted);
 		});
 	}
 	/**
@@ -21748,7 +21851,7 @@ var require_throttlingRetryStrategy = /* @__PURE__ */ __commonJS({ "node_modules
 			if (!retryAfterHeader) return;
 			const diff$1 = Date.parse(retryAfterHeader) - Date.now();
 			return Number.isFinite(diff$1) ? Math.max(0, diff$1) : void 0;
-		} catch (_a$3) {
+		} catch {
 			return;
 		}
 	}
@@ -21788,9 +21891,8 @@ var require_exponentialRetryStrategy = /* @__PURE__ */ __commonJS({ "node_module
 	* - Or otherwise if the outgoing request fails (408, greater or equal than 500, except for 501 and 505).
 	*/
 	function exponentialRetryStrategy(options = {}) {
-		var _a$3, _b$1;
-		const retryInterval = (_a$3 = options.retryDelayInMs) !== null && _a$3 !== void 0 ? _a$3 : DEFAULT_CLIENT_RETRY_INTERVAL;
-		const maxRetryInterval = (_b$1 = options.maxRetryDelayInMs) !== null && _b$1 !== void 0 ? _b$1 : DEFAULT_CLIENT_MAX_RETRY_INTERVAL;
+		const retryInterval = options.retryDelayInMs ?? DEFAULT_CLIENT_RETRY_INTERVAL;
+		const maxRetryInterval = options.maxRetryDelayInMs ?? DEFAULT_CLIENT_MAX_RETRY_INTERVAL;
 		return {
 			name: "exponentialRetryStrategy",
 			retry({ retryCount, response, responseError }) {
@@ -21846,7 +21948,6 @@ var require_retryPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec
 		return {
 			name: retryPolicyName,
 			async sendRequest(request$1, next) {
-				var _a$3, _b$1;
 				let response;
 				let responseError;
 				let retryCount = -1;
@@ -21864,11 +21965,11 @@ var require_retryPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec
 						if (!e || responseError.name !== "RestError") throw e;
 						response = responseError.response;
 					}
-					if ((_a$3 = request$1.abortSignal) === null || _a$3 === void 0 ? void 0 : _a$3.aborted) {
+					if (request$1.abortSignal?.aborted) {
 						logger.error(`Retry ${retryCount}: Request aborted.`);
 						throw new AbortError_js_1$4.AbortError();
 					}
-					if (retryCount >= ((_b$1 = options.maxRetries) !== null && _b$1 !== void 0 ? _b$1 : constants_js_1$37.DEFAULT_RETRY_POLICY_COUNT)) {
+					if (retryCount >= (options.maxRetries ?? constants_js_1$37.DEFAULT_RETRY_POLICY_COUNT)) {
 						logger.info(`Retry ${retryCount}: Maximum retries reached. Returning the last received response, or throwing the last received error.`);
 						if (responseError) throw responseError;
 						else if (response) return response;
@@ -21937,10 +22038,9 @@ var require_defaultRetryPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@t
 	* - Or otherwise if the outgoing request fails, it will retry with an exponentially increasing delay.
 	*/
 	function defaultRetryPolicy$1(options = {}) {
-		var _a$3;
 		return {
 			name: exports.defaultRetryPolicyName,
-			sendRequest: (0, retryPolicy_js_1$5.retryPolicy)([(0, throttlingRetryStrategy_js_1$1.throttlingRetryStrategy)(), (0, exponentialRetryStrategy_js_1$2.exponentialRetryStrategy)(options)], { maxRetries: (_a$3 = options.maxRetries) !== null && _a$3 !== void 0 ? _a$3 : constants_js_1$36.DEFAULT_RETRY_POLICY_COUNT }).sendRequest
+			sendRequest: (0, retryPolicy_js_1$5.retryPolicy)([(0, throttlingRetryStrategy_js_1$1.throttlingRetryStrategy)(), (0, exponentialRetryStrategy_js_1$2.exponentialRetryStrategy)(options)], { maxRetries: options.maxRetries ?? constants_js_1$36.DEFAULT_RETRY_POLICY_COUNT }).sendRequest
 		};
 	}
 }) });
@@ -21948,7 +22048,6 @@ var require_defaultRetryPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@t
 //#endregion
 //#region node_modules/@typespec/ts-http-runtime/dist/commonjs/util/checkEnvironment.js
 var require_checkEnvironment = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-http-runtime/dist/commonjs/util/checkEnvironment.js": ((exports) => {
-	var _a, _b, _c, _d;
 	Object.defineProperty(exports, "__esModule", { value: true });
 	/**
 	* A constant that indicates whether the environment the code is running is a Web Browser.
@@ -21957,7 +22056,7 @@ var require_checkEnvironment = /* @__PURE__ */ __commonJS({ "node_modules/@types
 	/**
 	* A constant that indicates whether the environment the code is running is a Web Worker.
 	*/
-	exports.isWebWorker = typeof self === "object" && typeof (self === null || self === void 0 ? void 0 : self.importScripts) === "function" && (((_a = self.constructor) === null || _a === void 0 ? void 0 : _a.name) === "DedicatedWorkerGlobalScope" || ((_b = self.constructor) === null || _b === void 0 ? void 0 : _b.name) === "ServiceWorkerGlobalScope" || ((_c = self.constructor) === null || _c === void 0 ? void 0 : _c.name) === "SharedWorkerGlobalScope");
+	exports.isWebWorker = typeof self === "object" && typeof self?.importScripts === "function" && (self.constructor?.name === "DedicatedWorkerGlobalScope" || self.constructor?.name === "ServiceWorkerGlobalScope" || self.constructor?.name === "SharedWorkerGlobalScope");
 	/**
 	* A constant that indicates whether the environment the code is running is Deno.
 	*/
@@ -21969,7 +22068,7 @@ var require_checkEnvironment = /* @__PURE__ */ __commonJS({ "node_modules/@types
 	/**
 	* A constant that indicates whether the environment the code is running is a Node.js compatible environment.
 	*/
-	exports.isNodeLike = typeof globalThis.process !== "undefined" && Boolean(globalThis.process.version) && Boolean((_d = globalThis.process.versions) === null || _d === void 0 ? void 0 : _d.node);
+	exports.isNodeLike = typeof globalThis.process !== "undefined" && Boolean(globalThis.process.version) && Boolean(globalThis.process.versions?.node);
 	/**
 	* A constant that indicates whether the environment the code is running is Node.JS.
 	*/
@@ -21977,7 +22076,7 @@ var require_checkEnvironment = /* @__PURE__ */ __commonJS({ "node_modules/@types
 	/**
 	* A constant that indicates whether the environment the code is running is in React-Native.
 	*/
-	exports.isReactNative = typeof navigator !== "undefined" && (navigator === null || navigator === void 0 ? void 0 : navigator.product) === "ReactNative";
+	exports.isReactNative = typeof navigator !== "undefined" && navigator?.product === "ReactNative";
 }) });
 
 //#endregion
@@ -21993,10 +22092,9 @@ var require_formDataPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@types
 	*/
 	exports.formDataPolicyName = "formDataPolicy";
 	function formDataToFormDataMap(formData) {
-		var _a$3;
 		const formDataMap = {};
 		for (const [key, value] of formData.entries()) {
-			(_a$3 = formDataMap[key]) !== null && _a$3 !== void 0 || (formDataMap[key] = []);
+			formDataMap[key] ??= [];
 			formDataMap[key].push(value);
 		}
 		return formDataMap;
@@ -22031,7 +22129,7 @@ var require_formDataPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@types
 	async function prepareFormData(formData, request$1) {
 		const contentType = request$1.headers.get("Content-Type");
 		if (contentType && !contentType.startsWith("multipart/form-data")) return;
-		request$1.headers.set("Content-Type", contentType !== null && contentType !== void 0 ? contentType : "multipart/form-data");
+		request$1.headers.set("Content-Type", contentType ?? "multipart/form-data");
 		const parts = [];
 		for (const [fieldName, values] of Object.entries(formData)) for (const value of Array.isArray(values) ? values : [values]) if (typeof value === "string") parts.push({
 			headers: (0, httpHeaders_js_1$5.createHttpHeaders)({ "Content-Disposition": `form-data; name="${fieldName}"` }),
@@ -23385,13 +23483,13 @@ var require_proxyPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec
 	function isBypassed(uri, noProxyList, bypassedMap) {
 		if (noProxyList.length === 0) return false;
 		const host = new URL(uri).hostname;
-		if (bypassedMap === null || bypassedMap === void 0 ? void 0 : bypassedMap.has(host)) return bypassedMap.get(host);
+		if (bypassedMap?.has(host)) return bypassedMap.get(host);
 		let isBypassedFlag = false;
 		for (const pattern of noProxyList) if (pattern[0] === ".") {
 			if (host.endsWith(pattern)) isBypassedFlag = true;
 			else if (host.length === pattern.length - 1 && host === pattern.slice(1)) isBypassedFlag = true;
 		} else if (host === pattern) isBypassedFlag = true;
-		bypassedMap === null || bypassedMap === void 0 || bypassedMap.set(host, isBypassedFlag);
+		bypassedMap?.set(host, isBypassedFlag);
 		return isBypassedFlag;
 	}
 	function loadNoProxy() {
@@ -23432,7 +23530,7 @@ var require_proxyPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec
 		let parsedProxyUrl;
 		try {
 			parsedProxyUrl = new URL(settings.host);
-		} catch (_a$3) {
+		} catch {
 			throw new Error(`Expecting a valid host string in proxy settings, but found "${settings.host}".`);
 		}
 		parsedProxyUrl.port = String(settings.port);
@@ -23467,8 +23565,7 @@ var require_proxyPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec
 		return {
 			name: exports.proxyPolicyName,
 			async sendRequest(request$1, next) {
-				var _a$3;
-				if (!request$1.proxySettings && defaultProxy && !isBypassed(request$1.url, (_a$3 = options === null || options === void 0 ? void 0 : options.customNoProxyList) !== null && _a$3 !== void 0 ? _a$3 : exports.globalNoProxyList, (options === null || options === void 0 ? void 0 : options.customNoProxyList) ? void 0 : globalBypassedMap)) setProxyAgentOnRequest(request$1, cachedAgents, defaultProxy);
+				if (!request$1.proxySettings && defaultProxy && !isBypassed(request$1.url, options?.customNoProxyList ?? exports.globalNoProxyList, options?.customNoProxyList ? void 0 : globalBypassedMap)) setProxyAgentOnRequest(request$1, cachedAgents, defaultProxy);
 				else if (request$1.proxySettings) setProxyAgentOnRequest(request$1, cachedAgents, getUrlFromProxySettings(request$1.proxySettings));
 				return next(request$1);
 			}
@@ -23553,22 +23650,19 @@ var require_typeGuards$1 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/
 var require_concat = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-http-runtime/dist/commonjs/util/concat.js": ((exports) => {
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.concat = concat;
-	const tslib_1$16 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
 	const stream_1 = __require("stream");
 	const typeGuards_js_1$4 = require_typeGuards$1();
-	function streamAsyncIterator() {
-		return tslib_1$16.__asyncGenerator(this, arguments, function* streamAsyncIterator_1() {
-			const reader = this.getReader();
-			try {
-				while (true) {
-					const { done, value } = yield tslib_1$16.__await(reader.read());
-					if (done) return yield tslib_1$16.__await(void 0);
-					yield yield tslib_1$16.__await(value);
-				}
-			} finally {
-				reader.releaseLock();
+	async function* streamAsyncIterator() {
+		const reader = this.getReader();
+		try {
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) return;
+				yield value;
 			}
-		});
+		} finally {
+			reader.releaseLock();
+		}
 	}
 	function makeAsyncIterable(webStream) {
 		if (!webStream[Symbol.asyncIterator]) webStream[Symbol.asyncIterator] = streamAsyncIterator.bind(webStream);
@@ -23597,26 +23691,8 @@ var require_concat = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-htt
 	async function concat(sources) {
 		return function() {
 			const streams = sources.map((x) => typeof x === "function" ? x() : x).map(toStream);
-			return stream_1.Readable.from((function() {
-				return tslib_1$16.__asyncGenerator(this, arguments, function* () {
-					var _a$3, e_1, _b$1, _c$1;
-					for (const stream$3 of streams) try {
-						for (var _d$1 = true, stream_2 = (e_1 = void 0, tslib_1$16.__asyncValues(stream$3)), stream_2_1; stream_2_1 = yield tslib_1$16.__await(stream_2.next()), _a$3 = stream_2_1.done, !_a$3; _d$1 = true) {
-							_c$1 = stream_2_1.value;
-							_d$1 = false;
-							const chunk = _c$1;
-							yield yield tslib_1$16.__await(chunk);
-						}
-					} catch (e_1_1) {
-						e_1 = { error: e_1_1 };
-					} finally {
-						try {
-							if (!_d$1 && !_a$3 && (_b$1 = stream_2.return)) yield tslib_1$16.__await(_b$1.call(stream_2));
-						} finally {
-							if (e_1) throw e_1.error;
-						}
-					}
-				});
+			return stream_1.Readable.from((async function* () {
+				for (const stream$3 of streams) for await (const chunk of stream$3) yield chunk;
 			})());
 		};
 	}
@@ -23686,16 +23762,15 @@ var require_multipartPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@type
 		return {
 			name: exports.multipartPolicyName,
 			async sendRequest(request$1, next) {
-				var _a$3;
 				if (!request$1.multipartBody) return next(request$1);
 				if (request$1.body) throw new Error("multipartBody and regular body cannot be set at the same time");
 				let boundary = request$1.multipartBody.boundary;
-				const contentTypeHeader = (_a$3 = request$1.headers.get("Content-Type")) !== null && _a$3 !== void 0 ? _a$3 : "multipart/mixed";
+				const contentTypeHeader = request$1.headers.get("Content-Type") ?? "multipart/mixed";
 				const parsedHeader = contentTypeHeader.match(/^(multipart\/[^ ;]+)(?:; *boundary=(.+))?$/);
 				if (!parsedHeader) throw new Error(`Got multipart request body, but content-type header was not multipart: ${contentTypeHeader}`);
 				const [, contentType, parsedBoundary] = parsedHeader;
 				if (parsedBoundary && boundary && parsedBoundary !== boundary) throw new Error(`Multipart boundary was specified as ${parsedBoundary} in the header, but got ${boundary} in the request body`);
-				boundary !== null && boundary !== void 0 || (boundary = parsedBoundary);
+				boundary ??= parsedBoundary;
 				if (boundary) assertValidBoundary(boundary);
 				else boundary = generateBoundary();
 				request$1.headers.set("Content-Type", `${contentType}; boundary=${boundary}`);
@@ -23833,7 +23908,7 @@ var require_checkInsecureConnection = /* @__PURE__ */ __commonJS({ "node_modules
 	function emitInsecureConnectionWarning() {
 		const warning$1 = "Sending token over insecure transport. Assume any token issued is compromised.";
 		log_js_1$13.logger.warning(warning$1);
-		if (typeof (process === null || process === void 0 ? void 0 : process.emitWarning) === "function" && !insecureConnectionWarningEmmitted) {
+		if (typeof process?.emitWarning === "function" && !insecureConnectionWarningEmmitted) {
 			insecureConnectionWarningEmmitted = true;
 			process.emitWarning(warning$1);
 		}
@@ -23865,9 +23940,8 @@ var require_apiKeyAuthenticationPolicy = /* @__PURE__ */ __commonJS({ "node_modu
 		return {
 			name: exports.apiKeyAuthenticationPolicyName,
 			async sendRequest(request$1, next) {
-				var _a$3, _b$1;
 				(0, checkInsecureConnection_js_1$3.ensureSecureConnection)(request$1, options);
-				const scheme = (_b$1 = (_a$3 = request$1.authSchemes) !== null && _a$3 !== void 0 ? _a$3 : options.authSchemes) === null || _b$1 === void 0 ? void 0 : _b$1.find((x) => x.kind === "apiKey");
+				const scheme = (request$1.authSchemes ?? options.authSchemes)?.find((x) => x.kind === "apiKey");
 				if (!scheme) return next(request$1);
 				if (scheme.apiKeyLocation !== "header") throw new Error(`Unsupported API key location: ${scheme.apiKeyLocation}`);
 				request$1.headers.set(scheme.name, options.credential.key);
@@ -23895,9 +23969,8 @@ var require_basicAuthenticationPolicy = /* @__PURE__ */ __commonJS({ "node_modul
 		return {
 			name: exports.basicAuthenticationPolicyName,
 			async sendRequest(request$1, next) {
-				var _a$3, _b$1;
 				(0, checkInsecureConnection_js_1$2.ensureSecureConnection)(request$1, options);
-				if (!((_b$1 = (_a$3 = request$1.authSchemes) !== null && _a$3 !== void 0 ? _a$3 : options.authSchemes) === null || _b$1 === void 0 ? void 0 : _b$1.find((x) => x.kind === "http" && x.scheme === "basic"))) return next(request$1);
+				if (!(request$1.authSchemes ?? options.authSchemes)?.find((x) => x.kind === "http" && x.scheme === "basic")) return next(request$1);
 				const { username, password } = options.credential;
 				const headerValue = (0, bytesEncoding_js_1$3.uint8ArrayToString)((0, bytesEncoding_js_1$3.stringToUint8Array)(`${username}:${password}`, "utf-8"), "base64");
 				request$1.headers.set("Authorization", `Basic ${headerValue}`);
@@ -23924,9 +23997,8 @@ var require_bearerAuthenticationPolicy = /* @__PURE__ */ __commonJS({ "node_modu
 		return {
 			name: exports.bearerAuthenticationPolicyName,
 			async sendRequest(request$1, next) {
-				var _a$3, _b$1;
 				(0, checkInsecureConnection_js_1$1.ensureSecureConnection)(request$1, options);
-				if (!((_b$1 = (_a$3 = request$1.authSchemes) !== null && _a$3 !== void 0 ? _a$3 : options.authSchemes) === null || _b$1 === void 0 ? void 0 : _b$1.find((x) => x.kind === "http" && x.scheme === "bearer"))) return next(request$1);
+				if (!(request$1.authSchemes ?? options.authSchemes)?.find((x) => x.kind === "http" && x.scheme === "bearer")) return next(request$1);
 				const token = await options.credential.getBearerToken({ abortSignal: request$1.abortSignal });
 				request$1.headers.set("Authorization", `Bearer ${token}`);
 				return next(request$1);
@@ -23952,9 +24024,8 @@ var require_oauth2AuthenticationPolicy = /* @__PURE__ */ __commonJS({ "node_modu
 		return {
 			name: exports.oauth2AuthenticationPolicyName,
 			async sendRequest(request$1, next) {
-				var _a$3, _b$1;
 				(0, checkInsecureConnection_js_1.ensureSecureConnection)(request$1, options);
-				const scheme = (_b$1 = (_a$3 = request$1.authSchemes) !== null && _a$3 !== void 0 ? _a$3 : options.authSchemes) === null || _b$1 === void 0 ? void 0 : _b$1.find((x) => x.kind === "oauth2");
+				const scheme = (request$1.authSchemes ?? options.authSchemes)?.find((x) => x.kind === "oauth2");
 				if (!scheme) return next(request$1);
 				const token = await options.credential.getOAuth2Token(scheme.flows, { abortSignal: request$1.abortSignal });
 				request$1.headers.set("Authorization", `Bearer ${token}`);
@@ -24054,11 +24125,10 @@ var require_multipart = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-
 		return JSON.stringify(value);
 	}
 	function getContentDisposition(descriptor) {
-		var _a$3;
 		const contentDispositionHeader = getHeaderValue(descriptor, "content-disposition");
 		if (contentDispositionHeader) return contentDispositionHeader;
 		if (descriptor.dispositionType === void 0 && descriptor.name === void 0 && descriptor.filename === void 0) return;
-		let disposition = (_a$3 = descriptor.dispositionType) !== null && _a$3 !== void 0 ? _a$3 : "form-data";
+		let disposition = descriptor.dispositionType ?? "form-data";
 		if (descriptor.name) disposition += `; name=${escapeDispositionField(descriptor.name)}`;
 		let filename = void 0;
 		if (descriptor.filename) filename = descriptor.filename;
@@ -24077,10 +24147,9 @@ var require_multipart = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-
 		throw new restError_js_1$6.RestError(`Unsupported body/content-type combination: ${body}, ${contentType}`);
 	}
 	function buildBodyPart(descriptor) {
-		var _a$3;
 		const contentType = getPartContentType(descriptor);
 		const contentDisposition = getContentDisposition(descriptor);
-		const headers = (0, httpHeaders_js_1$4.createHttpHeaders)((_a$3 = descriptor.headers) !== null && _a$3 !== void 0 ? _a$3 : {});
+		const headers = (0, httpHeaders_js_1$4.createHttpHeaders)(descriptor.headers ?? {});
 		if (contentType) headers.set("content-type", contentType);
 		if (contentDisposition) headers.set("content-disposition", contentDisposition);
 		const body = normalizeBody(descriptor.body, contentType);
@@ -24115,20 +24184,20 @@ var require_sendRequest = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/t
 	* @returns returns and HttpResponse
 	*/
 	async function sendRequest(method, url, pipeline$3, options = {}, customHttpClient) {
-		var _a$3;
-		const httpClient = customHttpClient !== null && customHttpClient !== void 0 ? customHttpClient : (0, clientHelpers_js_1$1.getCachedDefaultHttpsClient)();
+		const httpClient = customHttpClient ?? (0, clientHelpers_js_1$1.getCachedDefaultHttpsClient)();
 		const request$1 = buildPipelineRequest(method, url, options);
 		try {
 			const response = await pipeline$3.sendRequest(httpClient, request$1);
 			const headers = response.headers.toJSON();
-			const stream$3 = (_a$3 = response.readableStreamBody) !== null && _a$3 !== void 0 ? _a$3 : response.browserStreamBody;
+			const stream$3 = response.readableStreamBody ?? response.browserStreamBody;
 			const parsedBody = options.responseAsStream || stream$3 !== void 0 ? void 0 : getResponseBody(response);
-			const body = stream$3 !== null && stream$3 !== void 0 ? stream$3 : parsedBody;
-			if (options === null || options === void 0 ? void 0 : options.onResponse) options.onResponse(Object.assign(Object.assign({}, response), {
+			const body = stream$3 ?? parsedBody;
+			if (options?.onResponse) options.onResponse({
+				...response,
 				request: request$1,
 				rawHeaders: headers,
 				parsedBody
-			}));
+			});
 			return {
 				request: request$1,
 				headers,
@@ -24139,10 +24208,11 @@ var require_sendRequest = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/t
 			if ((0, restError_js_1$5.isRestError)(e) && e.response && options.onResponse) {
 				const { response } = e;
 				const rawHeaders = response.headers.toJSON();
-				options === null || options === void 0 || options.onResponse(Object.assign(Object.assign({}, response), {
+				options?.onResponse({
+					...response,
 					request: request$1,
 					rawHeaders
-				}), e);
+				}, e);
 			}
 			throw e;
 		}
@@ -24153,8 +24223,7 @@ var require_sendRequest = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/t
 	* @returns returns the content-type
 	*/
 	function getRequestContentType(options = {}) {
-		var _a$3, _b$1, _c$1;
-		return (_c$1 = (_a$3 = options.contentType) !== null && _a$3 !== void 0 ? _a$3 : (_b$1 = options.headers) === null || _b$1 === void 0 ? void 0 : _b$1["content-type"]) !== null && _c$1 !== void 0 ? _c$1 : getContentType(options.body);
+		return options.contentType ?? options.headers?.["content-type"] ?? getContentType(options.body);
 	}
 	/**
 	* Function to determine the content-type of a body
@@ -24173,11 +24242,14 @@ var require_sendRequest = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/t
 		return "application/json";
 	}
 	function buildPipelineRequest(method, url, options = {}) {
-		var _a$3, _b$1, _c$1;
 		const requestContentType = getRequestContentType(options);
 		const { body, multipartBody } = getRequestBody(options.body, requestContentType);
 		const hasContent = body !== void 0 || multipartBody !== void 0;
-		const headers = (0, httpHeaders_js_1$3.createHttpHeaders)(Object.assign(Object.assign(Object.assign({}, options.headers ? options.headers : {}), { accept: (_c$1 = (_a$3 = options.accept) !== null && _a$3 !== void 0 ? _a$3 : (_b$1 = options.headers) === null || _b$1 === void 0 ? void 0 : _b$1.accept) !== null && _c$1 !== void 0 ? _c$1 : "application/json" }), hasContent && requestContentType && { "content-type": requestContentType }));
+		const headers = (0, httpHeaders_js_1$3.createHttpHeaders)({
+			...options.headers ? options.headers : {},
+			accept: options.accept ?? options.headers?.accept ?? "application/json",
+			...hasContent && requestContentType && { "content-type": requestContentType }
+		});
 		return (0, pipelineRequest_js_1$2.createPipelineRequest)({
 			url,
 			method,
@@ -24216,9 +24288,8 @@ var require_sendRequest = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/t
 	* Prepares the response body
 	*/
 	function getResponseBody(response) {
-		var _a$3, _b$1;
-		const firstType = ((_a$3 = response.headers.get("content-type")) !== null && _a$3 !== void 0 ? _a$3 : "").split(";")[0];
-		const bodyToParse = (_b$1 = response.bodyAsText) !== null && _b$1 !== void 0 ? _b$1 : "";
+		const firstType = (response.headers.get("content-type") ?? "").split(";")[0];
+		const bodyToParse = response.bodyAsText ?? "";
 		if (firstType === "text/plain") return String(bodyToParse);
 		try {
 			return bodyToParse ? JSON.parse(bodyToParse) : void 0;
@@ -24228,9 +24299,8 @@ var require_sendRequest = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/t
 		}
 	}
 	function createParseError(response, err) {
-		var _a$3;
 		const msg = `Error "${err}" occurred while parsing the response body - ${response.bodyAsText}.`;
-		const errCode = (_a$3 = err.code) !== null && _a$3 !== void 0 ? _a$3 : restError_js_1$5.RestError.PARSE_ERROR;
+		const errCode = err.code ?? restError_js_1$5.RestError.PARSE_ERROR;
 		return new restError_js_1$5.RestError(msg, {
 			code: errCode,
 			statusCode: response.status,
@@ -24284,7 +24354,6 @@ var require_urlHelpers$1 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/
 		return `${allowReserved ? key : encodeURIComponent(key)}=${value}`;
 	}
 	function appendQueryParams$1(url, options = {}) {
-		var _a$3, _b$1, _c$1, _d$1;
 		if (!options.queryParameters) return url;
 		const parsedUrl = new URL(url);
 		const queryParams = options.queryParameters;
@@ -24294,19 +24363,18 @@ var require_urlHelpers$1 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/
 			if (param === void 0 || param === null) continue;
 			const hasMetadata = isQueryParameterWithOptions(param);
 			const rawValue = hasMetadata ? param.value : param;
-			const explode = hasMetadata ? (_a$3 = param.explode) !== null && _a$3 !== void 0 ? _a$3 : false : false;
+			const explode = hasMetadata ? param.explode ?? false : false;
 			const style = hasMetadata && param.style ? param.style : "form";
-			if (explode) if (Array.isArray(rawValue)) for (const item of rawValue) paramStrings.push(getQueryParamValue(key, (_b$1 = options.skipUrlEncoding) !== null && _b$1 !== void 0 ? _b$1 : false, style, item));
-			else if (typeof rawValue === "object") for (const [actualKey, value] of Object.entries(rawValue)) paramStrings.push(getQueryParamValue(actualKey, (_c$1 = options.skipUrlEncoding) !== null && _c$1 !== void 0 ? _c$1 : false, style, value));
+			if (explode) if (Array.isArray(rawValue)) for (const item of rawValue) paramStrings.push(getQueryParamValue(key, options.skipUrlEncoding ?? false, style, item));
+			else if (typeof rawValue === "object") for (const [actualKey, value] of Object.entries(rawValue)) paramStrings.push(getQueryParamValue(actualKey, options.skipUrlEncoding ?? false, style, value));
 			else throw new Error("explode can only be set to true for objects and arrays");
-			else paramStrings.push(getQueryParamValue(key, (_d$1 = options.skipUrlEncoding) !== null && _d$1 !== void 0 ? _d$1 : false, style, rawValue));
+			else paramStrings.push(getQueryParamValue(key, options.skipUrlEncoding ?? false, style, rawValue));
 		}
 		if (parsedUrl.search !== "") parsedUrl.search += "&";
 		parsedUrl.search += paramStrings.join("&");
 		return parsedUrl.toString();
 	}
 	function buildBaseUrl(endpoint, options) {
-		var _a$3;
 		if (!options.pathParameters) return endpoint;
 		const pathParams = options.pathParameters;
 		for (const [key, param] of Object.entries(pathParams)) {
@@ -24314,14 +24382,13 @@ var require_urlHelpers$1 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/
 			if (!param.toString || typeof param.toString !== "function") throw new Error(`Path parameters must be able to be represented as string, ${key} can't`);
 			let value = param.toISOString !== void 0 ? param.toISOString() : String(param);
 			if (!options.skipUrlEncoding) value = encodeURIComponent(param);
-			endpoint = (_a$3 = replaceAll$1(endpoint, `{${key}}`, value)) !== null && _a$3 !== void 0 ? _a$3 : "";
+			endpoint = replaceAll$1(endpoint, `{${key}}`, value) ?? "";
 		}
 		return endpoint;
 	}
 	function buildRoutePath(routePath, pathParameters, options = {}) {
-		var _a$3;
 		for (const pathParam of pathParameters) {
-			const allowReserved = typeof pathParam === "object" && ((_a$3 = pathParam.allowReserved) !== null && _a$3 !== void 0 ? _a$3 : false);
+			const allowReserved = typeof pathParam === "object" && (pathParam.allowReserved ?? false);
 			let value = typeof pathParam === "object" ? pathParam.value : pathParam;
 			if (!options.skipUrlEncoding && !allowReserved) value = encodeURIComponent(value);
 			routePath = routePath.replace(/\{[\w-]+\}/, String(value));
@@ -24356,16 +24423,18 @@ var require_getClient = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-
 	* @param options - Client options
 	*/
 	function getClient(endpoint, clientOptions = {}) {
-		var _a$3, _b$1, _c$1;
-		const pipeline$3 = (_a$3 = clientOptions.pipeline) !== null && _a$3 !== void 0 ? _a$3 : (0, clientHelpers_js_1.createDefaultPipeline)(clientOptions);
-		if ((_b$1 = clientOptions.additionalPolicies) === null || _b$1 === void 0 ? void 0 : _b$1.length) for (const { policy, position } of clientOptions.additionalPolicies) {
+		const pipeline$3 = clientOptions.pipeline ?? (0, clientHelpers_js_1.createDefaultPipeline)(clientOptions);
+		if (clientOptions.additionalPolicies?.length) for (const { policy, position } of clientOptions.additionalPolicies) {
 			const afterPhase = position === "perRetry" ? "Sign" : void 0;
 			pipeline$3.addPolicy(policy, { afterPhase });
 		}
 		const { allowInsecureConnection: allowInsecureConnection$1, httpClient } = clientOptions;
-		const endpointUrl = (_c$1 = clientOptions.endpoint) !== null && _c$1 !== void 0 ? _c$1 : endpoint;
+		const endpointUrl = clientOptions.endpoint ?? endpoint;
 		const client = (path$13, ...args) => {
-			const getUrl = (requestOptions) => (0, urlHelpers_js_1$1.buildRequestUrl)(endpointUrl, path$13, args, Object.assign({ allowInsecureConnection: allowInsecureConnection$1 }, requestOptions));
+			const getUrl = (requestOptions) => (0, urlHelpers_js_1$1.buildRequestUrl)(endpointUrl, path$13, args, {
+				allowInsecureConnection: allowInsecureConnection$1,
+				...requestOptions
+			});
 			return {
 				get: (requestOptions = {}) => {
 					return buildOperation("GET", getUrl(requestOptions), pipeline$3, requestOptions, allowInsecureConnection$1, httpClient);
@@ -24400,24 +24469,28 @@ var require_getClient = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-
 		};
 	}
 	function buildOperation(method, url, pipeline$3, options, allowInsecureConnection$1, httpClient) {
-		var _a$3;
-		allowInsecureConnection$1 = (_a$3 = options.allowInsecureConnection) !== null && _a$3 !== void 0 ? _a$3 : allowInsecureConnection$1;
+		allowInsecureConnection$1 = options.allowInsecureConnection ?? allowInsecureConnection$1;
 		return {
 			then: function(onFulfilled, onrejected) {
-				return (0, sendRequest_js_1.sendRequest)(method, url, pipeline$3, Object.assign(Object.assign({}, options), { allowInsecureConnection: allowInsecureConnection$1 }), httpClient).then(onFulfilled, onrejected);
+				return (0, sendRequest_js_1.sendRequest)(method, url, pipeline$3, {
+					...options,
+					allowInsecureConnection: allowInsecureConnection$1
+				}, httpClient).then(onFulfilled, onrejected);
 			},
 			async asBrowserStream() {
 				if (checkEnvironment_js_1$1.isNodeLike) throw new Error("`asBrowserStream` is supported only in the browser environment. Use `asNodeStream` instead to obtain the response body stream. If you require a Web stream of the response in Node, consider using `Readable.toWeb` on the result of `asNodeStream`.");
-				else return (0, sendRequest_js_1.sendRequest)(method, url, pipeline$3, Object.assign(Object.assign({}, options), {
+				else return (0, sendRequest_js_1.sendRequest)(method, url, pipeline$3, {
+					...options,
 					allowInsecureConnection: allowInsecureConnection$1,
 					responseAsStream: true
-				}), httpClient);
+				}, httpClient);
 			},
 			async asNodeStream() {
-				if (checkEnvironment_js_1$1.isNodeLike) return (0, sendRequest_js_1.sendRequest)(method, url, pipeline$3, Object.assign(Object.assign({}, options), {
+				if (checkEnvironment_js_1$1.isNodeLike) return (0, sendRequest_js_1.sendRequest)(method, url, pipeline$3, {
+					...options,
 					allowInsecureConnection: allowInsecureConnection$1,
 					responseAsStream: true
-				}), httpClient);
+				}, httpClient);
 				else throw new Error("`isNodeStream` is not supported in the browser environment. Use `asBrowserStream` to obtain the response body stream.");
 			}
 		};
@@ -24435,15 +24508,14 @@ var require_operationOptionHelpers = /* @__PURE__ */ __commonJS({ "node_modules/
 	* @returns the result of the conversion in RequestParameters of RLC layer
 	*/
 	function operationOptionsToRequestParameters(options) {
-		var _a$3, _b$1, _c$1, _d$1, _e, _f;
 		return {
-			allowInsecureConnection: (_a$3 = options.requestOptions) === null || _a$3 === void 0 ? void 0 : _a$3.allowInsecureConnection,
-			timeout: (_b$1 = options.requestOptions) === null || _b$1 === void 0 ? void 0 : _b$1.timeout,
-			skipUrlEncoding: (_c$1 = options.requestOptions) === null || _c$1 === void 0 ? void 0 : _c$1.skipUrlEncoding,
+			allowInsecureConnection: options.requestOptions?.allowInsecureConnection,
+			timeout: options.requestOptions?.timeout,
+			skipUrlEncoding: options.requestOptions?.skipUrlEncoding,
 			abortSignal: options.abortSignal,
-			onUploadProgress: (_d$1 = options.requestOptions) === null || _d$1 === void 0 ? void 0 : _d$1.onUploadProgress,
-			onDownloadProgress: (_e = options.requestOptions) === null || _e === void 0 ? void 0 : _e.onDownloadProgress,
-			headers: Object.assign({}, (_f = options.requestOptions) === null || _f === void 0 ? void 0 : _f.headers),
+			onUploadProgress: options.requestOptions?.onUploadProgress,
+			onDownloadProgress: options.requestOptions?.onDownloadProgress,
+			headers: { ...options.requestOptions?.headers },
 			onResponse: options.onResponse
 		};
 	}
@@ -24457,23 +24529,21 @@ var require_restError$1 = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/t
 	const restError_js_1$4 = require_restError$2();
 	const httpHeaders_js_1$2 = require_httpHeaders$1();
 	function createRestError(messageOrResponse, response) {
-		var _a$3, _b$1, _c$1;
 		const resp = typeof messageOrResponse === "string" ? response : messageOrResponse;
-		const internalError = (_b$1 = (_a$3 = resp.body) === null || _a$3 === void 0 ? void 0 : _a$3.error) !== null && _b$1 !== void 0 ? _b$1 : resp.body;
-		const message = typeof messageOrResponse === "string" ? messageOrResponse : (_c$1 = internalError === null || internalError === void 0 ? void 0 : internalError.message) !== null && _c$1 !== void 0 ? _c$1 : `Unexpected status code: ${resp.status}`;
+		const internalError = resp.body?.error ?? resp.body;
+		const message = typeof messageOrResponse === "string" ? messageOrResponse : internalError?.message ?? `Unexpected status code: ${resp.status}`;
 		return new restError_js_1$4.RestError(message, {
 			statusCode: statusCodeToNumber(resp.status),
-			code: internalError === null || internalError === void 0 ? void 0 : internalError.code,
+			code: internalError?.code,
 			request: resp.request,
 			response: toPipelineResponse$1(resp)
 		});
 	}
 	function toPipelineResponse$1(response) {
-		var _a$3;
 		return {
 			headers: (0, httpHeaders_js_1$2.createHttpHeaders)(response.headers),
 			request: response.request,
-			status: (_a$3 = statusCodeToNumber(response.status)) !== null && _a$3 !== void 0 ? _a$3 : -1
+			status: statusCodeToNumber(response.status) ?? -1
 		};
 	}
 	function statusCodeToNumber(statusCode) {
@@ -24698,8 +24768,10 @@ var require_exponentialRetryPolicy$1 = /* @__PURE__ */ __commonJS({ "node_module
 	* @param options - Options that configure retry logic.
 	*/
 	function exponentialRetryPolicy$1(options = {}) {
-		var _a$3;
-		return (0, retryPolicy_js_1$4.retryPolicy)([(0, exponentialRetryStrategy_js_1$1.exponentialRetryStrategy)(Object.assign(Object.assign({}, options), { ignoreSystemErrors: true }))], { maxRetries: (_a$3 = options.maxRetries) !== null && _a$3 !== void 0 ? _a$3 : constants_js_1$35.DEFAULT_RETRY_POLICY_COUNT });
+		return (0, retryPolicy_js_1$4.retryPolicy)([(0, exponentialRetryStrategy_js_1$1.exponentialRetryStrategy)({
+			...options,
+			ignoreSystemErrors: true
+		})], { maxRetries: options.maxRetries ?? constants_js_1$35.DEFAULT_RETRY_POLICY_COUNT });
 	}
 }) });
 
@@ -24722,10 +24794,12 @@ var require_systemErrorRetryPolicy$1 = /* @__PURE__ */ __commonJS({ "node_module
 	* @param options - Options that customize the policy.
 	*/
 	function systemErrorRetryPolicy$1(options = {}) {
-		var _a$3;
 		return {
 			name: exports.systemErrorRetryPolicyName,
-			sendRequest: (0, retryPolicy_js_1$3.retryPolicy)([(0, exponentialRetryStrategy_js_1.exponentialRetryStrategy)(Object.assign(Object.assign({}, options), { ignoreHttpStatusCodes: true }))], { maxRetries: (_a$3 = options.maxRetries) !== null && _a$3 !== void 0 ? _a$3 : constants_js_1$34.DEFAULT_RETRY_POLICY_COUNT }).sendRequest
+			sendRequest: (0, retryPolicy_js_1$3.retryPolicy)([(0, exponentialRetryStrategy_js_1.exponentialRetryStrategy)({
+				...options,
+				ignoreHttpStatusCodes: true
+			})], { maxRetries: options.maxRetries ?? constants_js_1$34.DEFAULT_RETRY_POLICY_COUNT }).sendRequest
 		};
 	}
 }) });
@@ -24753,10 +24827,9 @@ var require_throttlingRetryPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules
 	* @param options - Options that configure retry logic.
 	*/
 	function throttlingRetryPolicy$1(options = {}) {
-		var _a$3;
 		return {
 			name: exports.throttlingRetryPolicyName,
-			sendRequest: (0, retryPolicy_js_1$2.retryPolicy)([(0, throttlingRetryStrategy_js_1.throttlingRetryStrategy)()], { maxRetries: (_a$3 = options.maxRetries) !== null && _a$3 !== void 0 ? _a$3 : constants_js_1$33.DEFAULT_RETRY_POLICY_COUNT }).sendRequest
+			sendRequest: (0, retryPolicy_js_1$2.retryPolicy)([(0, throttlingRetryStrategy_js_1.throttlingRetryStrategy)()], { maxRetries: options.maxRetries ?? constants_js_1$33.DEFAULT_RETRY_POLICY_COUNT }).sendRequest
 		};
 	}
 }) });
@@ -24966,7 +25039,10 @@ var require_logPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-r
 	* @param options - Options to configure logPolicy.
 	*/
 	function logPolicy(options = {}) {
-		return (0, policies_1$12.logPolicy)(Object.assign({ logger: log_js_1$12.logger.info }, options));
+		return (0, policies_1$12.logPolicy)({
+			logger: log_js_1$12.logger.info,
+			...options
+		});
 	}
 }) });
 
@@ -24998,8 +25074,8 @@ var require_userAgentPlatform = /* @__PURE__ */ __commonJS({ "node_modules/@azur
 	exports.getHeaderName = getHeaderName;
 	exports.setPlatformSpecificData = setPlatformSpecificData;
 	const tslib_1$14 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
-	const os = tslib_1$14.__importStar(__require("node:os"));
-	const process$1 = tslib_1$14.__importStar(__require("node:process"));
+	const node_os_1 = tslib_1$14.__importDefault(__require("node:os"));
+	const node_process_1 = tslib_1$14.__importDefault(__require("node:process"));
 	/**
 	* @internal
 	*/
@@ -25010,13 +25086,13 @@ var require_userAgentPlatform = /* @__PURE__ */ __commonJS({ "node_modules/@azur
 	* @internal
 	*/
 	async function setPlatformSpecificData(map) {
-		if (process$1 && process$1.versions) {
-			const versions = process$1.versions;
+		if (node_process_1.default && node_process_1.default.versions) {
+			const versions = node_process_1.default.versions;
 			if (versions.bun) map.set("Bun", versions.bun);
 			else if (versions.deno) map.set("Deno", versions.deno);
 			else if (versions.node) map.set("Node", versions.node);
 		}
-		map.set("OS", `(${os.arch()}-${os.type()}-${os.release()})`);
+		map.set("OS", `(${node_os_1.default.arch()}-${node_os_1.default.type()}-${node_os_1.default.release()})`);
 	}
 }) });
 
@@ -25024,7 +25100,7 @@ var require_userAgentPlatform = /* @__PURE__ */ __commonJS({ "node_modules/@azur
 //#region node_modules/@azure/core-rest-pipeline/dist/commonjs/constants.js
 var require_constants$3 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-rest-pipeline/dist/commonjs/constants.js": ((exports) => {
 	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.SDK_VERSION = "1.22.0";
+	exports.SDK_VERSION = "1.22.1";
 	exports.DEFAULT_RETRY_POLICY_COUNT = 3;
 }) });
 
@@ -25244,17 +25320,16 @@ var require_aborterUtils = /* @__PURE__ */ __commonJS({ "node_modules/@azure/cor
 	* promise.race() wrapper that aborts rest of promises as soon as the first promise settles.
 	*/
 	async function cancelablePromiseRace(abortablePromiseBuilders, options) {
-		var _a$3, _b$1;
 		const aborter = new AbortController();
 		function abortHandler() {
 			aborter.abort();
 		}
-		(_a$3 = options === null || options === void 0 ? void 0 : options.abortSignal) === null || _a$3 === void 0 || _a$3.addEventListener("abort", abortHandler);
+		options?.abortSignal?.addEventListener("abort", abortHandler);
 		try {
 			return await Promise.race(abortablePromiseBuilders.map((p) => p({ abortSignal: aborter.signal })));
 		} finally {
 			aborter.abort();
-			(_b$1 = options === null || options === void 0 ? void 0 : options.abortSignal) === null || _b$1 === void 0 || _b$1.removeEventListener("abort", abortHandler);
+			options?.abortSignal?.removeEventListener("abort", abortHandler);
 		}
 	}
 }) });
@@ -25317,20 +25392,20 @@ var require_createAbortablePromise = /* @__PURE__ */ __commonJS({ "node_modules/
 	* @returns A promise that can be aborted.
 	*/
 	function createAbortablePromise(buildPromise, options) {
-		const { cleanupBeforeAbort, abortSignal: abortSignal$1, abortErrorMsg } = options !== null && options !== void 0 ? options : {};
+		const { cleanupBeforeAbort, abortSignal: abortSignal$1, abortErrorMsg } = options ?? {};
 		return new Promise((resolve, reject) => {
 			function rejectOnAbort() {
-				reject(new abort_controller_1$7.AbortError(abortErrorMsg !== null && abortErrorMsg !== void 0 ? abortErrorMsg : "The operation was aborted."));
+				reject(new abort_controller_1$7.AbortError(abortErrorMsg ?? "The operation was aborted."));
 			}
 			function removeListeners() {
-				abortSignal$1 === null || abortSignal$1 === void 0 || abortSignal$1.removeEventListener("abort", onAbort);
+				abortSignal$1?.removeEventListener("abort", onAbort);
 			}
 			function onAbort() {
-				cleanupBeforeAbort === null || cleanupBeforeAbort === void 0 || cleanupBeforeAbort();
+				cleanupBeforeAbort?.();
 				removeListeners();
 				rejectOnAbort();
 			}
-			if (abortSignal$1 === null || abortSignal$1 === void 0 ? void 0 : abortSignal$1.aborted) return rejectOnAbort();
+			if (abortSignal$1?.aborted) return rejectOnAbort();
 			try {
 				buildPromise((x) => {
 					removeListeners();
@@ -25342,7 +25417,7 @@ var require_createAbortablePromise = /* @__PURE__ */ __commonJS({ "node_modules/
 			} catch (err) {
 				reject(err);
 			}
-			abortSignal$1 === null || abortSignal$1 === void 0 || abortSignal$1.addEventListener("abort", onAbort);
+			abortSignal$1?.addEventListener("abort", onAbort);
 		});
 	}
 }) });
@@ -25364,13 +25439,13 @@ var require_delay = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-util/
 	*/
 	function delay$3(timeInMs, options) {
 		let token;
-		const { abortSignal: abortSignal$1, abortErrorMsg } = options !== null && options !== void 0 ? options : {};
+		const { abortSignal: abortSignal$1, abortErrorMsg } = options ?? {};
 		return (0, createAbortablePromise_js_1$1.createAbortablePromise)((resolve) => {
 			token = setTimeout(resolve, timeInMs);
 		}, {
 			cleanupBeforeAbort: () => clearTimeout(token),
 			abortSignal: abortSignal$1,
-			abortErrorMsg: abortErrorMsg !== null && abortErrorMsg !== void 0 ? abortErrorMsg : StandardAbortMessage
+			abortErrorMsg: abortErrorMsg ?? StandardAbortMessage
 		});
 	}
 	/**
@@ -25709,12 +25784,12 @@ var require_file = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-rest-p
 	* @param options - optional metadata about the file, e.g. file name, file size, MIME type.
 	*/
 	function createFileFromStream(stream$3, name, options = {}) {
-		var _a$3, _b$1, _c$1, _d$1;
-		return Object.assign(Object.assign({}, unimplementedMethods), {
-			type: (_a$3 = options.type) !== null && _a$3 !== void 0 ? _a$3 : "",
-			lastModified: (_b$1 = options.lastModified) !== null && _b$1 !== void 0 ? _b$1 : (/* @__PURE__ */ new Date()).getTime(),
-			webkitRelativePath: (_c$1 = options.webkitRelativePath) !== null && _c$1 !== void 0 ? _c$1 : "",
-			size: (_d$1 = options.size) !== null && _d$1 !== void 0 ? _d$1 : -1,
+		return {
+			...unimplementedMethods,
+			type: options.type ?? "",
+			lastModified: options.lastModified ?? (/* @__PURE__ */ new Date()).getTime(),
+			webkitRelativePath: options.webkitRelativePath ?? "",
+			size: options.size ?? -1,
 			name,
 			stream: () => {
 				const s$1 = stream$3();
@@ -25722,7 +25797,7 @@ var require_file = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-rest-p
 				return s$1;
 			},
 			[rawContent]: stream$3
-		});
+		};
 	}
 	/**
 	* Create an object that implements the File interface. This object is intended to be
@@ -25736,17 +25811,17 @@ var require_file = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-rest-p
 	* @param options - optional metadata about the file, e.g. file name, file size, MIME type.
 	*/
 	function createFile(content, name, options = {}) {
-		var _a$3, _b$1, _c$1;
-		if (core_util_1$23.isNodeLike) return Object.assign(Object.assign({}, unimplementedMethods), {
-			type: (_a$3 = options.type) !== null && _a$3 !== void 0 ? _a$3 : "",
-			lastModified: (_b$1 = options.lastModified) !== null && _b$1 !== void 0 ? _b$1 : (/* @__PURE__ */ new Date()).getTime(),
-			webkitRelativePath: (_c$1 = options.webkitRelativePath) !== null && _c$1 !== void 0 ? _c$1 : "",
+		if (core_util_1$23.isNodeLike) return {
+			...unimplementedMethods,
+			type: options.type ?? "",
+			lastModified: options.lastModified ?? (/* @__PURE__ */ new Date()).getTime(),
+			webkitRelativePath: options.webkitRelativePath ?? "",
 			size: content.byteLength,
 			name,
 			arrayBuffer: async () => content.buffer,
 			stream: () => new Blob([content]).stream(),
 			[rawContent]: () => content
-		});
+		};
 		else return new File([content], name, options);
 	}
 }) });
@@ -25957,6 +26032,7 @@ var require_tracingContext = /* @__PURE__ */ __commonJS({ "node_modules/@azure/c
 	}
 	/** @internal */
 	var TracingContextImpl = class TracingContextImpl {
+		_contextMap;
 		constructor(initialContext) {
 			this._contextMap = initialContext instanceof TracingContextImpl ? new Map(initialContext._contextMap) : /* @__PURE__ */ new Map();
 		}
@@ -26061,17 +26137,20 @@ var require_tracingClient = /* @__PURE__ */ __commonJS({ "node_modules/@azure/co
 	function createTracingClient(options) {
 		const { namespace, packageName, packageVersion } = options;
 		function startSpan(name, operationOptions, spanOptions) {
-			var _a$3;
-			const startSpanResult = (0, instrumenter_js_1$1.getInstrumenter)().startSpan(name, Object.assign(Object.assign({}, spanOptions), {
+			const startSpanResult = (0, instrumenter_js_1$1.getInstrumenter)().startSpan(name, {
+				...spanOptions,
 				packageName,
 				packageVersion,
-				tracingContext: (_a$3 = operationOptions === null || operationOptions === void 0 ? void 0 : operationOptions.tracingOptions) === null || _a$3 === void 0 ? void 0 : _a$3.tracingContext
-			}));
+				tracingContext: operationOptions?.tracingOptions?.tracingContext
+			});
 			let tracingContext = startSpanResult.tracingContext;
 			const span = startSpanResult.span;
 			if (!tracingContext.getValue(tracingContext_js_1.knownContextKeys.namespace)) tracingContext = tracingContext.setValue(tracingContext_js_1.knownContextKeys.namespace, namespace);
 			span.setAttribute("az.namespace", tracingContext.getValue(tracingContext_js_1.knownContextKeys.namespace));
-			const updatedOptions = Object.assign({}, operationOptions, { tracingOptions: Object.assign(Object.assign({}, operationOptions === null || operationOptions === void 0 ? void 0 : operationOptions.tracingOptions), { tracingContext }) });
+			const updatedOptions = Object.assign({}, operationOptions, { tracingOptions: {
+				...operationOptions?.tracingOptions,
+				tracingContext
+			} });
 			return {
 				span,
 				updatedOptions
@@ -26193,7 +26272,6 @@ var require_tracingPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@azure/co
 		return {
 			name: exports.tracingPolicyName,
 			async sendRequest(request$1, next) {
-				var _a$3;
 				if (!tracingClient) return next(request$1);
 				const userAgent = await userAgentPromise;
 				const spanAttributes = {
@@ -26203,7 +26281,7 @@ var require_tracingPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@azure/co
 					requestId: request$1.requestId
 				};
 				if (userAgent) spanAttributes["http.user_agent"] = userAgent;
-				const { span, tracingContext } = (_a$3 = tryCreateSpan(tracingClient, request$1, spanAttributes)) !== null && _a$3 !== void 0 ? _a$3 : {};
+				const { span, tracingContext } = tryCreateSpan(tracingClient, request$1, spanAttributes) ?? {};
 				if (!span || !tracingContext) return next(request$1);
 				try {
 					const response = await tracingClient.withContext(tracingContext, next, request$1);
@@ -26331,7 +26409,7 @@ var require_wrapAbortSignalLikePolicy = /* @__PURE__ */ __commonJS({ "node_modul
 				try {
 					return await next(request$1);
 				} finally {
-					cleanup === null || cleanup === void 0 || cleanup();
+					cleanup?.();
 				}
 			}
 		};
@@ -26363,7 +26441,6 @@ var require_createPipelineFromOptions = /* @__PURE__ */ __commonJS({ "node_modul
 	* @param options - Options to configure a custom pipeline.
 	*/
 	function createPipelineFromOptions(options) {
-		var _a$3;
 		const pipeline$3 = (0, pipeline_js_1$3.createEmptyPipeline)();
 		if (core_util_1$21.isNodeLike) {
 			if (options.agent) pipeline$3.addPolicy((0, agentPolicy_js_1$1.agentPolicy)(options.agent));
@@ -26374,10 +26451,13 @@ var require_createPipelineFromOptions = /* @__PURE__ */ __commonJS({ "node_modul
 		pipeline$3.addPolicy((0, wrapAbortSignalLikePolicy_js_1.wrapAbortSignalLikePolicy)());
 		pipeline$3.addPolicy((0, formDataPolicy_js_1$1.formDataPolicy)(), { beforePolicies: [multipartPolicy_js_1$1.multipartPolicyName] });
 		pipeline$3.addPolicy((0, userAgentPolicy_js_1$1.userAgentPolicy)(options.userAgentOptions));
-		pipeline$3.addPolicy((0, setClientRequestIdPolicy_js_1$1.setClientRequestIdPolicy)((_a$3 = options.telemetryOptions) === null || _a$3 === void 0 ? void 0 : _a$3.clientRequestIdHeaderName));
+		pipeline$3.addPolicy((0, setClientRequestIdPolicy_js_1$1.setClientRequestIdPolicy)(options.telemetryOptions?.clientRequestIdHeaderName));
 		pipeline$3.addPolicy((0, multipartPolicy_js_1$1.multipartPolicy)(), { afterPhase: "Deserialize" });
 		pipeline$3.addPolicy((0, defaultRetryPolicy_js_1$1.defaultRetryPolicy)(options.retryOptions), { phase: "Retry" });
-		pipeline$3.addPolicy((0, tracingPolicy_js_1$1.tracingPolicy)(Object.assign(Object.assign({}, options.userAgentOptions), options.loggingOptions)), { afterPhase: "Retry" });
+		pipeline$3.addPolicy((0, tracingPolicy_js_1$1.tracingPolicy)({
+			...options.userAgentOptions,
+			...options.loggingOptions
+		}), { afterPhase: "Retry" });
 		if (core_util_1$21.isNodeLike) pipeline$3.addPolicy((0, redirectPolicy_js_1$1.redirectPolicy)(options.redirectOptions), { afterPhase: "Retry" });
 		pipeline$3.addPolicy((0, logPolicy_js_1$1.logPolicy)(options.loggingOptions), { afterPhase: "Sign" });
 		return pipeline$3;
@@ -26402,7 +26482,7 @@ var require_defaultHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@azur
 				request$1.abortSignal = abortSignal$1;
 				return await client.sendRequest(request$1);
 			} finally {
-				cleanup === null || cleanup === void 0 || cleanup();
+				cleanup?.();
 			}
 		} };
 	}
@@ -26517,7 +26597,10 @@ var require_retryPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 	* retryPolicy is a generic policy to enable retrying requests when certain conditions are met
 	*/
 	function retryPolicy(strategies, options = { maxRetries: constants_js_1$30.DEFAULT_RETRY_POLICY_COUNT }) {
-		return (0, policies_1.retryPolicy)(strategies, Object.assign({ logger: retryPolicyLogger }, options));
+		return (0, policies_1.retryPolicy)(strategies, {
+			logger: retryPolicyLogger,
+			...options
+		});
 	}
 }) });
 
@@ -26546,7 +26629,7 @@ var require_tokenCycler = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 		async function tryGetAccessToken() {
 			if (Date.now() < refreshTimeout$1) try {
 				return await getAccessToken();
-			} catch (_a$3) {
+			} catch {
 				return null;
 			}
 			else {
@@ -26580,7 +26663,10 @@ var require_tokenCycler = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 		let refreshWorker = null;
 		let token = null;
 		let tenantId;
-		const options = Object.assign(Object.assign({}, exports.DEFAULT_CYCLER_OPTIONS), tokenCyclerOptions);
+		const options = {
+			...exports.DEFAULT_CYCLER_OPTIONS,
+			...tokenCyclerOptions
+		};
 		/**
 		* This little holder defines several predicates that we use to construct
 		* the rules of refreshing the token.
@@ -26590,10 +26676,9 @@ var require_tokenCycler = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 				return refreshWorker !== null;
 			},
 			get shouldRefresh() {
-				var _a$3;
 				if (cycler.isRefreshing) return false;
-				if ((token === null || token === void 0 ? void 0 : token.refreshAfterTimestamp) && token.refreshAfterTimestamp < Date.now()) return true;
-				return ((_a$3 = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a$3 !== void 0 ? _a$3 : 0) - options.refreshWindowInMs < Date.now();
+				if (token?.refreshAfterTimestamp && token.refreshAfterTimestamp < Date.now()) return true;
+				return (token?.expiresOnTimestamp ?? 0) - options.refreshWindowInMs < Date.now();
 			},
 			get mustRefresh() {
 				return token === null || token.expiresOnTimestamp - options.forcedRefreshWindowInMs < Date.now();
@@ -26604,10 +26689,9 @@ var require_tokenCycler = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 		* running.
 		*/
 		function refresh(scopes, getTokenOptions) {
-			var _a$3;
 			if (!cycler.isRefreshing) {
 				const tryGetAccessToken = () => credential.getToken(scopes, getTokenOptions);
-				refreshWorker = beginRefresh(tryGetAccessToken, options.retryIntervalInMs, (_a$3 = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a$3 !== void 0 ? _a$3 : Date.now()).then((_token) => {
+				refreshWorker = beginRefresh(tryGetAccessToken, options.retryIntervalInMs, token?.expiresOnTimestamp ?? Date.now()).then((_token) => {
 					refreshWorker = null;
 					token = _token;
 					tenantId = getTokenOptions.tenantId;
@@ -26688,14 +26772,13 @@ var require_bearerTokenAuthenticationPolicy = /* @__PURE__ */ __commonJS({ "node
 	* If this method returns true, the underlying request will be sent once again.
 	*/
 	async function authorizeRequestOnCaeChallenge(onChallengeOptions, caeClaims) {
-		var _a$3;
 		const { scopes } = onChallengeOptions;
 		const accessToken = await onChallengeOptions.getAccessToken(scopes, {
 			enableCae: true,
 			claims: caeClaims
 		});
 		if (!accessToken) return false;
-		onChallengeOptions.request.headers.set("Authorization", `${(_a$3 = accessToken.tokenType) !== null && _a$3 !== void 0 ? _a$3 : "Bearer"} ${accessToken.token}`);
+		onChallengeOptions.request.headers.set("Authorization", `${accessToken.tokenType ?? "Bearer"} ${accessToken.token}`);
 		return true;
 	}
 	/**
@@ -26703,12 +26786,11 @@ var require_bearerTokenAuthenticationPolicy = /* @__PURE__ */ __commonJS({ "node
 	* then apply it to the Authorization header of a request as a Bearer token.
 	*/
 	function bearerTokenAuthenticationPolicy(options) {
-		var _a$3, _b$1, _c$1;
 		const { credential, scopes, challengeCallbacks } = options;
 		const logger = options.logger || log_js_1$10.logger;
 		const callbacks = {
-			authorizeRequest: (_b$1 = (_a$3 = challengeCallbacks === null || challengeCallbacks === void 0 ? void 0 : challengeCallbacks.authorizeRequest) === null || _a$3 === void 0 ? void 0 : _a$3.bind(challengeCallbacks)) !== null && _b$1 !== void 0 ? _b$1 : defaultAuthorizeRequest,
-			authorizeRequestOnChallenge: (_c$1 = challengeCallbacks === null || challengeCallbacks === void 0 ? void 0 : challengeCallbacks.authorizeRequestOnChallenge) === null || _c$1 === void 0 ? void 0 : _c$1.bind(challengeCallbacks)
+			authorizeRequest: challengeCallbacks?.authorizeRequest?.bind(challengeCallbacks) ?? defaultAuthorizeRequest,
+			authorizeRequestOnChallenge: challengeCallbacks?.authorizeRequestOnChallenge?.bind(challengeCallbacks)
 		};
 		const getAccessToken = credential ? (0, tokenCycler_js_1$1.createTokenCycler)(credential) : () => Promise.resolve(null);
 		return {
@@ -26809,9 +26891,8 @@ var require_bearerTokenAuthenticationPolicy = /* @__PURE__ */ __commonJS({ "node
 	* @internal
 	*/
 	function getCaeChallengeClaims(challenges) {
-		var _a$3;
 		if (!challenges) return;
-		return (_a$3 = parseChallenges(challenges).find((x) => x.scheme === "Bearer" && x.params.claims && x.params.error === "insufficient_claims")) === null || _a$3 === void 0 ? void 0 : _a$3.params.claims;
+		return parseChallenges(challenges).find((x) => x.scheme === "Bearer" && x.params.claims && x.params.error === "insufficient_claims")?.params.claims;
 	}
 }) });
 
@@ -26854,13 +26935,12 @@ var require_auxiliaryAuthenticationHeaderPolicy = /* @__PURE__ */ __commonJS({ "
 	exports.auxiliaryAuthenticationHeaderPolicyName = "auxiliaryAuthenticationHeaderPolicy";
 	const AUTHORIZATION_AUXILIARY_HEADER = "x-ms-authorization-auxiliary";
 	async function sendAuthorizeRequest(options) {
-		var _a$3, _b$1;
 		const { scopes, getAccessToken, request: request$1 } = options;
 		const getTokenOptions = {
 			abortSignal: request$1.abortSignal,
 			tracingOptions: request$1.tracingOptions
 		};
-		return (_b$1 = (_a$3 = await getAccessToken(scopes, getTokenOptions)) === null || _a$3 === void 0 ? void 0 : _a$3.token) !== null && _b$1 !== void 0 ? _b$1 : "";
+		return (await getAccessToken(scopes, getTokenOptions))?.token ?? "";
 	}
 	/**
 	* A policy for external tokens to `x-ms-authorization-auxiliary` header.
@@ -27224,6 +27304,7 @@ var require_azureKeyCredential = /* @__PURE__ */ __commonJS({ "node_modules/@azu
 	* the underlying key value.
 	*/
 	var AzureKeyCredential = class {
+		_key;
 		/**
 		* The value of the key to be used in authentication
 		*/
@@ -27282,6 +27363,8 @@ var require_azureNamedKeyCredential = /* @__PURE__ */ __commonJS({ "node_modules
 	* the underlying name and key values.
 	*/
 	var AzureNamedKeyCredential = class {
+		_key;
+		_name;
 		/**
 		* The value of the key to be used in authentication.
 		*/
@@ -27343,6 +27426,7 @@ var require_azureSASCredential = /* @__PURE__ */ __commonJS({ "node_modules/@azu
 	* the underlying signature value.
 	*/
 	var AzureSASCredential = class {
+		_signature;
 		/**
 		* The value of the shared access signature to be used in authentication
 		*/
@@ -27566,7 +27650,7 @@ var require_utils$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-cli
 	* @internal
 	*/
 	function isPrimitiveBody(value, mapperTypeName) {
-		return mapperTypeName !== "Composite" && mapperTypeName !== "Dictionary" && (typeof value === "string" || typeof value === "number" || typeof value === "boolean" || (mapperTypeName === null || mapperTypeName === void 0 ? void 0 : mapperTypeName.match(/^(Date|DateTime|DateTimeRfc1123|UnixTime|ByteArray|Base64Url)$/i)) !== null || value === void 0 || value === null);
+		return mapperTypeName !== "Composite" && mapperTypeName !== "Dictionary" && (typeof value === "string" || typeof value === "number" || typeof value === "boolean" || mapperTypeName?.match(/^(Date|DateTime|DateTimeRfc1123|UnixTime|ByteArray|Base64Url)$/i) !== null || value === void 0 || value === null);
 	}
 	const validateISODuration = /^(-|\+)?P(?:([-+]?[0-9,.]*)Y)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)W)?(?:([-+]?[0-9,.]*)D)?(?:T(?:([-+]?[0-9,.]*)H)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)S)?)?$/;
 	/**
@@ -27600,9 +27684,15 @@ var require_utils$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-cli
 	* @internal
 	*/
 	function handleNullableResponseAndWrappableBody(responseObject) {
-		const combinedHeadersAndBody = Object.assign(Object.assign({}, responseObject.headers), responseObject.body);
+		const combinedHeadersAndBody = {
+			...responseObject.headers,
+			...responseObject.body
+		};
 		if (responseObject.hasNullableType && Object.getOwnPropertyNames(combinedHeadersAndBody).length === 0) return responseObject.shouldWrapBody ? { body: null } : null;
-		else return responseObject.shouldWrapBody ? Object.assign(Object.assign({}, responseObject.headers), { body: responseObject.body }) : combinedHeadersAndBody;
+		else return responseObject.shouldWrapBody ? {
+			...responseObject.headers,
+			body: responseObject.body
+		} : combinedHeadersAndBody;
 	}
 	/**
 	* Take a `FullOperationResponse` and turn it into a flat
@@ -27613,22 +27703,25 @@ var require_utils$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-cli
 	* @internal
 	*/
 	function flattenResponse(fullResponse, responseSpec) {
-		var _a$3, _b$1;
 		const parsedHeaders = fullResponse.parsedHeaders;
-		if (fullResponse.request.method === "HEAD") return Object.assign(Object.assign({}, parsedHeaders), { body: fullResponse.parsedBody });
+		if (fullResponse.request.method === "HEAD") return {
+			...parsedHeaders,
+			body: fullResponse.parsedBody
+		};
 		const bodyMapper = responseSpec && responseSpec.bodyMapper;
-		const isNullable = Boolean(bodyMapper === null || bodyMapper === void 0 ? void 0 : bodyMapper.nullable);
-		const expectedBodyTypeName = bodyMapper === null || bodyMapper === void 0 ? void 0 : bodyMapper.type.name;
+		const isNullable = Boolean(bodyMapper?.nullable);
+		const expectedBodyTypeName = bodyMapper?.type.name;
 		/** If the body is asked for, we look at the expected body type to handle it */
-		if (expectedBodyTypeName === "Stream") return Object.assign(Object.assign({}, parsedHeaders), {
+		if (expectedBodyTypeName === "Stream") return {
+			...parsedHeaders,
 			blobBody: fullResponse.blobBody,
 			readableStreamBody: fullResponse.readableStreamBody
-		});
+		};
 		const modelProperties = expectedBodyTypeName === "Composite" && bodyMapper.type.modelProperties || {};
 		const isPageableResponse = Object.keys(modelProperties).some((k) => modelProperties[k].serializedName === "");
 		if (expectedBodyTypeName === "Sequence" || isPageableResponse) {
-			const arrayResponse = (_a$3 = fullResponse.parsedBody) !== null && _a$3 !== void 0 ? _a$3 : [];
-			for (const key of Object.keys(modelProperties)) if (modelProperties[key].serializedName) arrayResponse[key] = (_b$1 = fullResponse.parsedBody) === null || _b$1 === void 0 ? void 0 : _b$1[key];
+			const arrayResponse = fullResponse.parsedBody ?? [];
+			for (const key of Object.keys(modelProperties)) if (modelProperties[key].serializedName) arrayResponse[key] = fullResponse.parsedBody?.[key];
 			if (parsedHeaders) for (const key of Object.keys(parsedHeaders)) arrayResponse[key] = parsedHeaders[key];
 			return isNullable && !fullResponse.parsedBody && !parsedHeaders && Object.getOwnPropertyNames(modelProperties).length === 0 ? null : arrayResponse;
 		}
@@ -27650,6 +27743,8 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 	const interfaces_js_1$3 = require_interfaces();
 	const utils_js_1$3 = require_utils$1();
 	var SerializerImpl = class {
+		modelMappers;
+		isXML;
 		constructor(modelMappers = {}, isXML = false) {
 			this.modelMappers = modelMappers;
 			this.isXML = isXML;
@@ -27693,11 +27788,10 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 		* @returns A valid serialized Javascript object
 		*/
 		serialize(mapper, object, objectName, options = { xml: {} }) {
-			var _a$3, _b$1, _c$1;
 			const updatedOptions = { xml: {
-				rootName: (_a$3 = options.xml.rootName) !== null && _a$3 !== void 0 ? _a$3 : "",
-				includeRoot: (_b$1 = options.xml.includeRoot) !== null && _b$1 !== void 0 ? _b$1 : false,
-				xmlCharKey: (_c$1 = options.xml.xmlCharKey) !== null && _c$1 !== void 0 ? _c$1 : interfaces_js_1$3.XML_CHARKEY
+				rootName: options.xml.rootName ?? "",
+				includeRoot: options.xml.includeRoot ?? false,
+				xmlCharKey: options.xml.xmlCharKey ?? interfaces_js_1$3.XML_CHARKEY
 			} };
 			let payload = {};
 			const mapperType = mapper.type.name;
@@ -27734,14 +27828,13 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 		* @returns A valid deserialized Javascript object
 		*/
 		deserialize(mapper, responseBody, objectName, options = { xml: {} }) {
-			var _a$3, _b$1, _c$1, _d$1;
 			const updatedOptions = {
 				xml: {
-					rootName: (_a$3 = options.xml.rootName) !== null && _a$3 !== void 0 ? _a$3 : "",
-					includeRoot: (_b$1 = options.xml.includeRoot) !== null && _b$1 !== void 0 ? _b$1 : false,
-					xmlCharKey: (_c$1 = options.xml.xmlCharKey) !== null && _c$1 !== void 0 ? _c$1 : interfaces_js_1$3.XML_CHARKEY
+					rootName: options.xml.rootName ?? "",
+					includeRoot: options.xml.includeRoot ?? false,
+					xmlCharKey: options.xml.xmlCharKey ?? interfaces_js_1$3.XML_CHARKEY
 				},
-				ignoreUnknownProperties: (_d$1 = options.ignoreUnknownProperties) !== null && _d$1 !== void 0 ? _d$1 : false
+				ignoreUnknownProperties: options.ignoreUnknownProperties ?? false
 			};
 			if (responseBody === void 0 || responseBody === null) {
 				if (this.isXML && mapper.type.name === "Sequence" && !mapper.xmlIsWrapped) responseBody = [];
@@ -27888,18 +27981,17 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 		return value;
 	}
 	function serializeSequenceType(serializer, mapper, object, objectName, isXml, options) {
-		var _a$3;
 		if (!Array.isArray(object)) throw new Error(`${objectName} must be of type Array.`);
 		let elementType = mapper.type.element;
 		if (!elementType || typeof elementType !== "object") throw new Error(`element" metadata for an Array must be defined in the mapper and it must of type "object" in ${objectName}.`);
-		if (elementType.type.name === "Composite" && elementType.type.className) elementType = (_a$3 = serializer.modelMappers[elementType.type.className]) !== null && _a$3 !== void 0 ? _a$3 : elementType;
+		if (elementType.type.name === "Composite" && elementType.type.className) elementType = serializer.modelMappers[elementType.type.className] ?? elementType;
 		const tempArray = [];
 		for (let i$1 = 0; i$1 < object.length; i$1++) {
 			const serializedValue = serializer.serialize(elementType, object[i$1], objectName, options);
 			if (isXml && elementType.xmlNamespace) {
 				const xmlnsKey = elementType.xmlNamespacePrefix ? `xmlns:${elementType.xmlNamespacePrefix}` : "xmlns";
 				if (elementType.type.name === "Composite") {
-					tempArray[i$1] = Object.assign({}, serializedValue);
+					tempArray[i$1] = { ...serializedValue };
 					tempArray[i$1][interfaces_js_1$3.XML_ATTRKEY] = { [xmlnsKey]: elementType.xmlNamespace };
 				} else {
 					tempArray[i$1] = {};
@@ -27935,10 +28027,7 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 	*/
 	function resolveAdditionalProperties(serializer, mapper, objectName) {
 		const additionalProperties = mapper.type.additionalProperties;
-		if (!additionalProperties && mapper.type.className) {
-			const modelMapper = resolveReferencedMapper(serializer, mapper, objectName);
-			return modelMapper === null || modelMapper === void 0 ? void 0 : modelMapper.type.additionalProperties;
-		}
+		if (!additionalProperties && mapper.type.className) return resolveReferencedMapper(serializer, mapper, objectName)?.type.additionalProperties;
 		return additionalProperties;
 	}
 	/**
@@ -27962,7 +28051,7 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 		if (!modelProps) {
 			const modelMapper = resolveReferencedMapper(serializer, mapper, objectName);
 			if (!modelMapper) throw new Error(`mapper() cannot be null or undefined for model "${mapper.type.className}".`);
-			modelProps = modelMapper === null || modelMapper === void 0 ? void 0 : modelMapper.type.modelProperties;
+			modelProps = modelMapper?.type.modelProperties;
 			if (!modelProps) throw new Error(`modelProperties cannot be null or undefined in the mapper "${JSON.stringify(modelMapper)}" of type "${mapper.type.className}" for object "${objectName}".`);
 		}
 		return modelProps;
@@ -27991,7 +28080,10 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 				if (parentObject !== void 0 && parentObject !== null) {
 					if (isXml && mapper.xmlNamespace) {
 						const xmlnsKey = mapper.xmlNamespacePrefix ? `xmlns:${mapper.xmlNamespacePrefix}` : "xmlns";
-						parentObject[interfaces_js_1$3.XML_ATTRKEY] = Object.assign(Object.assign({}, parentObject[interfaces_js_1$3.XML_ATTRKEY]), { [xmlnsKey]: mapper.xmlNamespace });
+						parentObject[interfaces_js_1$3.XML_ATTRKEY] = {
+							...parentObject[interfaces_js_1$3.XML_ATTRKEY],
+							[xmlnsKey]: mapper.xmlNamespace
+						};
 					}
 					const propertyObjectName = propertyMapper.serializedName !== "" ? objectName + "." + propertyMapper.serializedName : objectName;
 					let toSerialize = object[key];
@@ -28022,7 +28114,7 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 		const xmlNamespace = { [propertyMapper.xmlNamespacePrefix ? `xmlns:${propertyMapper.xmlNamespacePrefix}` : "xmlns"]: propertyMapper.xmlNamespace };
 		if (["Composite"].includes(propertyMapper.type.name)) if (serializedValue[interfaces_js_1$3.XML_ATTRKEY]) return serializedValue;
 		else {
-			const result$1 = Object.assign({}, serializedValue);
+			const result$1 = { ...serializedValue };
 			result$1[interfaces_js_1$3.XML_ATTRKEY] = xmlNamespace;
 			return result$1;
 		}
@@ -28035,8 +28127,7 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 		return [interfaces_js_1$3.XML_ATTRKEY, options.xml.xmlCharKey].includes(propertyName);
 	}
 	function deserializeCompositeType(serializer, mapper, responseBody, objectName, options) {
-		var _a$3, _b$1;
-		const xmlCharKey = (_a$3 = options.xml.xmlCharKey) !== null && _a$3 !== void 0 ? _a$3 : interfaces_js_1$3.XML_CHARKEY;
+		const xmlCharKey = options.xml.xmlCharKey ?? interfaces_js_1$3.XML_CHARKEY;
 		if (getPolymorphicDiscriminatorRecursively(serializer, mapper)) mapper = getPolymorphicMapper(serializer, mapper, responseBody, "serializedName");
 		const modelProps = resolveModelProperties(serializer, mapper, objectName);
 		let instance = {};
@@ -28063,8 +28154,7 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 			} else {
 				const propertyName = xmlElementName || xmlName || serializedName;
 				if (propertyMapper.xmlIsWrapped) {
-					const wrapped = responseBody[xmlName];
-					const elementList = (_b$1 = wrapped === null || wrapped === void 0 ? void 0 : wrapped[xmlElementName]) !== null && _b$1 !== void 0 ? _b$1 : [];
+					const elementList = responseBody[xmlName]?.[xmlElementName] ?? [];
 					instance[key] = serializer.deserialize(propertyMapper, elementList, propertyObjectName, options);
 					handledPropertyNames.push(xmlName);
 				} else {
@@ -28121,12 +28211,11 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 		return responseBody;
 	}
 	function deserializeSequenceType(serializer, mapper, responseBody, objectName, options) {
-		var _a$3;
 		let element = mapper.type.element;
 		if (!element || typeof element !== "object") throw new Error(`element" metadata for an Array must be defined in the mapper and it must of type "object" in ${objectName}`);
 		if (responseBody) {
 			if (!Array.isArray(responseBody)) responseBody = [responseBody];
-			if (element.type.name === "Composite" && element.type.className) element = (_a$3 = serializer.modelMappers[element.type.className]) !== null && _a$3 !== void 0 ? _a$3 : element;
+			if (element.type.name === "Composite" && element.type.className) element = serializer.modelMappers[element.type.className] ?? element;
 			const tempArray = [];
 			for (let i$1 = 0; i$1 < responseBody.length; i$1++) tempArray[i$1] = serializer.deserialize(element, responseBody[i$1], `${objectName}[${i$1}]`, options);
 			return tempArray;
@@ -28143,14 +28232,13 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 		}
 	}
 	function getPolymorphicMapper(serializer, mapper, object, polymorphicPropertyName) {
-		var _a$3;
 		const polymorphicDiscriminator = getPolymorphicDiscriminatorRecursively(serializer, mapper);
 		if (polymorphicDiscriminator) {
 			let discriminatorName = polymorphicDiscriminator[polymorphicPropertyName];
 			if (discriminatorName) {
 				if (polymorphicPropertyName === "serializedName") discriminatorName = discriminatorName.replace(/\\/gi, "");
 				const discriminatorValue = object[discriminatorName];
-				const typeName = (_a$3 = mapper.type.uberParent) !== null && _a$3 !== void 0 ? _a$3 : mapper.type.className;
+				const typeName = mapper.type.uberParent ?? mapper.type.className;
 				if (typeof discriminatorValue === "string" && typeName) {
 					const polymorphicMapper = getIndexDiscriminator(serializer.modelMappers.discriminators, discriminatorValue, typeName);
 					if (polymorphicMapper) mapper = polymorphicMapper;
@@ -28292,15 +28380,14 @@ var require_deserializationPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@
 	* This policy handles parsing out responses according to OperationSpecs on the request.
 	*/
 	function deserializationPolicy(options = {}) {
-		var _a$3, _b$1, _c$1, _d$1, _e, _f, _g;
-		const jsonContentTypes = (_b$1 = (_a$3 = options.expectedContentTypes) === null || _a$3 === void 0 ? void 0 : _a$3.json) !== null && _b$1 !== void 0 ? _b$1 : defaultJsonContentTypes;
-		const xmlContentTypes = (_d$1 = (_c$1 = options.expectedContentTypes) === null || _c$1 === void 0 ? void 0 : _c$1.xml) !== null && _d$1 !== void 0 ? _d$1 : defaultXmlContentTypes;
+		const jsonContentTypes = options.expectedContentTypes?.json ?? defaultJsonContentTypes;
+		const xmlContentTypes = options.expectedContentTypes?.xml ?? defaultXmlContentTypes;
 		const parseXML$1 = options.parseXML;
 		const serializerOptions = options.serializerOptions;
 		const updatedOptions = { xml: {
-			rootName: (_e = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.rootName) !== null && _e !== void 0 ? _e : "",
-			includeRoot: (_f = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.includeRoot) !== null && _f !== void 0 ? _f : false,
-			xmlCharKey: (_g = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.xmlCharKey) !== null && _g !== void 0 ? _g : interfaces_js_1$2.XML_CHARKEY
+			rootName: serializerOptions?.xml.rootName ?? "",
+			includeRoot: serializerOptions?.xml.includeRoot ?? false,
+			xmlCharKey: serializerOptions?.xml.xmlCharKey ?? interfaces_js_1$2.XML_CHARKEY
 		} };
 		return {
 			name: exports.deserializationPolicyName,
@@ -28314,15 +28401,14 @@ var require_deserializationPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@
 		let result;
 		const request$1 = parsedResponse.request;
 		const operationInfo = (0, operationHelpers_js_1$3.getOperationRequestInfo)(request$1);
-		const operationSpec = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationSpec;
-		if (operationSpec) if (!(operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationResponseGetter)) result = operationSpec.responses[parsedResponse.status];
-		else result = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationResponseGetter(operationSpec, parsedResponse);
+		const operationSpec = operationInfo?.operationSpec;
+		if (operationSpec) if (!operationInfo?.operationResponseGetter) result = operationSpec.responses[parsedResponse.status];
+		else result = operationInfo?.operationResponseGetter(operationSpec, parsedResponse);
 		return result;
 	}
 	function shouldDeserializeResponse(parsedResponse) {
 		const request$1 = parsedResponse.request;
-		const operationInfo = (0, operationHelpers_js_1$3.getOperationRequestInfo)(request$1);
-		const shouldDeserialize = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.shouldDeserialize;
+		const shouldDeserialize = (0, operationHelpers_js_1$3.getOperationRequestInfo)(request$1)?.shouldDeserialize;
 		let result;
 		if (shouldDeserialize === void 0) result = true;
 		else if (typeof shouldDeserialize === "boolean") result = shouldDeserialize;
@@ -28332,8 +28418,7 @@ var require_deserializationPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@
 	async function deserializeResponseBody(jsonContentTypes, xmlContentTypes, response, options, parseXML$1) {
 		const parsedResponse = await parse(jsonContentTypes, xmlContentTypes, response, options, parseXML$1);
 		if (!shouldDeserializeResponse(parsedResponse)) return parsedResponse;
-		const operationInfo = (0, operationHelpers_js_1$3.getOperationRequestInfo)(parsedResponse.request);
-		const operationSpec = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationSpec;
+		const operationSpec = (0, operationHelpers_js_1$3.getOperationRequestInfo)(parsedResponse.request)?.operationSpec;
 		if (!operationSpec || !operationSpec.responses) return parsedResponse;
 		const responseSpec = getOperationResponseMap(parsedResponse);
 		const { error: error$1, shouldReturnResponse } = handleErrorResponse(parsedResponse, operationSpec, responseSpec, options);
@@ -28365,7 +28450,6 @@ var require_deserializationPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@
 		return expectedStatusCodes.length === 0 || expectedStatusCodes.length === 1 && expectedStatusCodes[0] === "default";
 	}
 	function handleErrorResponse(parsedResponse, operationSpec, responseSpec, options) {
-		var _a$3, _b$1, _c$1, _d$1, _e;
 		const isSuccessByStatus = 200 <= parsedResponse.status && parsedResponse.status < 300;
 		if (isOperationSpecEmpty(operationSpec) ? isSuccessByStatus : !!responseSpec) if (responseSpec) {
 			if (!responseSpec.isError) return {
@@ -28376,16 +28460,16 @@ var require_deserializationPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@
 			error: null,
 			shouldReturnResponse: false
 		};
-		const errorResponseSpec = responseSpec !== null && responseSpec !== void 0 ? responseSpec : operationSpec.responses.default;
-		const initialErrorMessage = ((_a$3 = parsedResponse.request.streamResponseStatusCodes) === null || _a$3 === void 0 ? void 0 : _a$3.has(parsedResponse.status)) ? `Unexpected status code: ${parsedResponse.status}` : parsedResponse.bodyAsText;
+		const errorResponseSpec = responseSpec ?? operationSpec.responses.default;
+		const initialErrorMessage = parsedResponse.request.streamResponseStatusCodes?.has(parsedResponse.status) ? `Unexpected status code: ${parsedResponse.status}` : parsedResponse.bodyAsText;
 		const error$1 = new core_rest_pipeline_1$18.RestError(initialErrorMessage, {
 			statusCode: parsedResponse.status,
 			request: parsedResponse.request,
 			response: parsedResponse
 		});
-		if (!errorResponseSpec && !(((_c$1 = (_b$1 = parsedResponse.parsedBody) === null || _b$1 === void 0 ? void 0 : _b$1.error) === null || _c$1 === void 0 ? void 0 : _c$1.code) && ((_e = (_d$1 = parsedResponse.parsedBody) === null || _d$1 === void 0 ? void 0 : _d$1.error) === null || _e === void 0 ? void 0 : _e.message))) throw error$1;
-		const defaultBodyMapper = errorResponseSpec === null || errorResponseSpec === void 0 ? void 0 : errorResponseSpec.bodyMapper;
-		const defaultHeadersMapper = errorResponseSpec === null || errorResponseSpec === void 0 ? void 0 : errorResponseSpec.headersMapper;
+		if (!errorResponseSpec && !(parsedResponse.parsedBody?.error?.code && parsedResponse.parsedBody?.error?.message)) throw error$1;
+		const defaultBodyMapper = errorResponseSpec?.bodyMapper;
+		const defaultHeadersMapper = errorResponseSpec?.headersMapper;
 		try {
 			if (parsedResponse.parsedBody) {
 				const parsedBody = parsedResponse.parsedBody;
@@ -28414,8 +28498,7 @@ var require_deserializationPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@
 		};
 	}
 	async function parse(jsonContentTypes, xmlContentTypes, operationResponse, opts, parseXML$1) {
-		var _a$3;
-		if (!((_a$3 = operationResponse.request.streamResponseStatusCodes) === null || _a$3 === void 0 ? void 0 : _a$3.has(operationResponse.status)) && operationResponse.bodyAsText) {
+		if (!operationResponse.request.streamResponseStatusCodes?.has(operationResponse.status) && operationResponse.bodyAsText) {
 			const text = operationResponse.bodyAsText;
 			const contentType = operationResponse.headers.get("Content-Type") || "";
 			const contentComponents = !contentType ? [] : contentType.split(";").map((component) => component.toLowerCase());
@@ -28503,8 +28586,8 @@ var require_serializationPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@az
 			name: exports.serializationPolicyName,
 			async sendRequest(request$1, next) {
 				const operationInfo = (0, operationHelpers_js_1$2.getOperationRequestInfo)(request$1);
-				const operationSpec = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationSpec;
-				const operationArguments = operationInfo === null || operationInfo === void 0 ? void 0 : operationInfo.operationArguments;
+				const operationSpec = operationInfo?.operationSpec;
+				const operationArguments = operationInfo?.operationArguments;
 				if (operationSpec && operationArguments) {
 					serializeHeaders(request$1, operationArguments, operationSpec);
 					serializeRequestBody(request$1, operationArguments, operationSpec, stringifyXML$1);
@@ -28517,7 +28600,6 @@ var require_serializationPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@az
 	* @internal
 	*/
 	function serializeHeaders(request$1, operationArguments, operationSpec) {
-		var _a$3, _b$1;
 		if (operationSpec.headerParameters) for (const headerParameter of operationSpec.headerParameters) {
 			let headerValue = (0, operationHelpers_js_1$2.getOperationArgumentValueFromParameter)(operationArguments, headerParameter);
 			if (headerValue !== null && headerValue !== void 0 || headerParameter.mapper.required) {
@@ -28527,7 +28609,7 @@ var require_serializationPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@az
 				else request$1.headers.set(headerParameter.mapper.serializedName || (0, interfaceHelpers_js_1$2.getPathStringFromParameter)(headerParameter), headerValue);
 			}
 		}
-		const customHeaders = (_b$1 = (_a$3 = operationArguments.options) === null || _a$3 === void 0 ? void 0 : _a$3.requestOptions) === null || _b$1 === void 0 ? void 0 : _b$1.customHeaders;
+		const customHeaders = operationArguments.options?.requestOptions?.customHeaders;
 		if (customHeaders) for (const customHeaderName of Object.keys(customHeaders)) request$1.headers.set(customHeaderName, customHeaders[customHeaderName]);
 	}
 	/**
@@ -28536,12 +28618,11 @@ var require_serializationPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@az
 	function serializeRequestBody(request$1, operationArguments, operationSpec, stringifyXML$1 = function() {
 		throw new Error("XML serialization unsupported!");
 	}) {
-		var _a$3, _b$1, _c$1, _d$1, _e;
-		const serializerOptions = (_a$3 = operationArguments.options) === null || _a$3 === void 0 ? void 0 : _a$3.serializerOptions;
+		const serializerOptions = operationArguments.options?.serializerOptions;
 		const updatedOptions = { xml: {
-			rootName: (_b$1 = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.rootName) !== null && _b$1 !== void 0 ? _b$1 : "",
-			includeRoot: (_c$1 = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.includeRoot) !== null && _c$1 !== void 0 ? _c$1 : false,
-			xmlCharKey: (_d$1 = serializerOptions === null || serializerOptions === void 0 ? void 0 : serializerOptions.xml.xmlCharKey) !== null && _d$1 !== void 0 ? _d$1 : interfaces_js_1$1.XML_CHARKEY
+			rootName: serializerOptions?.xml.rootName ?? "",
+			includeRoot: serializerOptions?.xml.includeRoot ?? false,
+			xmlCharKey: serializerOptions?.xml.xmlCharKey ?? interfaces_js_1$1.XML_CHARKEY
 		} };
 		const xmlCharKey = updatedOptions.xml.xmlCharKey;
 		if (operationSpec.requestBody && operationSpec.requestBody.mapper) {
@@ -28565,7 +28646,7 @@ var require_serializationPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@az
 							rootName: xmlName || serializedName,
 							xmlCharKey
 						});
-					} else if (typeName === serializer_js_1$1.MapperTypeNames.String && (((_e = operationSpec.contentType) === null || _e === void 0 ? void 0 : _e.match("text/plain")) || operationSpec.mediaType === "text")) return;
+					} else if (typeName === serializer_js_1$1.MapperTypeNames.String && (operationSpec.contentType?.match("text/plain") || operationSpec.mediaType === "text")) return;
 					else if (!isStream$1) request$1.body = JSON.stringify(request$1.body);
 				}
 			} catch (error$1) {
@@ -28622,7 +28703,7 @@ var require_pipeline = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-cl
 	* @param options - Options to customize the created pipeline.
 	*/
 	function createClientPipeline(options = {}) {
-		const pipeline$3 = (0, core_rest_pipeline_1$17.createPipelineFromOptions)(options !== null && options !== void 0 ? options : {});
+		const pipeline$3 = (0, core_rest_pipeline_1$17.createPipelineFromOptions)(options ?? {});
 		if (options.credentialOptions) pipeline$3.addPolicy((0, core_rest_pipeline_1$17.bearerTokenAuthenticationPolicy)({
 			credential: options.credentialOptions.credential,
 			scopes: options.credentialOptions.credentialScopes
@@ -28689,9 +28770,8 @@ var require_urlHelpers = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 		return result;
 	}
 	function calculateUrlReplacements(operationSpec, operationArguments, fallbackObject) {
-		var _a$3;
 		const result = /* @__PURE__ */ new Map();
-		if ((_a$3 = operationSpec.urlParameters) === null || _a$3 === void 0 ? void 0 : _a$3.length) for (const urlParameter of operationSpec.urlParameters) {
+		if (operationSpec.urlParameters?.length) for (const urlParameter of operationSpec.urlParameters) {
 			let urlParameterValue = (0, operationHelpers_js_1$1.getOperationArgumentValueFromParameter)(operationArguments, urlParameter, fallbackObject);
 			const parameterPathString = (0, interfaceHelpers_js_1$1.getPathStringFromParameter)(urlParameter);
 			urlParameterValue = operationSpec.serializer.serialize(urlParameter.mapper, urlParameterValue, parameterPathString);
@@ -28720,10 +28800,9 @@ var require_urlHelpers = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 		return parsedUrl.toString();
 	}
 	function calculateQueryParameters(operationSpec, operationArguments, fallbackObject) {
-		var _a$3;
 		const result = /* @__PURE__ */ new Map();
 		const sequenceParams = /* @__PURE__ */ new Set();
-		if ((_a$3 = operationSpec.queryParameters) === null || _a$3 === void 0 ? void 0 : _a$3.length) for (const queryParameter of operationSpec.queryParameters) {
+		if (operationSpec.queryParameters?.length) for (const queryParameter of operationSpec.queryParameters) {
 			if (queryParameter.mapper.type.name === "Sequence" && queryParameter.mapper.serializedName) sequenceParams.add(queryParameter.mapper.serializedName);
 			let queryParameterValue = (0, operationHelpers_js_1$1.getOperationArgumentValueFromParameter)(operationArguments, queryParameter, fallbackObject);
 			if (queryParameterValue !== void 0 && queryParameterValue !== null || queryParameter.mapper.required) {
@@ -28814,18 +28893,39 @@ var require_serviceClient = /* @__PURE__ */ __commonJS({ "node_modules/@azure/co
 	*/
 	var ServiceClient = class {
 		/**
+		* If specified, this is the base URI that requests will be made against for this ServiceClient.
+		* If it is not specified, then all OperationSpecs must contain a baseUrl property.
+		*/
+		_endpoint;
+		/**
+		* The default request content type for the service.
+		* Used if no requestContentType is present on an OperationSpec.
+		*/
+		_requestContentType;
+		/**
+		* Set to true if the request is sent over HTTP instead of HTTPS
+		*/
+		_allowInsecureConnection;
+		/**
+		* The HTTP client that will be used to send requests.
+		*/
+		_httpClient;
+		/**
+		* The pipeline used by this client to make requests
+		*/
+		pipeline;
+		/**
 		* The ServiceClient constructor
 		* @param options - The service client options that govern the behavior of the client.
 		*/
 		constructor(options = {}) {
-			var _a$3, _b$1;
 			this._requestContentType = options.requestContentType;
-			this._endpoint = (_a$3 = options.endpoint) !== null && _a$3 !== void 0 ? _a$3 : options.baseUri;
+			this._endpoint = options.endpoint ?? options.baseUri;
 			if (options.baseUri) log_js_1$8.logger.warning("The baseUri option for SDK Clients has been deprecated, please use endpoint instead.");
 			this._allowInsecureConnection = options.allowInsecureConnection;
 			this._httpClient = options.httpClient || (0, httpClientCache_js_1.getCachedDefaultHttpClient)();
 			this.pipeline = options.pipeline || createDefaultPipeline(options);
-			if ((_b$1 = options.additionalPolicies) === null || _b$1 === void 0 ? void 0 : _b$1.length) for (const { policy, position } of options.additionalPolicies) {
+			if (options.additionalPolicies?.length) for (const { policy, position } of options.additionalPolicies) {
 				const afterPhase = position === "perRetry" ? "Sign" : void 0;
 				this.pipeline.addPolicy(policy, { afterPhase });
 			}
@@ -28871,14 +28971,14 @@ var require_serviceClient = /* @__PURE__ */ __commonJS({ "node_modules/@azure/co
 			try {
 				const rawResponse = await this.sendRequest(request$1);
 				const flatResponse = (0, utils_js_1$2.flattenResponse)(rawResponse, operationSpec.responses[rawResponse.status]);
-				if (options === null || options === void 0 ? void 0 : options.onResponse) options.onResponse(rawResponse, flatResponse);
+				if (options?.onResponse) options.onResponse(rawResponse, flatResponse);
 				return flatResponse;
 			} catch (error$1) {
-				if (typeof error$1 === "object" && (error$1 === null || error$1 === void 0 ? void 0 : error$1.response)) {
+				if (typeof error$1 === "object" && error$1?.response) {
 					const rawResponse = error$1.response;
 					const flatResponse = (0, utils_js_1$2.flattenResponse)(rawResponse, operationSpec.responses[error$1.statusCode] || operationSpec.responses["default"]);
 					error$1.details = flatResponse;
-					if (options === null || options === void 0 ? void 0 : options.onResponse) options.onResponse(rawResponse, flatResponse, error$1);
+					if (options?.onResponse) options.onResponse(rawResponse, flatResponse, error$1);
 				}
 				throw error$1;
 			}
@@ -28891,7 +28991,10 @@ var require_serviceClient = /* @__PURE__ */ __commonJS({ "node_modules/@azure/co
 			credentialScopes,
 			credential: options.credential
 		} : void 0;
-		return (0, pipeline_js_1$1.createClientPipeline)(Object.assign(Object.assign({}, options), { credentialOptions }));
+		return (0, pipeline_js_1$1.createClientPipeline)({
+			...options,
+			credentialOptions
+		});
 	}
 	function getCredentialScopes(options) {
 		if (options.credentialScopes) return options.credentialScopes;
@@ -28917,7 +29020,10 @@ var require_authorizeRequestOnClaimChallenge = /* @__PURE__ */ __commonJS({ "nod
 	*/
 	function parseCAEChallenge(challenges) {
 		return `, ${challenges.trim()}`.split(", Bearer ").filter((x) => x).map((challenge) => {
-			return `${challenge.trim()}, `.split("\", ").filter((x) => x).map((keyValue) => (([key, value]) => ({ [key]: value }))(keyValue.trim().split("=\""))).reduce((a, b) => Object.assign(Object.assign({}, a), b), {});
+			return `${challenge.trim()}, `.split("\", ").filter((x) => x).map((keyValue) => (([key, value]) => ({ [key]: value }))(keyValue.trim().split("=\""))).reduce((a, b) => ({
+				...a,
+				...b
+			}), {});
 		});
 	}
 	/**
@@ -28950,7 +29056,6 @@ var require_authorizeRequestOnClaimChallenge = /* @__PURE__ */ __commonJS({ "nod
 	* ```
 	*/
 	async function authorizeRequestOnClaimChallenge(onChallengeOptions) {
-		var _a$3;
 		const { scopes, response } = onChallengeOptions;
 		const logger = onChallengeOptions.logger || log_js_1$7.logger;
 		const challenge = response.headers.get("WWW-Authenticate");
@@ -28965,7 +29070,7 @@ var require_authorizeRequestOnClaimChallenge = /* @__PURE__ */ __commonJS({ "nod
 		}
 		const accessToken = await onChallengeOptions.getAccessToken(parsedChallenge.scope ? [parsedChallenge.scope] : scopes, { claims: (0, base64_js_1.decodeStringToString)(parsedChallenge.claims) });
 		if (!accessToken) return false;
-		onChallengeOptions.request.headers.set("Authorization", `${(_a$3 = accessToken.tokenType) !== null && _a$3 !== void 0 ? _a$3 : "Bearer"} ${accessToken.token}`);
+		onChallengeOptions.request.headers.set("Authorization", `${accessToken.tokenType ?? "Bearer"} ${accessToken.token}`);
 		return true;
 	}
 }) });
@@ -28990,7 +29095,6 @@ var require_authorizeRequestOnTenantChallenge = /* @__PURE__ */ __commonJS({ "no
 	* Handling has specific features for storage that departs to the general AAD challenge docs.
 	**/
 	const authorizeRequestOnTenantChallenge = async (challengeOptions) => {
-		var _a$3;
 		const requestOptions = requestToOptions(challengeOptions.request);
 		const challenge = getChallenge(challengeOptions.response);
 		if (challenge) {
@@ -28998,9 +29102,12 @@ var require_authorizeRequestOnTenantChallenge = /* @__PURE__ */ __commonJS({ "no
 			const challengeScopes = buildScopes(challengeOptions, challengeInfo);
 			const tenantId = extractTenantId(challengeInfo);
 			if (!tenantId) return false;
-			const accessToken = await challengeOptions.getAccessToken(challengeScopes, Object.assign(Object.assign({}, requestOptions), { tenantId }));
+			const accessToken = await challengeOptions.getAccessToken(challengeScopes, {
+				...requestOptions,
+				tenantId
+			});
 			if (!accessToken) return false;
-			challengeOptions.request.headers.set(Constants.HeaderConstants.AUTHORIZATION, `${(_a$3 = accessToken.tokenType) !== null && _a$3 !== void 0 ? _a$3 : "Bearer"} ${accessToken.token}`);
+			challengeOptions.request.headers.set(Constants.HeaderConstants.AUTHORIZATION, `${accessToken.tokenType ?? "Bearer"} ${accessToken.token}`);
 			return true;
 		}
 		return false;
@@ -29043,7 +29150,10 @@ var require_authorizeRequestOnTenantChallenge = /* @__PURE__ */ __commonJS({ "no
 	* @internal
 	*/
 	function parseChallenge(challenge) {
-		return `${challenge.slice(7).trim()} `.split(" ").filter((x) => x).map((keyValue) => (([key, value]) => ({ [key]: value }))(keyValue.trim().split("="))).reduce((a, b) => Object.assign(Object.assign({}, a), b), {});
+		return `${challenge.slice(7).trim()} `.split(" ").filter((x) => x).map((keyValue) => (([key, value]) => ({ [key]: value }))(keyValue.trim().split("="))).reduce((a, b) => ({
+			...a,
+			...b
+		}), {});
 	}
 	/**
 	* Extracts the options form a Pipeline Request for later re-use
@@ -29184,8 +29294,7 @@ var require_util$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-http
 		}
 	}
 	function toWebResourceLike(request$1, options) {
-		var _a$3;
-		const originalRequest = (_a$3 = options === null || options === void 0 ? void 0 : options.originalRequest) !== null && _a$3 !== void 0 ? _a$3 : request$1;
+		const originalRequest = options?.originalRequest ?? request$1;
 		const webResource = {
 			url: request$1.url,
 			method: request$1.method,
@@ -29213,7 +29322,7 @@ var require_util$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-http
 				/** do nothing */
 			}
 		};
-		if (options === null || options === void 0 ? void 0 : options.createProxy) return new Proxy(webResource, {
+		if (options?.createProxy) return new Proxy(webResource, {
 			get(target, prop, receiver) {
 				if (prop === originalRequestSymbol) return request$1;
 				else if (prop === "clone") return () => {
@@ -29266,6 +29375,7 @@ var require_util$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-http
 	* A collection of HTTP header key/value pairs.
 	*/
 	var HttpHeaders = class HttpHeaders {
+		_headersMap;
 		constructor(rawHeaders) {
 			this._headersMap = {};
 			if (rawHeaders) for (const headerName in rawHeaders) this.set(headerName, rawHeaders[headerName]);
@@ -29392,7 +29502,7 @@ var require_response = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-ht
 	function toCompatResponse(response, options) {
 		let request$1 = (0, util_js_1$3.toWebResourceLike)(response.request);
 		let headers = (0, util_js_1$3.toHttpHeadersLike)(response.headers);
-		if (options === null || options === void 0 ? void 0 : options.createProxy) return new Proxy(response, {
+		if (options?.createProxy) return new Proxy(response, {
 			get(target, prop, receiver) {
 				if (prop === "headers") return headers;
 				else if (prop === "request") return request$1;
@@ -29405,10 +29515,11 @@ var require_response = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-ht
 				return Reflect.set(target, prop, value, receiver);
 			}
 		});
-		else return Object.assign(Object.assign({}, response), {
+		else return {
+			...response,
 			request: request$1,
 			headers
-		});
+		};
 	}
 	/**
 	* A helper to convert back to a PipelineResponse
@@ -29420,10 +29531,11 @@ var require_response = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-ht
 		if (response) {
 			response.headers = headers;
 			return response;
-		} else return Object.assign(Object.assign({}, compatResponse), {
+		} else return {
+			...compatResponse,
 			headers,
 			request: (0, util_js_1$3.toPipelineRequest)(compatResponse.request)
-		});
+		};
 	}
 }) });
 
@@ -29440,10 +29552,9 @@ var require_extendedClient = /* @__PURE__ */ __commonJS({ "node_modules/@azure/c
 	*/
 	var ExtendedServiceClient = class extends core_client_1$2.ServiceClient {
 		constructor(options) {
-			var _a$3, _b$1;
 			super(options);
-			if (((_a$3 = options.keepAliveOptions) === null || _a$3 === void 0 ? void 0 : _a$3.enable) === false && !(0, disableKeepAlivePolicy_js_1$1.pipelineContainsDisableKeepAlivePolicy)(this.pipeline)) this.pipeline.addPolicy((0, disableKeepAlivePolicy_js_1$1.createDisableKeepAlivePolicy)());
-			if (((_b$1 = options.redirectOptions) === null || _b$1 === void 0 ? void 0 : _b$1.handleRedirects) === false) this.pipeline.removePolicy({ name: core_rest_pipeline_1$12.redirectPolicyName });
+			if (options.keepAliveOptions?.enable === false && !(0, disableKeepAlivePolicy_js_1$1.pipelineContainsDisableKeepAlivePolicy)(this.pipeline)) this.pipeline.addPolicy((0, disableKeepAlivePolicy_js_1$1.createDisableKeepAlivePolicy)());
+			if (options.redirectOptions?.handleRedirects === false) this.pipeline.removePolicy({ name: core_rest_pipeline_1$12.redirectPolicyName });
 		}
 		/**
 		* Compatible send operation request function.
@@ -29453,14 +29564,16 @@ var require_extendedClient = /* @__PURE__ */ __commonJS({ "node_modules/@azure/c
 		* @returns
 		*/
 		async sendOperationRequest(operationArguments, operationSpec) {
-			var _a$3;
-			const userProvidedCallBack = (_a$3 = operationArguments === null || operationArguments === void 0 ? void 0 : operationArguments.options) === null || _a$3 === void 0 ? void 0 : _a$3.onResponse;
+			const userProvidedCallBack = operationArguments?.options?.onResponse;
 			let lastResponse;
 			function onResponse(rawResponse, flatResponse, error$1) {
 				lastResponse = rawResponse;
 				if (userProvidedCallBack) userProvidedCallBack(rawResponse, flatResponse, error$1);
 			}
-			operationArguments.options = Object.assign(Object.assign({}, operationArguments.options), { onResponse });
+			operationArguments.options = {
+				...operationArguments.options,
+				onResponse
+			};
 			const result = await super.sendOperationRequest(operationArguments, operationSpec);
 			if (lastResponse) Object.defineProperty(result, "_response", { value: (0, response_js_1$2.toCompatResponse)(lastResponse) });
 			return result;
@@ -30623,23 +30736,23 @@ var require_xml = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-xml/dis
 	const fast_xml_parser_1 = require_fxp();
 	const xml_common_js_1$1 = require_xml_common();
 	function getCommonOptions(options) {
-		var _a$3;
+		var _a$1;
 		return {
 			attributesGroupName: xml_common_js_1$1.XML_ATTRKEY,
-			textNodeName: (_a$3 = options.xmlCharKey) !== null && _a$3 !== void 0 ? _a$3 : xml_common_js_1$1.XML_CHARKEY,
+			textNodeName: (_a$1 = options.xmlCharKey) !== null && _a$1 !== void 0 ? _a$1 : xml_common_js_1$1.XML_CHARKEY,
 			ignoreAttributes: false,
 			suppressBooleanAttributes: false
 		};
 	}
 	function getSerializerOptions(options = {}) {
-		var _a$3, _b$1;
+		var _a$1, _b;
 		return Object.assign(Object.assign({}, getCommonOptions(options)), {
 			attributeNamePrefix: "@_",
 			format: true,
 			suppressEmptyNode: true,
 			indentBy: "",
-			rootNodeName: (_a$3 = options.rootName) !== null && _a$3 !== void 0 ? _a$3 : "root",
-			cdataPropName: (_b$1 = options.cdataPropName) !== null && _b$1 !== void 0 ? _b$1 : "__cdata"
+			rootNodeName: (_a$1 = options.rootName) !== null && _a$1 !== void 0 ? _a$1 : "root",
+			cdataPropName: (_b = options.cdataPropName) !== null && _b !== void 0 ? _b : "__cdata"
 		});
 	}
 	function getParserOptions(options = {}) {
@@ -50377,12 +50490,12 @@ var require_operation$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 		return rawResponse.headers["azure-asyncoperation"];
 	}
 	function findResourceLocation(inputs) {
-		var _a$3;
+		var _a$1;
 		const { location, requestMethod, requestPath, resourceLocationConfig } = inputs;
 		switch (requestMethod) {
 			case "PUT": return requestPath;
 			case "DELETE": return;
-			case "PATCH": return (_a$3 = getDefault()) !== null && _a$3 !== void 0 ? _a$3 : requestPath;
+			case "PATCH": return (_a$1 = getDefault()) !== null && _a$1 !== void 0 ? _a$1 : requestPath;
 			default: return getDefault();
 		}
 		function getDefault() {
@@ -50445,17 +50558,17 @@ var require_operation$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 		}
 	}
 	function getStatus(rawResponse) {
-		var _a$3;
-		const { status } = (_a$3 = rawResponse.body) !== null && _a$3 !== void 0 ? _a$3 : {};
+		var _a$1;
+		const { status } = (_a$1 = rawResponse.body) !== null && _a$1 !== void 0 ? _a$1 : {};
 		return transformStatus({
 			status,
 			statusCode: rawResponse.statusCode
 		});
 	}
 	function getProvisioningState(rawResponse) {
-		var _a$3, _b$1;
-		const { properties, provisioningState } = (_a$3 = rawResponse.body) !== null && _a$3 !== void 0 ? _a$3 : {};
-		const status = (_b$1 = properties === null || properties === void 0 ? void 0 : properties.provisioningState) !== null && _b$1 !== void 0 ? _b$1 : provisioningState;
+		var _a$1, _b;
+		const { properties, provisioningState } = (_a$1 = rawResponse.body) !== null && _a$1 !== void 0 ? _a$1 : {};
+		const status = (_b = properties === null || properties === void 0 ? void 0 : properties.provisioningState) !== null && _b !== void 0 ? _b : provisioningState;
 		return transformStatus({
 			status,
 			statusCode: rawResponse.statusCode
@@ -50495,8 +50608,8 @@ var require_operation$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 	function getStatusFromInitialResponse(inputs) {
 		const { response, state, operationLocation } = inputs;
 		function helper() {
-			var _a$3;
-			switch ((_a$3 = state.config.metadata) === null || _a$3 === void 0 ? void 0 : _a$3["mode"]) {
+			var _a$1;
+			switch ((_a$1 = state.config.metadata) === null || _a$1 === void 0 ? void 0 : _a$1["mode"]) {
 				case void 0: return toOperationStatus(response.rawResponse.statusCode);
 				case "Body": return getOperationStatus(response, state);
 				default: return "running";
@@ -50534,8 +50647,8 @@ var require_operation$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 	}
 	exports.initHttpOperation = initHttpOperation;
 	function getOperationLocation({ rawResponse }, state) {
-		var _a$3;
-		switch ((_a$3 = state.config.metadata) === null || _a$3 === void 0 ? void 0 : _a$3["mode"]) {
+		var _a$1;
+		switch ((_a$1 = state.config.metadata) === null || _a$1 === void 0 ? void 0 : _a$1["mode"]) {
 			case "OperationLocation": return getOperationLocationPollingUrl({
 				operationLocation: getOperationLocationHeader(rawResponse),
 				azureAsyncOperation: getAzureAsyncOperationHeader(rawResponse)
@@ -50547,8 +50660,8 @@ var require_operation$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 	}
 	exports.getOperationLocation = getOperationLocation;
 	function getOperationStatus({ rawResponse }, state) {
-		var _a$3;
-		const mode = (_a$3 = state.config.metadata) === null || _a$3 === void 0 ? void 0 : _a$3["mode"];
+		var _a$1;
+		const mode = (_a$1 = state.config.metadata) === null || _a$1 === void 0 ? void 0 : _a$1["mode"];
 		switch (mode) {
 			case "OperationLocation": return getStatus(rawResponse);
 			case "ResourceLocation": return toOperationStatus(rawResponse.statusCode);
@@ -50558,8 +50671,8 @@ var require_operation$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 	}
 	exports.getOperationStatus = getOperationStatus;
 	function accessBodyProperty({ flatResponse, rawResponse }, prop) {
-		var _a$3, _b$1;
-		return (_a$3 = flatResponse === null || flatResponse === void 0 ? void 0 : flatResponse[prop]) !== null && _a$3 !== void 0 ? _a$3 : (_b$1 = rawResponse.body) === null || _b$1 === void 0 ? void 0 : _b$1[prop];
+		var _a$1, _b;
+		return (_a$1 = flatResponse === null || flatResponse === void 0 ? void 0 : flatResponse[prop]) !== null && _a$1 !== void 0 ? _a$1 : (_b = rawResponse.body) === null || _b === void 0 ? void 0 : _b[prop];
 	}
 	function getResourceLocation(res, state) {
 		const loc = accessBodyProperty(res, "resourceLocation");
@@ -50827,7 +50940,7 @@ var require_operation = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-l
 			this.pollerConfig = pollerConfig;
 		}
 		async update(options) {
-			var _a$3;
+			var _a$1;
 			const stateProxy = createStateProxy();
 			if (!this.state.isStarted) this.state = Object.assign(Object.assign({}, this.state), await (0, operation_js_1$1.initHttpOperation)({
 				lro: this.lro,
@@ -50851,7 +50964,7 @@ var require_operation = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-l
 				},
 				setErrorAsResult: this.setErrorAsResult
 			});
-			(_a$3 = options === null || options === void 0 ? void 0 : options.fireProgress) === null || _a$3 === void 0 || _a$3.call(options, this.state);
+			(_a$1 = options === null || options === void 0 ? void 0 : options.fireProgress) === null || _a$1 === void 0 || _a$1.call(options, this.state);
 			return this;
 		}
 		async cancel() {
@@ -57247,11 +57360,11 @@ var require_uploadUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/ca
 	* @returns
 	*/
 	function uploadCacheArchiveSDK(signedUploadURL, archivePath, options) {
-		var _a$3;
+		var _a$1;
 		return __awaiter$11(this, void 0, void 0, function* () {
 			const blobClient = new storage_blob_1$1.BlobClient(signedUploadURL);
 			const blockBlobClient = blobClient.getBlockBlobClient();
-			const uploadProgress = new UploadProgress((_a$3 = options === null || options === void 0 ? void 0 : options.archiveSizeBytes) !== null && _a$3 !== void 0 ? _a$3 : 0);
+			const uploadProgress = new UploadProgress((_a$1 = options === null || options === void 0 ? void 0 : options.archiveSizeBytes) !== null && _a$1 !== void 0 ? _a$1 : 0);
 			const uploadOptions = {
 				blockSize: options === null || options === void 0 ? void 0 : options.uploadChunkSize,
 				concurrency: options === null || options === void 0 ? void 0 : options.uploadConcurrency,
@@ -57824,7 +57937,7 @@ var require_downloadUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/
 	* @param archivePath the local path where the cache is saved
 	*/
 	function downloadCacheHttpClientConcurrent(archiveLocation, archivePath, options) {
-		var _a$3;
+		var _a$1;
 		return __awaiter$9(this, void 0, void 0, function* () {
 			const archiveDescriptor = yield fs$1.promises.open(archivePath, "w");
 			const httpClient = new http_client_1$3.HttpClient("actions/cache", void 0, {
@@ -57868,7 +57981,7 @@ var require_downloadUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/
 				while (nextDownload = downloads.pop()) {
 					activeDownloads[nextDownload.offset] = nextDownload.promiseGetter();
 					actives++;
-					if (actives >= ((_a$3 = options.downloadConcurrency) !== null && _a$3 !== void 0 ? _a$3 : 10)) yield waitAndWrite();
+					if (actives >= ((_a$1 = options.downloadConcurrency) !== null && _a$1 !== void 0 ? _a$1 : 10)) yield waitAndWrite();
 				}
 				while (actives > 0) yield waitAndWrite();
 			} finally {
@@ -57914,10 +58027,10 @@ var require_downloadUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/
 	* @param options the download options with the defaults set
 	*/
 	function downloadCacheStorageSDK(archiveLocation, archivePath, options) {
-		var _a$3;
+		var _a$1;
 		return __awaiter$9(this, void 0, void 0, function* () {
 			const client = new storage_blob_1.BlockBlobClient(archiveLocation, void 0, { retryOptions: { tryTimeoutInMs: options.timeoutInMs } });
-			const contentLength = (_a$3 = (yield client.getProperties()).contentLength) !== null && _a$3 !== void 0 ? _a$3 : -1;
+			const contentLength = (_a$1 = (yield client.getProperties()).contentLength) !== null && _a$1 !== void 0 ? _a$1 : -1;
 			if (contentLength < 0) {
 				core$3.debug("Unable to determine content length, downloading file with http-client...");
 				yield downloadCacheHttpClient(archiveLocation, archivePath);
@@ -59513,9 +59626,9 @@ var require_json_format_contract = /* @__PURE__ */ __commonJS({ "node_modules/@p
 	* Merges JSON write or read options. Later values override earlier values. Type registries are merged.
 	*/
 	function mergeJsonOptions(a, b) {
-		var _a$3, _b$1;
+		var _a$1, _b;
 		let c = Object.assign(Object.assign({}, a), b);
-		c.typeRegistry = [...(_a$3 = a === null || a === void 0 ? void 0 : a.typeRegistry) !== null && _a$3 !== void 0 ? _a$3 : [], ...(_b$1 = b === null || b === void 0 ? void 0 : b.typeRegistry) !== null && _b$1 !== void 0 ? _b$1 : []];
+		c.typeRegistry = [...(_a$1 = a === null || a === void 0 ? void 0 : a.typeRegistry) !== null && _a$1 !== void 0 ? _a$1 : [], ...(_b = b === null || b === void 0 ? void 0 : b.typeRegistry) !== null && _b !== void 0 ? _b : []];
 		return c;
 	}
 	exports.mergeJsonOptions = mergeJsonOptions;
@@ -59644,11 +59757,11 @@ var require_reflection_info$1 = /* @__PURE__ */ __commonJS({ "node_modules/@prot
 	* Turns PartialFieldInfo into FieldInfo.
 	*/
 	function normalizeFieldInfo(field) {
-		var _a$3, _b$1, _c$1, _d$1;
-		field.localName = (_a$3 = field.localName) !== null && _a$3 !== void 0 ? _a$3 : lower_camel_case_1$1.lowerCamelCase(field.name);
-		field.jsonName = (_b$1 = field.jsonName) !== null && _b$1 !== void 0 ? _b$1 : lower_camel_case_1$1.lowerCamelCase(field.name);
-		field.repeat = (_c$1 = field.repeat) !== null && _c$1 !== void 0 ? _c$1 : RepeatType.NO;
-		field.opt = (_d$1 = field.opt) !== null && _d$1 !== void 0 ? _d$1 : field.repeat ? false : field.oneof ? false : field.kind == "message";
+		var _a$1, _b, _c, _d;
+		field.localName = (_a$1 = field.localName) !== null && _a$1 !== void 0 ? _a$1 : lower_camel_case_1$1.lowerCamelCase(field.name);
+		field.jsonName = (_b = field.jsonName) !== null && _b !== void 0 ? _b : lower_camel_case_1$1.lowerCamelCase(field.name);
+		field.repeat = (_c = field.repeat) !== null && _c !== void 0 ? _c : RepeatType.NO;
+		field.opt = (_d = field.opt) !== null && _d !== void 0 ? _d : field.repeat ? false : field.oneof ? false : field.kind == "message";
 		return field;
 	}
 	exports.normalizeFieldInfo = normalizeFieldInfo;
@@ -59658,14 +59771,14 @@ var require_reflection_info$1 = /* @__PURE__ */ __commonJS({ "node_modules/@prot
 	* @deprecated use readFieldOption()
 	*/
 	function readFieldOptions(messageType, fieldName, extensionName, extensionType) {
-		var _a$3;
-		const options = (_a$3 = messageType.fields.find((m$1, i$1) => m$1.localName == fieldName || i$1 == fieldName)) === null || _a$3 === void 0 ? void 0 : _a$3.options;
+		var _a$1;
+		const options = (_a$1 = messageType.fields.find((m$1, i$1) => m$1.localName == fieldName || i$1 == fieldName)) === null || _a$1 === void 0 ? void 0 : _a$1.options;
 		return options && options[extensionName] ? extensionType.fromJson(options[extensionName]) : void 0;
 	}
 	exports.readFieldOptions = readFieldOptions;
 	function readFieldOption(messageType, fieldName, extensionName, extensionType) {
-		var _a$3;
-		const options = (_a$3 = messageType.fields.find((m$1, i$1) => m$1.localName == fieldName || i$1 == fieldName)) === null || _a$3 === void 0 ? void 0 : _a$3.options;
+		var _a$1;
+		const options = (_a$1 = messageType.fields.find((m$1, i$1) => m$1.localName == fieldName || i$1 == fieldName)) === null || _a$1 === void 0 ? void 0 : _a$1.options;
 		if (!options) return;
 		const optionVal = options[extensionName];
 		if (optionVal === void 0) return optionVal;
@@ -59788,8 +59901,8 @@ var require_reflection_type_check = /* @__PURE__ */ __commonJS({ "node_modules/@
 	const oneof_1$1 = require_oneof();
 	var ReflectionTypeCheck = class {
 		constructor(info$1) {
-			var _a$3;
-			this.fields = (_a$3 = info$1.fields) !== null && _a$3 !== void 0 ? _a$3 : [];
+			var _a$1;
+			this.fields = (_a$1 = info$1.fields) !== null && _a$1 !== void 0 ? _a$1 : [];
 		}
 		prepare() {
 			if (this.data) return;
@@ -59991,10 +60104,10 @@ var require_reflection_json_reader = /* @__PURE__ */ __commonJS({ "node_modules/
 			this.info = info$1;
 		}
 		prepare() {
-			var _a$3;
+			var _a$1;
 			if (this.fMap === void 0) {
 				this.fMap = {};
-				const fieldsInput = (_a$3 = this.info.fields) !== null && _a$3 !== void 0 ? _a$3 : [];
+				const fieldsInput = (_a$1 = this.info.fields) !== null && _a$1 !== void 0 ? _a$1 : [];
 				for (const field of fieldsInput) {
 					this.fMap[field.name] = field;
 					this.fMap[field.jsonName] = field;
@@ -60222,8 +60335,8 @@ var require_reflection_json_writer = /* @__PURE__ */ __commonJS({ "node_modules/
 	*/
 	var ReflectionJsonWriter = class {
 		constructor(info$1) {
-			var _a$3;
-			this.fields = (_a$3 = info$1.fields) !== null && _a$3 !== void 0 ? _a$3 : [];
+			var _a$1;
+			this.fields = (_a$1 = info$1.fields) !== null && _a$1 !== void 0 ? _a$1 : [];
 		}
 		/**
 		* Converts the message to a JSON object, based on the field descriptors.
@@ -60443,9 +60556,9 @@ var require_reflection_binary_reader = /* @__PURE__ */ __commonJS({ "node_module
 			this.info = info$1;
 		}
 		prepare() {
-			var _a$3;
+			var _a$1;
 			if (!this.fieldNoToField) {
-				const fieldsInput = (_a$3 = this.info.fields) !== null && _a$3 !== void 0 ? _a$3 : [];
+				const fieldsInput = (_a$1 = this.info.fields) !== null && _a$1 !== void 0 ? _a$1 : [];
 				this.fieldNoToField = new Map(fieldsInput.map((field) => [field.no, field]));
 			}
 		}
@@ -61073,9 +61186,9 @@ var require_message_type = /* @__PURE__ */ __commonJS({ "node_modules/@protobuf-
 		* This is equivalent to `JSON.stringify(T.toJson(t))`
 		*/
 		toJsonString(message, options) {
-			var _a$3;
+			var _a$1;
 			let value = this.toJson(message, options);
-			return JSON.stringify(value, null, (_a$3 = options === null || options === void 0 ? void 0 : options.prettySpaces) !== null && _a$3 !== void 0 ? _a$3 : 0);
+			return JSON.stringify(value, null, (_a$1 = options === null || options === void 0 ? void 0 : options.prettySpaces) !== null && _a$1 !== void 0 ? _a$1 : 0);
 		}
 		/**
 		* Write the message to binary format.
@@ -61573,14 +61686,14 @@ var require_reflection_info = /* @__PURE__ */ __commonJS({ "node_modules/@protob
 	* Turns PartialMethodInfo into MethodInfo.
 	*/
 	function normalizeMethodInfo(method, service) {
-		var _a$3, _b$1, _c$1;
+		var _a$1, _b, _c;
 		let m$1 = method;
 		m$1.service = service;
-		m$1.localName = (_a$3 = m$1.localName) !== null && _a$3 !== void 0 ? _a$3 : runtime_1$7.lowerCamelCase(m$1.name);
+		m$1.localName = (_a$1 = m$1.localName) !== null && _a$1 !== void 0 ? _a$1 : runtime_1$7.lowerCamelCase(m$1.name);
 		m$1.serverStreaming = !!m$1.serverStreaming;
 		m$1.clientStreaming = !!m$1.clientStreaming;
-		m$1.options = (_b$1 = m$1.options) !== null && _b$1 !== void 0 ? _b$1 : {};
-		m$1.idempotency = (_c$1 = m$1.idempotency) !== null && _c$1 !== void 0 ? _c$1 : void 0;
+		m$1.options = (_b = m$1.options) !== null && _b !== void 0 ? _b : {};
+		m$1.idempotency = (_c = m$1.idempotency) !== null && _c !== void 0 ? _c : void 0;
 		return m$1;
 	}
 	exports.normalizeMethodInfo = normalizeMethodInfo;
@@ -61590,14 +61703,14 @@ var require_reflection_info = /* @__PURE__ */ __commonJS({ "node_modules/@protob
 	* @deprecated use readMethodOption()
 	*/
 	function readMethodOptions(service, methodName, extensionName, extensionType) {
-		var _a$3;
-		const options = (_a$3 = service.methods.find((m$1, i$1) => m$1.localName === methodName || i$1 === methodName)) === null || _a$3 === void 0 ? void 0 : _a$3.options;
+		var _a$1;
+		const options = (_a$1 = service.methods.find((m$1, i$1) => m$1.localName === methodName || i$1 === methodName)) === null || _a$1 === void 0 ? void 0 : _a$1.options;
 		return options && options[extensionName] ? extensionType.fromJson(options[extensionName]) : void 0;
 	}
 	exports.readMethodOptions = readMethodOptions;
 	function readMethodOption(service, methodName, extensionName, extensionType) {
-		var _a$3;
-		const options = (_a$3 = service.methods.find((m$1, i$1) => m$1.localName === methodName || i$1 === methodName)) === null || _a$3 === void 0 ? void 0 : _a$3.options;
+		var _a$1;
+		const options = (_a$1 = service.methods.find((m$1, i$1) => m$1.localName === methodName || i$1 === methodName)) === null || _a$1 === void 0 ? void 0 : _a$1.options;
 		if (!options) return;
 		const optionVal = options[extensionName];
 		if (optionVal === void 0) return optionVal;
@@ -62327,8 +62440,8 @@ var require_test_transport = /* @__PURE__ */ __commonJS({ "node_modules/@protobu
 			return false;
 		}
 		promiseHeaders() {
-			var _a$3;
-			const headers = (_a$3 = this.data.headers) !== null && _a$3 !== void 0 ? _a$3 : TestTransport.defaultHeaders;
+			var _a$1;
+			const headers = (_a$1 = this.data.headers) !== null && _a$1 !== void 0 ? _a$1 : TestTransport.defaultHeaders;
 			return headers instanceof rpc_error_1$1.RpcError ? Promise.reject(headers) : Promise.resolve(headers);
 		}
 		promiseSingleResponse(method) {
@@ -62394,13 +62507,13 @@ var require_test_transport = /* @__PURE__ */ __commonJS({ "node_modules/@protobu
 			});
 		}
 		promiseStatus() {
-			var _a$3;
-			const status = (_a$3 = this.data.status) !== null && _a$3 !== void 0 ? _a$3 : TestTransport.defaultStatus;
+			var _a$1;
+			const status = (_a$1 = this.data.status) !== null && _a$1 !== void 0 ? _a$1 : TestTransport.defaultStatus;
 			return status instanceof rpc_error_1$1.RpcError ? Promise.reject(status) : Promise.resolve(status);
 		}
 		promiseTrailers() {
-			var _a$3;
-			const trailers = (_a$3 = this.data.trailers) !== null && _a$3 !== void 0 ? _a$3 : TestTransport.defaultTrailers;
+			var _a$1;
+			const trailers = (_a$1 = this.data.trailers) !== null && _a$1 !== void 0 ? _a$1 : TestTransport.defaultTrailers;
 			return trailers instanceof rpc_error_1$1.RpcError ? Promise.reject(trailers) : Promise.resolve(trailers);
 		}
 		maybeSuppressUncaught(...promise) {
@@ -62410,29 +62523,29 @@ var require_test_transport = /* @__PURE__ */ __commonJS({ "node_modules/@protobu
 			return rpc_options_1$1.mergeRpcOptions({}, options);
 		}
 		unary(method, input, options) {
-			var _a$3;
-			const requestHeaders = (_a$3 = options.meta) !== null && _a$3 !== void 0 ? _a$3 : {}, headersPromise = this.promiseHeaders().then(delay(this.headerDelay, options.abort)), responsePromise = headersPromise.catch((_) => {}).then(delay(this.responseDelay, options.abort)).then((_) => this.promiseSingleResponse(method)), statusPromise = responsePromise.catch((_) => {}).then(delay(this.afterResponseDelay, options.abort)).then((_) => this.promiseStatus()), trailersPromise = responsePromise.catch((_) => {}).then(delay(this.afterResponseDelay, options.abort)).then((_) => this.promiseTrailers());
+			var _a$1;
+			const requestHeaders = (_a$1 = options.meta) !== null && _a$1 !== void 0 ? _a$1 : {}, headersPromise = this.promiseHeaders().then(delay(this.headerDelay, options.abort)), responsePromise = headersPromise.catch((_) => {}).then(delay(this.responseDelay, options.abort)).then((_) => this.promiseSingleResponse(method)), statusPromise = responsePromise.catch((_) => {}).then(delay(this.afterResponseDelay, options.abort)).then((_) => this.promiseStatus()), trailersPromise = responsePromise.catch((_) => {}).then(delay(this.afterResponseDelay, options.abort)).then((_) => this.promiseTrailers());
 			this.maybeSuppressUncaught(statusPromise, trailersPromise);
 			this.lastInput = { single: input };
 			return new unary_call_1$1.UnaryCall(method, requestHeaders, input, headersPromise, responsePromise, statusPromise, trailersPromise);
 		}
 		serverStreaming(method, input, options) {
-			var _a$3;
-			const requestHeaders = (_a$3 = options.meta) !== null && _a$3 !== void 0 ? _a$3 : {}, headersPromise = this.promiseHeaders().then(delay(this.headerDelay, options.abort)), outputStream = new rpc_output_stream_1$1.RpcOutputStreamController(), responseStreamClosedPromise = headersPromise.then(delay(this.responseDelay, options.abort)).catch(() => {}).then(() => this.streamResponses(method, outputStream, options.abort)).then(delay(this.afterResponseDelay, options.abort)), statusPromise = responseStreamClosedPromise.then(() => this.promiseStatus()), trailersPromise = responseStreamClosedPromise.then(() => this.promiseTrailers());
+			var _a$1;
+			const requestHeaders = (_a$1 = options.meta) !== null && _a$1 !== void 0 ? _a$1 : {}, headersPromise = this.promiseHeaders().then(delay(this.headerDelay, options.abort)), outputStream = new rpc_output_stream_1$1.RpcOutputStreamController(), responseStreamClosedPromise = headersPromise.then(delay(this.responseDelay, options.abort)).catch(() => {}).then(() => this.streamResponses(method, outputStream, options.abort)).then(delay(this.afterResponseDelay, options.abort)), statusPromise = responseStreamClosedPromise.then(() => this.promiseStatus()), trailersPromise = responseStreamClosedPromise.then(() => this.promiseTrailers());
 			this.maybeSuppressUncaught(statusPromise, trailersPromise);
 			this.lastInput = { single: input };
 			return new server_streaming_call_1$1.ServerStreamingCall(method, requestHeaders, input, headersPromise, outputStream, statusPromise, trailersPromise);
 		}
 		clientStreaming(method, options) {
-			var _a$3;
-			const requestHeaders = (_a$3 = options.meta) !== null && _a$3 !== void 0 ? _a$3 : {}, headersPromise = this.promiseHeaders().then(delay(this.headerDelay, options.abort)), responsePromise = headersPromise.catch((_) => {}).then(delay(this.responseDelay, options.abort)).then((_) => this.promiseSingleResponse(method)), statusPromise = responsePromise.catch((_) => {}).then(delay(this.afterResponseDelay, options.abort)).then((_) => this.promiseStatus()), trailersPromise = responsePromise.catch((_) => {}).then(delay(this.afterResponseDelay, options.abort)).then((_) => this.promiseTrailers());
+			var _a$1;
+			const requestHeaders = (_a$1 = options.meta) !== null && _a$1 !== void 0 ? _a$1 : {}, headersPromise = this.promiseHeaders().then(delay(this.headerDelay, options.abort)), responsePromise = headersPromise.catch((_) => {}).then(delay(this.responseDelay, options.abort)).then((_) => this.promiseSingleResponse(method)), statusPromise = responsePromise.catch((_) => {}).then(delay(this.afterResponseDelay, options.abort)).then((_) => this.promiseStatus()), trailersPromise = responsePromise.catch((_) => {}).then(delay(this.afterResponseDelay, options.abort)).then((_) => this.promiseTrailers());
 			this.maybeSuppressUncaught(statusPromise, trailersPromise);
 			this.lastInput = new TestInputStream(this.data, options.abort);
 			return new client_streaming_call_1$1.ClientStreamingCall(method, requestHeaders, this.lastInput, headersPromise, responsePromise, statusPromise, trailersPromise);
 		}
 		duplex(method, options) {
-			var _a$3;
-			const requestHeaders = (_a$3 = options.meta) !== null && _a$3 !== void 0 ? _a$3 : {}, headersPromise = this.promiseHeaders().then(delay(this.headerDelay, options.abort)), outputStream = new rpc_output_stream_1$1.RpcOutputStreamController(), responseStreamClosedPromise = headersPromise.then(delay(this.responseDelay, options.abort)).catch(() => {}).then(() => this.streamResponses(method, outputStream, options.abort)).then(delay(this.afterResponseDelay, options.abort)), statusPromise = responseStreamClosedPromise.then(() => this.promiseStatus()), trailersPromise = responseStreamClosedPromise.then(() => this.promiseTrailers());
+			var _a$1;
+			const requestHeaders = (_a$1 = options.meta) !== null && _a$1 !== void 0 ? _a$1 : {}, headersPromise = this.promiseHeaders().then(delay(this.headerDelay, options.abort)), outputStream = new rpc_output_stream_1$1.RpcOutputStreamController(), responseStreamClosedPromise = headersPromise.then(delay(this.responseDelay, options.abort)).catch(() => {}).then(() => this.streamResponses(method, outputStream, options.abort)).then(delay(this.afterResponseDelay, options.abort)), statusPromise = responseStreamClosedPromise.then(() => this.promiseStatus()), trailersPromise = responseStreamClosedPromise.then(() => this.promiseTrailers());
 			this.maybeSuppressUncaught(statusPromise, trailersPromise);
 			this.lastInput = new TestInputStream(this.data, options.abort);
 			return new duplex_streaming_call_1$1.DuplexStreamingCall(method, requestHeaders, this.lastInput, headersPromise, outputStream, statusPromise, trailersPromise);
@@ -62498,10 +62611,10 @@ var require_rpc_interceptor = /* @__PURE__ */ __commonJS({ "node_modules/@protob
 	* @internal
 	*/
 	function stackIntercept(kind, transport, method, options, input) {
-		var _a$3, _b$1, _c$1, _d$1;
+		var _a$1, _b, _c, _d;
 		if (kind == "unary") {
 			let tail = (mtd, inp, opt) => transport.unary(mtd, inp, opt);
-			for (const curr of ((_a$3 = options.interceptors) !== null && _a$3 !== void 0 ? _a$3 : []).filter((i$1) => i$1.interceptUnary).reverse()) {
+			for (const curr of ((_a$1 = options.interceptors) !== null && _a$1 !== void 0 ? _a$1 : []).filter((i$1) => i$1.interceptUnary).reverse()) {
 				const next = tail;
 				tail = (mtd, inp, opt) => curr.interceptUnary(next, mtd, inp, opt);
 			}
@@ -62509,7 +62622,7 @@ var require_rpc_interceptor = /* @__PURE__ */ __commonJS({ "node_modules/@protob
 		}
 		if (kind == "serverStreaming") {
 			let tail = (mtd, inp, opt) => transport.serverStreaming(mtd, inp, opt);
-			for (const curr of ((_b$1 = options.interceptors) !== null && _b$1 !== void 0 ? _b$1 : []).filter((i$1) => i$1.interceptServerStreaming).reverse()) {
+			for (const curr of ((_b = options.interceptors) !== null && _b !== void 0 ? _b : []).filter((i$1) => i$1.interceptServerStreaming).reverse()) {
 				const next = tail;
 				tail = (mtd, inp, opt) => curr.interceptServerStreaming(next, mtd, inp, opt);
 			}
@@ -62517,7 +62630,7 @@ var require_rpc_interceptor = /* @__PURE__ */ __commonJS({ "node_modules/@protob
 		}
 		if (kind == "clientStreaming") {
 			let tail = (mtd, opt) => transport.clientStreaming(mtd, opt);
-			for (const curr of ((_c$1 = options.interceptors) !== null && _c$1 !== void 0 ? _c$1 : []).filter((i$1) => i$1.interceptClientStreaming).reverse()) {
+			for (const curr of ((_c = options.interceptors) !== null && _c !== void 0 ? _c : []).filter((i$1) => i$1.interceptClientStreaming).reverse()) {
 				const next = tail;
 				tail = (mtd, opt) => curr.interceptClientStreaming(next, mtd, opt);
 			}
@@ -62525,7 +62638,7 @@ var require_rpc_interceptor = /* @__PURE__ */ __commonJS({ "node_modules/@protob
 		}
 		if (kind == "duplex") {
 			let tail = (mtd, opt) => transport.duplex(mtd, opt);
-			for (const curr of ((_d$1 = options.interceptors) !== null && _d$1 !== void 0 ? _d$1 : []).filter((i$1) => i$1.interceptDuplex).reverse()) {
+			for (const curr of ((_d = options.interceptors) !== null && _d !== void 0 ? _d : []).filter((i$1) => i$1.interceptDuplex).reverse()) {
 				const next = tail;
 				tail = (mtd, opt) => curr.interceptDuplex(next, mtd, opt);
 			}
@@ -63789,8 +63902,8 @@ var require_tar = /* @__PURE__ */ __commonJS({ "node_modules/@actions/cache/lib/
 		});
 	}
 	function getWorkingDirectory() {
-		var _a$3;
-		return (_a$3 = process.env["GITHUB_WORKSPACE"]) !== null && _a$3 !== void 0 ? _a$3 : process.cwd();
+		var _a$1;
+		return (_a$1 = process.env["GITHUB_WORKSPACE"]) !== null && _a$1 !== void 0 ? _a$1 : process.cwd();
 	}
 	function getDecompressionProgram(tarPath, compressionMethod, archivePath) {
 		return __awaiter$1(this, void 0, void 0, function* () {
