@@ -2363,14 +2363,13 @@ var require_multipart$1 = /* @__PURE__ */ __commonJS({ "node_modules/@fastify/bu
 		this._cb = void 0;
 		this._nparts = 0;
 		this._boy = boy;
-		const parserCfg = {
+		this.parser = new Dicer$1({
 			boundary,
 			maxHeaderPairs: headerPairsLimit,
 			maxHeaderSize: headerSizeLimit,
 			partHwm: fileOpts.highWaterMark,
 			highWaterMark: cfg.highWaterMark
-		};
-		this.parser = new Dicer$1(parserCfg);
+		});
 		this.parser.on("drain", function() {
 			self$1._needDrain = false;
 			if (self$1._cb && !self$1._pause) {
@@ -3430,8 +3429,7 @@ var require_util$7 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cl
 		const parsedMetadata = parseMetadata(metadataList);
 		if (parsedMetadata === "no metadata") return true;
 		if (parsedMetadata.length === 0) return true;
-		const strongest = getStrongestMetadata(parsedMetadata);
-		const metadata = filterMetadataListByAlgorithm(parsedMetadata, strongest);
+		const metadata = filterMetadataListByAlgorithm(parsedMetadata, getStrongestMetadata(parsedMetadata));
 		for (const item of metadata) {
 			const algorithm = item.algo;
 			const expectedValue = item.hash;
@@ -3575,8 +3573,7 @@ var require_util$7 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cl
 				if (Object.getPrototypeOf(this) !== i$1) throw new TypeError(`'next' called on an object that does not implement interface ${name} Iterator.`);
 				const { index, kind: kind$1, target } = object;
 				const values = target();
-				const len = values.length;
-				if (index >= len) return {
+				if (index >= values.length) return {
 					value: void 0,
 					done: true
 				};
@@ -3621,8 +3618,7 @@ var require_util$7 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cl
 			return;
 		}
 		try {
-			const result = await readAllBytes$1(reader);
-			successSteps(result);
+			successSteps(await readAllBytes$1(reader));
 		} catch (e) {
 			errorSteps(e);
 		}
@@ -4063,11 +4059,9 @@ var require_dataURL = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 		mimeType = removeASCIIWhitespace(mimeType, true, true);
 		if (position.position >= input.length) return "failure";
 		position.position++;
-		const encodedBody = input.slice(mimeTypeLength + 1);
-		let body = stringPercentDecode(encodedBody);
+		let body = stringPercentDecode(input.slice(mimeTypeLength + 1));
 		if (/;(\u0020){0,}base64$/i.test(mimeType)) {
-			const stringBody = isomorphicDecode(body);
-			body = forgivingBase64(stringBody);
+			body = forgivingBase64(isomorphicDecode(body));
 			if (body === "failure") return "failure";
 			mimeType = mimeType.slice(0, -6);
 			mimeType = mimeType.replace(/(\u0020)+$/, "");
@@ -4122,8 +4116,7 @@ var require_dataURL = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 	}
 	/** @param {string} input */
 	function stringPercentDecode(input) {
-		const bytes = encoder$1.encode(input);
-		return percentDecode(bytes);
+		return percentDecode(encoder$1.encode(input));
 	}
 	/** @param {Uint8Array} input */
 	function percentDecode(input) {
@@ -4345,14 +4338,11 @@ var require_file$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cl
 	};
 	var FileLike$1 = class FileLike$1 {
 		constructor(blobLike, fileName, options = {}) {
-			const n = fileName;
-			const t$1 = options.type;
-			const d$1 = options.lastModified ?? Date.now();
 			this[kState$9] = {
 				blobLike,
-				name: n,
-				type: t$1,
-				lastModified: d$1
+				name: fileName,
+				type: options.type,
+				lastModified: options.lastModified ?? Date.now()
 			};
 		}
 		stream(...args) {
@@ -8777,10 +8767,7 @@ var require_mock_utils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/htt
 		}
 		if (typeof mockDispatch$1.headers === "undefined") return true;
 		if (typeof headers !== "object" || typeof mockDispatch$1.headers !== "object") return false;
-		for (const [matchHeaderName, matchHeaderValue] of Object.entries(mockDispatch$1.headers)) {
-			const headerValue = getHeaderByName(headers, matchHeaderName);
-			if (!matchValue$1(matchHeaderValue, headerValue)) return false;
-		}
+		for (const [matchHeaderName, matchHeaderValue] of Object.entries(mockDispatch$1.headers)) if (!matchValue$1(matchHeaderValue, getHeaderByName(headers, matchHeaderName))) return false;
 		return true;
 	}
 	function safeUrl(path$13) {
@@ -9027,20 +9014,18 @@ var require_mock_interceptor = /* @__PURE__ */ __commonJS({ "node_modules/@actio
 		createMockScopeDispatchData(statusCode, data, responseOptions = {}) {
 			const responseData = getResponseData(data);
 			const contentLength = this[kContentLength] ? { "content-length": responseData.length } : {};
-			const headers = {
-				...this[kDefaultHeaders],
-				...contentLength,
-				...responseOptions.headers
-			};
-			const trailers = {
-				...this[kDefaultTrailers],
-				...responseOptions.trailers
-			};
 			return {
 				statusCode,
 				data,
-				headers,
-				trailers
+				headers: {
+					...this[kDefaultHeaders],
+					...contentLength,
+					...responseOptions.headers
+				},
+				trailers: {
+					...this[kDefaultTrailers],
+					...responseOptions.trailers
+				}
 			};
 		}
 		validateReplyParameters(statusCode, data, responseOptions) {
@@ -9060,22 +9045,19 @@ var require_mock_interceptor = /* @__PURE__ */ __commonJS({ "node_modules/@actio
 					this.validateReplyParameters(statusCode$1, data$1, responseOptions$1);
 					return { ...this.createMockScopeDispatchData(statusCode$1, data$1, responseOptions$1) };
 				};
-				const newMockDispatch$1 = addMockDispatch(this[kDispatches$3], this[kDispatchKey], wrappedDefaultsCallback);
-				return new MockScope(newMockDispatch$1);
+				return new MockScope(addMockDispatch(this[kDispatches$3], this[kDispatchKey], wrappedDefaultsCallback));
 			}
 			const [statusCode, data = "", responseOptions = {}] = [...arguments];
 			this.validateReplyParameters(statusCode, data, responseOptions);
 			const dispatchData = this.createMockScopeDispatchData(statusCode, data, responseOptions);
-			const newMockDispatch = addMockDispatch(this[kDispatches$3], this[kDispatchKey], dispatchData);
-			return new MockScope(newMockDispatch);
+			return new MockScope(addMockDispatch(this[kDispatches$3], this[kDispatchKey], dispatchData));
 		}
 		/**
 		* Mock an undici request with a defined error.
 		*/
 		replyWithError(error$1) {
 			if (typeof error$1 === "undefined") throw new InvalidArgumentError$6("error must be defined");
-			const newMockDispatch = addMockDispatch(this[kDispatches$3], this[kDispatchKey], { error: error$1 });
-			return new MockScope(newMockDispatch);
+			return new MockScope(addMockDispatch(this[kDispatches$3], this[kDispatchKey], { error: error$1 }));
 		}
 		/**
 		* Set default reply headers on the interceptor for subsequent replies
@@ -10122,8 +10104,7 @@ var require_response$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/htt
 		static json(data, init$1 = {}) {
 			webidl$9.argumentLengthCheck(arguments, 1, { header: "Response.json" });
 			if (init$1 !== null) init$1 = webidl$9.converters.ResponseInit(init$1);
-			const bytes = textEncoder.encode(serializeJavascriptValueToJSONString(data));
-			const body = extractBody$1(bytes);
+			const body = extractBody$1(textEncoder.encode(serializeJavascriptValueToJSONString(data)));
 			const relevantRealm = { settingsObject: {} };
 			const responseObject = new Response$2();
 			responseObject[kRealm$3] = relevantRealm;
@@ -10278,11 +10259,10 @@ var require_response$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/htt
 		};
 	}
 	function makeNetworkError$1(reason) {
-		const isError$2 = isErrorLike$1(reason);
 		return makeResponse$1({
 			type: "error",
 			status: 0,
-			error: isError$2 ? reason : new Error(reason ? String(reason) : reason),
+			error: isErrorLike$1(reason) ? reason : new Error(reason ? String(reason) : reason),
 			aborted: reason && reason.name === "AbortError"
 		});
 	}
@@ -10978,8 +10958,7 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cli
 			taskDestination = request$1.client.globalObject;
 			crossOriginIsolatedCapability = request$1.client.crossOriginIsolatedCapability;
 		}
-		const currenTime = coarsenedSharedCurrentTime(crossOriginIsolatedCapability);
-		const timingInfo = createOpaqueTimingInfo({ startTime: currenTime });
+		const timingInfo = createOpaqueTimingInfo({ startTime: coarsenedSharedCurrentTime(crossOriginIsolatedCapability) });
 		const fetchParams = {
 			controller: new Fetch(dispatcher),
 			request: request$1,
@@ -11093,8 +11072,7 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cli
 				return Promise.resolve(response);
 			}
 			case "data:": {
-				const currentURL = requestCurrentURL(request$1);
-				const dataURLStruct = dataURLProcessor(currentURL);
+				const dataURLStruct = dataURLProcessor(requestCurrentURL(request$1));
 				if (dataURLStruct === "failure") return Promise.resolve(makeNetworkError("failed to fetch the data URL"));
 				const mimeType = serializeAMimeType$1(dataURLStruct.mimeType);
 				return Promise.resolve(makeResponse({
@@ -12248,9 +12226,7 @@ var require_util$4 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cl
 	* @returns {boolean}
 	*/
 	function urlEquals$1(A, B, excludeFragment = false) {
-		const serializedA = URLSerializer$1(A, excludeFragment);
-		const serializedB = URLSerializer$1(B, excludeFragment);
-		return serializedA === serializedB;
+		return URLSerializer$1(A, excludeFragment) === URLSerializer$1(B, excludeFragment);
 	}
 	/**
 	* @see https://github.com/chromium/chromium/blob/694d20d134cb553d8d89e5500b9148012b1ba299/content/browser/cache_storage/cache_storage_cache.cc#L260-L262
@@ -12467,10 +12443,8 @@ var require_cache$3 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 			});
 			const clonedResponse = cloneResponse(innerResponse);
 			const bodyReadPromise = createDeferredPromise();
-			if (innerResponse.body != null) {
-				const reader = innerResponse.body.stream.getReader();
-				readAllBytes(reader).then(bodyReadPromise.resolve, bodyReadPromise.reject);
-			} else bodyReadPromise.resolve(void 0);
+			if (innerResponse.body != null) readAllBytes(innerResponse.body.stream.getReader()).then(bodyReadPromise.resolve, bodyReadPromise.reject);
+			else bodyReadPromise.resolve(void 0);
 			/** @type {CacheBatchOperation[]} */
 			const operations = [];
 			/** @type {CacheBatchOperation} */
@@ -12675,9 +12649,7 @@ var require_cache$3 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 			const fieldValues$1 = getFieldValues(response.headersList.get("vary"));
 			for (const fieldValue of fieldValues$1) {
 				if (fieldValue === "*") return false;
-				const requestValue = request$1.headersList.get(fieldValue);
-				const queryValue = requestQuery.headersList.get(fieldValue);
-				if (requestValue !== queryValue) return false;
+				if (request$1.headersList.get(fieldValue) !== requestQuery.headersList.get(fieldValue)) return false;
 			}
 			return true;
 		}
@@ -12744,10 +12716,7 @@ var require_cachestorage = /* @__PURE__ */ __commonJS({ "node_modules/@actions/h
 			request$1 = webidl$3.converters.RequestInfo(request$1);
 			options = webidl$3.converters.MultiCacheQueryOptions(options);
 			if (options.cacheName != null) {
-				if (this.#caches.has(options.cacheName)) {
-					const cacheList = this.#caches.get(options.cacheName);
-					return await new Cache(kConstruct, cacheList).match(request$1, options);
-				}
+				if (this.#caches.has(options.cacheName)) return await new Cache(kConstruct, this.#caches.get(options.cacheName)).match(request$1, options);
 			} else for (const cacheList of this.#caches.values()) {
 				const response = await new Cache(kConstruct, cacheList).match(request$1, options);
 				if (response !== void 0) return response;
@@ -12773,10 +12742,7 @@ var require_cachestorage = /* @__PURE__ */ __commonJS({ "node_modules/@actions/h
 			webidl$3.brandCheck(this, CacheStorage);
 			webidl$3.argumentLengthCheck(arguments, 1, { header: "CacheStorage.open" });
 			cacheName = webidl$3.converters.DOMString(cacheName);
-			if (this.#caches.has(cacheName)) {
-				const cache$1 = this.#caches.get(cacheName);
-				return new Cache(kConstruct, cache$1);
-			}
+			if (this.#caches.has(cacheName)) return new Cache(kConstruct, this.#caches.get(cacheName));
 			const cache = [];
 			this.#caches.set(cacheName, cache);
 			return new Cache(kConstruct, cache);
@@ -12927,7 +12893,7 @@ var require_util$3 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cl
 	*/
 	function toIMFDate(date) {
 		if (typeof date === "number") date = new Date(date);
-		const days = [
+		return `${[
 			"Sun",
 			"Mon",
 			"Tue",
@@ -12935,8 +12901,7 @@ var require_util$3 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cl
 			"Thu",
 			"Fri",
 			"Sat"
-		];
-		const months = [
+		][date.getUTCDay()]}, ${date.getUTCDate().toString().padStart(2, "0")} ${[
 			"Jan",
 			"Feb",
 			"Mar",
@@ -12949,15 +12914,7 @@ var require_util$3 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cl
 			"Oct",
 			"Nov",
 			"Dec"
-		];
-		const dayName = days[date.getUTCDay()];
-		const day = date.getUTCDate().toString().padStart(2, "0");
-		const month = months[date.getUTCMonth()];
-		const year = date.getUTCFullYear();
-		const hour = date.getUTCHours().toString().padStart(2, "0");
-		const minute = date.getUTCMinutes().toString().padStart(2, "0");
-		const second = date.getUTCSeconds().toString().padStart(2, "0");
-		return `${dayName}, ${day} ${month} ${year} ${hour}:${minute}:${second} GMT`;
+		][date.getUTCMonth()]} ${date.getUTCFullYear()} ${date.getUTCHours().toString().padStart(2, "0")}:${date.getUTCMinutes().toString().padStart(2, "0")}:${date.getUTCSeconds().toString().padStart(2, "0")} GMT`;
 	}
 	/**
 	max-age-av        = "Max-Age=" non-zero-digit *DIGIT
@@ -13740,9 +13697,7 @@ var require_connection = /* @__PURE__ */ __commonJS({ "node_modules/@actions/htt
 					failWebsocketConnection$2(ws, "Server did not set Connection header to \"upgrade\".");
 					return;
 				}
-				const secWSAccept = response.headersList.get("Sec-WebSocket-Accept");
-				const digest = crypto$2.createHash("sha1").update(keyValue + uid).digest("base64");
-				if (secWSAccept !== digest) {
+				if (response.headersList.get("Sec-WebSocket-Accept") !== crypto$2.createHash("sha1").update(keyValue + uid).digest("base64")) {
 					failWebsocketConnection$2(ws, "Incorrect hash received in Sec-WebSocket-Accept header.");
 					return;
 				}
@@ -14866,8 +14821,7 @@ var require_lib = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-clien
 				}
 			}
 			const req$1 = info$1.httpModule.request(info$1.options, (msg) => {
-				const res = new HttpClientResponse(msg);
-				handleResult(void 0, res);
+				handleResult(void 0, new HttpClientResponse(msg));
 			});
 			let socket;
 			req$1.on("socket", (sock) => {
@@ -15935,13 +15889,10 @@ var require_io = /* @__PURE__ */ __commonJS({ "node_modules/@actions/io/lib/io.j
 	}
 	exports.findInPath = findInPath;
 	function readCopyOptions(options) {
-		const force = options.force == null ? true : options.force;
-		const recursive = Boolean(options.recursive);
-		const copySourceDirectory = options.copySourceDirectory == null ? true : Boolean(options.copySourceDirectory);
 		return {
-			force,
-			recursive,
-			copySourceDirectory
+			force: options.force == null ? true : options.force,
+			recursive: Boolean(options.recursive),
+			copySourceDirectory: options.copySourceDirectory == null ? true : Boolean(options.copySourceDirectory)
 		};
 	}
 	function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
@@ -16082,8 +16033,7 @@ var require_toolrunner = /* @__PURE__ */ __commonJS({ "node_modules/@actions/exe
 				let s$1 = strBuffer + data.toString();
 				let n = s$1.indexOf(os$2.EOL);
 				while (n > -1) {
-					const line = s$1.substring(0, n);
-					onLine(line);
+					onLine(s$1.substring(0, n));
 					s$1 = s$1.substring(n + os$2.EOL.length);
 					n = s$1.indexOf(os$2.EOL);
 				}
@@ -21576,8 +21526,7 @@ var require_redirectPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@types
 		return {
 			name: exports.redirectPolicyName,
 			async sendRequest(request$1, next) {
-				const response = await next(request$1);
-				return handleRedirect(next, response, maxRetries);
+				return handleRedirect(next, await next(request$1), maxRetries);
 			}
 		};
 	}
@@ -21592,8 +21541,7 @@ var require_redirectPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@types
 				delete request$1.body;
 			}
 			request$1.headers.delete("Authorization");
-			const res = await next(request$1);
-			return handleRedirect(next, res, maxRetries, currentRetries + 1);
+			return handleRedirect(next, await next(request$1), maxRetries, currentRetries + 1);
 		}
 		return response;
 	}
@@ -23397,9 +23345,7 @@ var require_dist$1 = /* @__PURE__ */ __commonJS({ "node_modules/http-proxy-agent
 		}
 		setRequestProps(req$1, opts) {
 			const { proxy } = this;
-			const protocol = opts.secureEndpoint ? "https:" : "http:";
-			const hostname = req$1.getHeader("host") || "localhost";
-			const base = `${protocol}//${hostname}`;
+			const base = `${opts.secureEndpoint ? "https:" : "http:"}//${req$1.getHeader("host") || "localhost"}`;
 			const url = new url_1$1.URL(req$1.path, base);
 			if (opts.port !== 80) url.port = String(opts.port);
 			req$1.path = String(url);
@@ -24173,10 +24119,9 @@ var require_multipart = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-
 		const headers = (0, httpHeaders_js_1$4.createHttpHeaders)(descriptor.headers ?? {});
 		if (contentType) headers.set("content-type", contentType);
 		if (contentDisposition) headers.set("content-disposition", contentDisposition);
-		const body = normalizeBody(descriptor.body, contentType);
 		return {
 			headers,
-			body
+			body: normalizeBody(descriptor.body, contentType)
 		};
 	}
 	function buildMultipartBody(parts) {
@@ -26174,13 +26119,12 @@ var require_tracingClient = /* @__PURE__ */ __commonJS({ "node_modules/@azure/co
 			const span = startSpanResult.span;
 			if (!tracingContext.getValue(tracingContext_js_1.knownContextKeys.namespace)) tracingContext = tracingContext.setValue(tracingContext_js_1.knownContextKeys.namespace, namespace);
 			span.setAttribute("az.namespace", tracingContext.getValue(tracingContext_js_1.knownContextKeys.namespace));
-			const updatedOptions = Object.assign({}, operationOptions, { tracingOptions: {
-				...operationOptions?.tracingOptions,
-				tracingContext
-			} });
 			return {
 				span,
-				updatedOptions
+				updatedOptions: Object.assign({}, operationOptions, { tracingOptions: {
+					...operationOptions?.tracingOptions,
+					tracingContext
+				} })
 			};
 		}
 		async function withSpan(name, operationOptions, callback, spanOptions) {
@@ -26782,12 +26726,11 @@ var require_bearerTokenAuthenticationPolicy = /* @__PURE__ */ __commonJS({ "node
 	*/
 	async function defaultAuthorizeRequest(options) {
 		const { scopes, getAccessToken, request: request$1 } = options;
-		const getTokenOptions = {
+		const accessToken = await getAccessToken(scopes, {
 			abortSignal: request$1.abortSignal,
 			tracingOptions: request$1.tracingOptions,
 			enableCae: true
-		};
-		const accessToken = await getAccessToken(scopes, getTokenOptions);
+		});
 		if (accessToken) options.request.headers.set("Authorization", `Bearer ${accessToken.token}`);
 	}
 	/**
@@ -26969,11 +26912,10 @@ var require_auxiliaryAuthenticationHeaderPolicy = /* @__PURE__ */ __commonJS({ "
 	const AUTHORIZATION_AUXILIARY_HEADER = "x-ms-authorization-auxiliary";
 	async function sendAuthorizeRequest(options) {
 		const { scopes, getAccessToken, request: request$1 } = options;
-		const getTokenOptions = {
+		return (await getAccessToken(scopes, {
 			abortSignal: request$1.abortSignal,
 			tracingOptions: request$1.tracingOptions
-		};
-		return (await getAccessToken(scopes, getTokenOptions))?.token ?? "";
+		}))?.token ?? "";
 	}
 	/**
 	* A policy for external tokens to `x-ms-authorization-auxiliary` header.
@@ -27923,8 +27865,7 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 	function bufferToBase64Url(buffer$1) {
 		if (!buffer$1) return;
 		if (!(buffer$1 instanceof Uint8Array)) throw new Error(`Please provide an input of type Uint8Array for converting to Base64Url.`);
-		const str = base64.encodeByteArray(buffer$1);
-		return trimEnd(str, "=").replace(/\+/g, "-").replace(/\//g, "_");
+		return trimEnd(base64.encodeByteArray(buffer$1), "=").replace(/\+/g, "-").replace(/\//g, "_");
 	}
 	function base64UrlToByteArray(str) {
 		if (!str) return;
@@ -28041,10 +27982,7 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 		const valueType = mapper.type.value;
 		if (!valueType || typeof valueType !== "object") throw new Error(`"value" metadata for a Dictionary must be defined in the mapper and it must of type "object" in ${objectName}.`);
 		const tempDictionary = {};
-		for (const key of Object.keys(object)) {
-			const serializedValue = serializer.serialize(valueType, object[key], objectName, options);
-			tempDictionary[key] = getXmlObjectValue(valueType, serializedValue, isXml, options);
-		}
+		for (const key of Object.keys(object)) tempDictionary[key] = getXmlObjectValue(valueType, serializer.serialize(valueType, object[key], objectName, options), isXml, options);
 		if (isXml && mapper.xmlNamespace) {
 			const xmlnsKey = mapper.xmlNamespacePrefix ? `xmlns:${mapper.xmlNamespacePrefix}` : "xmlns";
 			const result = tempDictionary;
@@ -28427,8 +28365,7 @@ var require_deserializationPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@
 		return {
 			name: exports.deserializationPolicyName,
 			async sendRequest(request$1, next) {
-				const response = await next(request$1);
-				return deserializeResponseBody(jsonContentTypes, xmlContentTypes, response, updatedOptions, parseXML$1);
+				return deserializeResponseBody(jsonContentTypes, xmlContentTypes, await next(request$1), updatedOptions, parseXML$1);
 			}
 		};
 	}
@@ -31587,8 +31524,7 @@ var require_utils_common$2 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/s
 		const maxSourceStringLength = 48;
 		const maxAllowedBlockIDPrefixLength = maxSourceStringLength - 6;
 		if (blockIDPrefix.length > maxAllowedBlockIDPrefixLength) blockIDPrefix = blockIDPrefix.slice(0, maxAllowedBlockIDPrefixLength);
-		const res = blockIDPrefix + padStart$1(blockIndex.toString(), maxSourceStringLength - blockIDPrefix.length, "0");
-		return base64encode$2(res);
+		return base64encode$2(blockIDPrefix + padStart$1(blockIndex.toString(), maxSourceStringLength - blockIDPrefix.length, "0"));
 	}
 	/**
 	* Delay specified time interval.
@@ -33667,8 +33603,7 @@ var require_utils_common$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/s
 		const maxSourceStringLength = 48;
 		const maxAllowedBlockIDPrefixLength = maxSourceStringLength - 6;
 		if (blockIDPrefix.length > maxAllowedBlockIDPrefixLength) blockIDPrefix = blockIDPrefix.slice(0, maxAllowedBlockIDPrefixLength);
-		const res = blockIDPrefix + padStart(blockIndex.toString(), maxSourceStringLength - blockIDPrefix.length, "0");
-		return base64encode$1(res);
+		return base64encode$1(blockIDPrefix + padStart(blockIndex.toString(), maxSourceStringLength - blockIDPrefix.length, "0"));
 	}
 	/**
 	* Delay specified time interval.
@@ -49375,11 +49310,9 @@ var require_AvroParser = /* @__PURE__ */ __commonJS({ "node_modules/@azure/stora
 			return new TextDecoder().decode(u8arr);
 		}
 		static async readMapPair(stream$3, readItemMethod, options = {}) {
-			const key = await AvroParser.readString(stream$3, options);
-			const value = await readItemMethod(stream$3, options);
 			return {
-				key,
-				value
+				key: await AvroParser.readString(stream$3, options),
+				value: await readItemMethod(stream$3, options)
 			};
 		}
 		static async readMap(stream$3, readItemMethod, options = {}) {
@@ -50483,14 +50416,13 @@ var require_operation$2 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 		};
 		logger_js_1$2.logger.verbose(`LRO: Operation description:`, config);
 		const state = stateProxy.initState(config);
-		const status = getOperationStatus$1({
-			response,
-			state,
-			operationLocation
-		});
 		processOperationStatus({
 			state,
-			status,
+			status: getOperationStatus$1({
+				response,
+				state,
+				operationLocation
+			}),
 			stateProxy,
 			response,
 			setErrorAsResult,
@@ -50604,11 +50536,9 @@ var require_operation$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 	}
 	function inferLroMode(inputs) {
 		const { rawResponse, requestMethod, requestPath, resourceLocationConfig } = inputs;
-		const operationLocation = getOperationLocationHeader(rawResponse);
-		const azureAsyncOperation = getAzureAsyncOperationHeader(rawResponse);
 		const pollingUrl = getOperationLocationPollingUrl({
-			operationLocation,
-			azureAsyncOperation
+			operationLocation: getOperationLocationHeader(rawResponse),
+			azureAsyncOperation: getAzureAsyncOperationHeader(rawResponse)
 		});
 		const location = getLocationHeader(rawResponse);
 		const normalizedRequestMethod = requestMethod === null || requestMethod === void 0 ? void 0 : requestMethod.toLocaleUpperCase();
@@ -50663,9 +50593,8 @@ var require_operation$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 	function getProvisioningState(rawResponse) {
 		var _a$1, _b;
 		const { properties, provisioningState } = (_a$1 = rawResponse.body) !== null && _a$1 !== void 0 ? _a$1 : {};
-		const status = (_b = properties === null || properties === void 0 ? void 0 : properties.provisioningState) !== null && _b !== void 0 ? _b : provisioningState;
 		return transformStatus({
-			status,
+			status: (_b = properties === null || properties === void 0 ? void 0 : properties.provisioningState) !== null && _b !== void 0 ? _b : provisioningState,
 			statusCode: rawResponse.statusCode
 		});
 	}
@@ -55380,10 +55309,9 @@ var require_ContainerClient = /* @__PURE__ */ __commonJS({ "node_modules/@azure/
 		async uploadBlockBlob(blobName, body, contentLength, options = {}) {
 			return tracing_js_1$1.tracingClient.withSpan("ContainerClient-uploadBlockBlob", options, async (updatedOptions) => {
 				const blockBlobClient = this.getBlockBlobClient(blobName);
-				const response = await blockBlobClient.upload(body, contentLength, updatedOptions);
 				return {
 					blockBlobClient,
-					response
+					response: await blockBlobClient.upload(body, contentLength, updatedOptions)
 				};
 			});
 		}
@@ -56556,10 +56484,9 @@ var require_BlobServiceClient = /* @__PURE__ */ __commonJS({ "node_modules/@azur
 		async createContainer(containerName, options = {}) {
 			return tracing_js_1.tracingClient.withSpan("BlobServiceClient-createContainer", options, async (updatedOptions) => {
 				const containerClient = this.getContainerClient(containerName);
-				const containerCreateResponse = await containerClient.create(updatedOptions);
 				return {
 					containerClient,
-					containerCreateResponse
+					containerCreateResponse: await containerClient.create(updatedOptions)
 				};
 			});
 		}
@@ -56588,14 +56515,13 @@ var require_BlobServiceClient = /* @__PURE__ */ __commonJS({ "node_modules/@azur
 			return tracing_js_1.tracingClient.withSpan("BlobServiceClient-undeleteContainer", options, async (updatedOptions) => {
 				const containerClient = this.getContainerClient(options.destinationContainerName || deletedContainerName);
 				const containerContext = containerClient["storageClientContext"].container;
-				const containerUndeleteResponse = (0, utils_common_js_2.assertResponse)(await containerContext.restore({
-					deletedContainerName,
-					deletedContainerVersion,
-					tracingOptions: updatedOptions.tracingOptions
-				}));
 				return {
 					containerClient,
-					containerUndeleteResponse
+					containerUndeleteResponse: (0, utils_common_js_2.assertResponse)(await containerContext.restore({
+						deletedContainerName,
+						deletedContainerVersion,
+						tracingOptions: updatedOptions.tracingOptions
+					}))
 				};
 			});
 		}
@@ -58511,10 +58437,9 @@ var require_cacheHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@action
 	function reserveCache(key, paths, options) {
 		return __awaiter$8(this, void 0, void 0, function* () {
 			const httpClient = createHttpClient();
-			const version = utils$2.getCacheVersion(paths, options === null || options === void 0 ? void 0 : options.compressionMethod, options === null || options === void 0 ? void 0 : options.enableCrossOsArchive);
 			const reserveCacheRequest = {
 				key,
-				version,
+				version: utils$2.getCacheVersion(paths, options === null || options === void 0 ? void 0 : options.compressionMethod, options === null || options === void 0 ? void 0 : options.enableCrossOsArchive),
 				cacheSize: options === null || options === void 0 ? void 0 : options.cacheSize
 			};
 			return yield (0, requestUtils_1.retryTypedResponse)("reserveCache", () => __awaiter$8(this, void 0, void 0, function* () {
@@ -64083,8 +64008,7 @@ var require_tar = /* @__PURE__ */ __commonJS({ "node_modules/@actions/cache/lib/
 	}
 	function listTar(archivePath, compressionMethod) {
 		return __awaiter$1(this, void 0, void 0, function* () {
-			const commands = yield getCommands(compressionMethod, "list", archivePath);
-			yield execCommands(commands);
+			yield execCommands(yield getCommands(compressionMethod, "list", archivePath));
 		});
 	}
 	exports.listTar = listTar;
@@ -64092,16 +64016,14 @@ var require_tar = /* @__PURE__ */ __commonJS({ "node_modules/@actions/cache/lib/
 		return __awaiter$1(this, void 0, void 0, function* () {
 			const workingDirectory = getWorkingDirectory();
 			yield io.mkdirP(workingDirectory);
-			const commands = yield getCommands(compressionMethod, "extract", archivePath);
-			yield execCommands(commands);
+			yield execCommands(yield getCommands(compressionMethod, "extract", archivePath));
 		});
 	}
 	exports.extractTar = extractTar;
 	function createTar(archiveFolder, sourceDirectories, compressionMethod) {
 		return __awaiter$1(this, void 0, void 0, function* () {
 			(0, fs_1.writeFileSync)(path$1.join(archiveFolder, constants_1.ManifestFilename), sourceDirectories.join("\n"));
-			const commands = yield getCommands(compressionMethod, "create");
-			yield execCommands(commands, archiveFolder);
+			yield execCommands(yield getCommands(compressionMethod, "create"), archiveFolder);
 		});
 	}
 	exports.createTar = createTar;
@@ -64549,19 +64471,17 @@ async function main() {
 	if (!restore) {
 		import_core.info("cache not found");
 		import_core.info("generating cache secret key");
-		const secretKey = (await import_exec.getExecOutput("nix", [
+		writeFileSync("/tmp/.secret-key", (await import_exec.getExecOutput("nix", [
 			"key",
 			"generate-secret",
 			"--key-name",
 			"simple.cache.action-1"
-		], { silent: true })).stdout.trim();
-		writeFileSync("/tmp/.secret-key", secretKey);
+		], { silent: true })).stdout.trim());
 	}
 	const publicKey = (await import_exec.getExecOutput("bash", ["-c", "cat /tmp/.secret-key | nix key convert-secret-to-public"], { silent: true })).stdout.trim();
 	import_core.info(`public key: ${publicKey}`);
 	import_core.saveState("publicKey", publicKey);
-	const __filename = fileURLToPath(import.meta.url);
-	const __dirname = dirname(__filename);
+	const __dirname = dirname(fileURLToPath(import.meta.url));
 	if (!existsSync(`${__dirname}/proxy.js`)) {
 		import_core.warning(`${__dirname}/proxy.js not found, skipping binary cache server`);
 		return;

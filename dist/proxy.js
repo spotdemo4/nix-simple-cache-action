@@ -3321,11 +3321,9 @@ var require_data_url = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web
 		mimeType = removeASCIIWhitespace(mimeType, true, true);
 		if (position.position >= input.length) return "failure";
 		position.position++;
-		const encodedBody = input.slice(mimeTypeLength + 1);
-		let body = stringPercentDecode(encodedBody);
+		let body = stringPercentDecode(input.slice(mimeTypeLength + 1));
 		if (/;(\u0020){0,}base64$/i.test(mimeType)) {
-			const stringBody = isomorphicDecode$1(body);
-			body = forgivingBase64(stringBody);
+			body = forgivingBase64(isomorphicDecode$1(body));
 			if (body === "failure") return "failure";
 			mimeType = mimeType.slice(0, -6);
 			mimeType = mimeType.replace(/(\u0020)+$/, "");
@@ -3382,8 +3380,7 @@ var require_data_url = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web
 	}
 	/** @param {string} input */
 	function stringPercentDecode(input) {
-		const bytes = encoder.encode(input);
-		return percentDecode(bytes);
+		return percentDecode(encoder.encode(input));
 	}
 	/**
 	* @param {number} byte
@@ -4490,8 +4487,7 @@ var require_util$4 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/f
 				if (typeof this !== "object" || this === null || !(#target in this)) throw new TypeError(`'next' called on an object that does not implement interface ${name} Iterator.`);
 				const index = this.#index;
 				const values = kInternalIterator(this.#target);
-				const len = values.length;
-				if (index >= len) return {
+				if (index >= values.length) return {
 					value: void 0,
 					done: true
 				};
@@ -4611,8 +4607,7 @@ var require_util$4 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/f
 		const successSteps = processBody;
 		const errorSteps = processBodyError;
 		try {
-			const reader = body.stream.getReader();
-			readAllBytes$1(reader, successSteps, errorSteps);
+			readAllBytes$1(body.stream.getReader(), successSteps, errorSteps);
 		} catch (e) {
 			errorSteps(e);
 		}
@@ -9640,10 +9635,7 @@ var require_mock_utils = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/m
 		}
 		if (typeof mockDispatch$1.headers === "undefined") return true;
 		if (typeof headers !== "object" || typeof mockDispatch$1.headers !== "object") return false;
-		for (const [matchHeaderName, matchHeaderValue] of Object.entries(mockDispatch$1.headers)) {
-			const headerValue = getHeaderByName(headers, matchHeaderName);
-			if (!matchValue$1(matchHeaderValue, headerValue)) return false;
-		}
+		for (const [matchHeaderName, matchHeaderValue] of Object.entries(mockDispatch$1.headers)) if (!matchValue$1(matchHeaderValue, getHeaderByName(headers, matchHeaderName))) return false;
 		return true;
 	}
 	function normalizeSearchParams$1(query) {
@@ -9701,10 +9693,7 @@ var require_mock_utils = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/m
 		matchedMockDispatches = matchedMockDispatches.filter(({ body }) => typeof body !== "undefined" ? matchValue$1(body, key.body) : true);
 		if (matchedMockDispatches.length === 0) throw new MockNotMatchedError(`Mock dispatch not matched for body '${key.body}' on path '${resolvedPath}'`);
 		matchedMockDispatches = matchedMockDispatches.filter((mockDispatch$1) => matchHeaders(mockDispatch$1, key.headers));
-		if (matchedMockDispatches.length === 0) {
-			const headers = typeof key.headers === "object" ? JSON.stringify(key.headers) : key.headers;
-			throw new MockNotMatchedError(`Mock dispatch not matched for headers '${headers}' on path '${resolvedPath}'`);
-		}
+		if (matchedMockDispatches.length === 0) throw new MockNotMatchedError(`Mock dispatch not matched for headers '${typeof key.headers === "object" ? JSON.stringify(key.headers) : key.headers}' on path '${resolvedPath}'`);
 		return matchedMockDispatches[0];
 	}
 	function addMockDispatch$1(mockDispatches, key, data, opts) {
@@ -9936,20 +9925,18 @@ var require_mock_interceptor = /* @__PURE__ */ __commonJS({ "node_modules/undici
 		createMockScopeDispatchData({ statusCode, data, responseOptions }) {
 			const responseData = getResponseData(data);
 			const contentLength = this[kContentLength] ? { "content-length": responseData.length } : {};
-			const headers = {
-				...this[kDefaultHeaders],
-				...contentLength,
-				...responseOptions.headers
-			};
-			const trailers = {
-				...this[kDefaultTrailers],
-				...responseOptions.trailers
-			};
 			return {
 				statusCode,
 				data,
-				headers,
-				trailers
+				headers: {
+					...this[kDefaultHeaders],
+					...contentLength,
+					...responseOptions.headers
+				},
+				trailers: {
+					...this[kDefaultTrailers],
+					...responseOptions.trailers
+				}
 			};
 		}
 		validateReplyParameters(replyParameters) {
@@ -9972,8 +9959,7 @@ var require_mock_interceptor = /* @__PURE__ */ __commonJS({ "node_modules/undici
 					this.validateReplyParameters(replyParameters$1);
 					return { ...this.createMockScopeDispatchData(replyParameters$1) };
 				};
-				const newMockDispatch$1 = addMockDispatch(this[kDispatches$3], this[kDispatchKey], wrappedDefaultsCallback, { ignoreTrailingSlash: this[kIgnoreTrailingSlash$3] });
-				return new MockScope(newMockDispatch$1);
+				return new MockScope(addMockDispatch(this[kDispatches$3], this[kDispatchKey], wrappedDefaultsCallback, { ignoreTrailingSlash: this[kIgnoreTrailingSlash$3] }));
 			}
 			const replyParameters = {
 				statusCode: replyOptionsCallbackOrStatusCode,
@@ -9982,16 +9968,14 @@ var require_mock_interceptor = /* @__PURE__ */ __commonJS({ "node_modules/undici
 			};
 			this.validateReplyParameters(replyParameters);
 			const dispatchData = this.createMockScopeDispatchData(replyParameters);
-			const newMockDispatch = addMockDispatch(this[kDispatches$3], this[kDispatchKey], dispatchData, { ignoreTrailingSlash: this[kIgnoreTrailingSlash$3] });
-			return new MockScope(newMockDispatch);
+			return new MockScope(addMockDispatch(this[kDispatches$3], this[kDispatchKey], dispatchData, { ignoreTrailingSlash: this[kIgnoreTrailingSlash$3] }));
 		}
 		/**
 		* Mock an undici request with a defined error.
 		*/
 		replyWithError(error) {
 			if (typeof error === "undefined") throw new InvalidArgumentError$12("error must be defined");
-			const newMockDispatch = addMockDispatch(this[kDispatches$3], this[kDispatchKey], { error }, { ignoreTrailingSlash: this[kIgnoreTrailingSlash$3] });
-			return new MockScope(newMockDispatch);
+			return new MockScope(addMockDispatch(this[kDispatches$3], this[kDispatchKey], { error }, { ignoreTrailingSlash: this[kIgnoreTrailingSlash$3] }));
 		}
 		/**
 		* Set default reply headers on the interceptor for subsequent replies
@@ -10359,8 +10343,7 @@ var require_mock_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/m
 			const dispatchOpts = { ...opts };
 			if (acceptNonStandardSearchParameters && dispatchOpts.path) {
 				const [path$1, searchParams] = dispatchOpts.path.split("?");
-				const normalizedSearchParams = normalizeSearchParams(searchParams, acceptNonStandardSearchParameters);
-				dispatchOpts.path = `${path$1}?${normalizedSearchParams}`;
+				dispatchOpts.path = `${path$1}?${normalizeSearchParams(searchParams, acceptNonStandardSearchParameters)}`;
 			}
 			return this[kAgent].dispatch(dispatchOpts, handler);
 		}
@@ -10726,8 +10709,7 @@ var require_snapshot_recorder = /* @__PURE__ */ __commonJS({ "node_modules/undic
 			}
 		}
 		parts.push(formattedRequest.body);
-		const content = parts.join("|");
-		return hashId(content);
+		return hashId(parts.join("|"));
 	}
 	var SnapshotRecorder$1 = class {
 		/** @type {NodeJS.Timeout | null} */
@@ -10816,8 +10798,7 @@ var require_snapshot_recorder = /* @__PURE__ */ __commonJS({ "node_modules/undic
 			if (!this.shouldPlayback(requestOpts)) return;
 			const url = new URL(requestOpts.path, requestOpts.origin).toString();
 			if (this.#isUrlExcluded(url)) return;
-			const request$2 = formatRequestKey(requestOpts, this.#headerFilters, this.matchOptions);
-			const hash = createRequestHash(request$2);
+			const hash = createRequestHash(formatRequestKey(requestOpts, this.#headerFilters, this.matchOptions));
 			const snapshot = this.#snapshots.get(hash);
 			if (!snapshot) return void 0;
 			const currentCallCount = snapshot.callCount || 0;
@@ -10899,8 +10880,7 @@ var require_snapshot_recorder = /* @__PURE__ */ __commonJS({ "node_modules/undic
 		* @returns {boolean} - True if snapshot was deleted, false if not found
 		*/
 		deleteSnapshot(requestOpts) {
-			const request$2 = formatRequestKey(requestOpts, this.#headerFilters, this.matchOptions);
-			const hash = createRequestHash(request$2);
+			const hash = createRequestHash(formatRequestKey(requestOpts, this.#headerFilters, this.matchOptions));
 			return this.#snapshots.delete(hash);
 		}
 		/**
@@ -10909,8 +10889,7 @@ var require_snapshot_recorder = /* @__PURE__ */ __commonJS({ "node_modules/undic
 		* @returns {SnapshotInfo|null} - Snapshot information or null if not found
 		*/
 		getSnapshotInfo(requestOpts) {
-			const request$2 = formatRequestKey(requestOpts, this.#headerFilters, this.matchOptions);
-			const hash = createRequestHash(request$2);
+			const hash = createRequestHash(formatRequestKey(requestOpts, this.#headerFilters, this.matchOptions));
 			const snapshot = this.#snapshots.get(hash);
 			if (!snapshot) return null;
 			return {
@@ -11480,8 +11459,7 @@ var require_redirect = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/int
 				const { maxRedirections = defaultMaxRedirections,...rest } = opts;
 				if (maxRedirections == null || maxRedirections === 0) return dispatch(opts, handler);
 				const dispatchOpts = { ...rest };
-				const redirectHandler = new RedirectHandler$1(dispatch, maxRedirections, dispatchOpts, handler);
-				return dispatch(dispatchOpts, redirectHandler);
+				return dispatch(dispatchOpts, new RedirectHandler$1(dispatch, maxRedirections, dispatchOpts, handler));
 			};
 		};
 	}
@@ -11638,11 +11616,10 @@ var require_dump = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/interce
 		return (dispatch) => {
 			return function Intercept(opts, handler) {
 				const { dumpMaxSize = defaultMaxSize } = opts;
-				const dumpHandler = new DumpHandler({
+				return dispatch(opts, new DumpHandler({
 					maxSize: dumpMaxSize,
 					signal: opts.signal
-				}, handler);
-				return dispatch(opts, dumpHandler);
+				}, handler));
 			};
 		};
 	}
@@ -11860,22 +11837,21 @@ var require_dns = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/intercep
 		let affinity;
 		if (dualStack) affinity = interceptorOpts?.affinity ?? null;
 		else affinity = interceptorOpts?.affinity ?? 4;
-		const opts = {
+		const instance = new DNSInstance({
 			maxTTL: interceptorOpts?.maxTTL ?? 1e4,
 			lookup: interceptorOpts?.lookup ?? null,
 			pick: interceptorOpts?.pick ?? null,
 			dualStack,
 			affinity,
 			maxItems: interceptorOpts?.maxItems ?? Infinity
-		};
-		const instance = new DNSInstance(opts);
+		});
 		return (dispatch) => {
 			return function dnsInterceptor(origDispatchOpts, handler) {
 				const origin = origDispatchOpts.origin.constructor === URL ? origDispatchOpts.origin : new URL(origDispatchOpts.origin);
 				if (isIP(origin.hostname) !== 0) return dispatch(origDispatchOpts, handler);
 				instance.runLookup(origin, origDispatchOpts, (err, newOrigin) => {
 					if (err) return handler.onResponseError(null, err);
-					const dispatchOpts = {
+					dispatch({
 						...origDispatchOpts,
 						servername: origin.hostname,
 						origin: newOrigin.origin,
@@ -11883,8 +11859,7 @@ var require_dns = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/intercep
 							host: origin.host,
 							...origDispatchOpts.headers
 						}
-					};
-					dispatch(dispatchOpts, instance.getHandler({
+					}, instance.getHandler({
 						origin,
 						dispatch,
 						handler,
@@ -12541,14 +12516,13 @@ var require_cache_handler = /* @__PURE__ */ __commonJS({ "node_modules/undici/li
 				if (!varyDirectives) return downstreamOnHeaders();
 			}
 			const deleteAt = determineDeleteAt(baseTime, cacheControlDirectives, absoluteStaleAt);
-			const strippedHeaders = stripNecessaryHeaders(resHeaders, cacheControlDirectives);
 			/**
 			* @type {import('../../types/cache-interceptor.d.ts').default.CacheValue}
 			*/
 			const value = {
 				statusCode,
 				statusMessage,
-				headers: strippedHeaders,
+				headers: stripNecessaryHeaders(resHeaders, cacheControlDirectives),
 				vary: varyDirectives,
 				cacheControlDirectives,
 				cachedAt: resAge ? now - resAge : now,
@@ -12972,17 +12946,10 @@ var require_cache$1 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/inte
 		if (result.cacheControlDirectives?.["no-cache"] && !Array.isArray(result.cacheControlDirectives["no-cache"])) return true;
 		const now = Date.now();
 		if (now > result.staleAt) {
-			if (cacheControlDirectives?.["max-stale"]) {
-				const gracePeriod = result.staleAt + cacheControlDirectives["max-stale"] * 1e3;
-				return now > gracePeriod;
-			}
+			if (cacheControlDirectives?.["max-stale"]) return now > result.staleAt + cacheControlDirectives["max-stale"] * 1e3;
 			return true;
 		}
-		if (cacheControlDirectives?.["min-fresh"]) {
-			const timeLeftTillStale = result.staleAt - now;
-			const threshold = cacheControlDirectives["min-fresh"] * 1e3;
-			return timeLeftTillStale <= threshold;
-		}
+		if (cacheControlDirectives?.["min-fresh"]) return result.staleAt - now <= cacheControlDirectives["min-fresh"] * 1e3;
 		return false;
 	}
 	/**
@@ -12993,9 +12960,7 @@ var require_cache$1 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/inte
 	function withinStaleWhileRevalidateWindow(result) {
 		const staleWhileRevalidate = result.cacheControlDirectives?.["stale-while-revalidate"];
 		if (!staleWhileRevalidate) return false;
-		const now = Date.now();
-		const staleWhileRevalidateExpiry = result.staleAt + staleWhileRevalidate * 1e3;
-		return now <= staleWhileRevalidateExpiry;
+		return Date.now() <= result.staleAt + staleWhileRevalidate * 1e3;
 	}
 	/**
 	* @param {DispatchFn} dispatch
@@ -13381,8 +13346,7 @@ var require_decompress = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/i
 		}
 		return (dispatch) => {
 			return (opts, handler) => {
-				const decompressHandler = new DecompressHandler(handler, options);
-				return dispatch(opts, decompressHandler);
+				return dispatch(opts, new DecompressHandler(handler, options));
 			};
 		};
 	}
@@ -14128,8 +14092,7 @@ var require_response = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web
 		static json(data, init = void 0) {
 			webidl$10.argumentLengthCheck(arguments, 1, "Response.json");
 			if (init !== null) init = webidl$10.converters.ResponseInit(init);
-			const bytes = textEncoder.encode(serializeJavascriptValueToJSONString(data));
-			const body = extractBody$2(bytes);
+			const body = extractBody$2(textEncoder.encode(serializeJavascriptValueToJSONString(data)));
 			const responseObject = fromInnerResponse$2(makeResponse$1({}), "response");
 			initializeResponse(responseObject, init, {
 				body: body[0],
@@ -14318,11 +14281,10 @@ var require_response = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web
 		};
 	}
 	function makeNetworkError$1(reason) {
-		const isError = isErrorLike$1(reason);
 		return makeResponse$1({
 			type: "error",
 			status: 0,
-			error: isError ? reason : new Error(reason ? String(reason) : reason),
+			error: isErrorLike$1(reason) ? reason : new Error(reason ? String(reason) : reason),
 			aborted: reason && reason.name === "AbortError"
 		});
 	}
@@ -14622,8 +14584,7 @@ var require_request = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/
 			if (signal != null) if (signal.aborted) ac.abort(signal.reason);
 			else {
 				this[kAbortController] = ac;
-				const acRef = new WeakRef(ac);
-				const abort$1 = buildAbort(acRef);
+				const abort$1 = buildAbort(new WeakRef(ac));
 				if (abortSignalHasEventHandlerLeakWarning && getMaxListeners(signal) === defaultMaxListeners) setMaxListeners(1500, signal);
 				util$1.addAbortListener(signal, abort$1);
 				requestFinalizer.register(ac, {
@@ -15098,8 +15059,7 @@ var require_subresource_integrity = /* @__PURE__ */ __commonJS({ "node_modules/u
 		for (const item of metadata) {
 			const algorithm = item.alg;
 			const expectedValue = item.val;
-			const actualValue = applyAlgorithmToBytes(algorithm, bytes);
-			if (caseSensitiveMatch(actualValue, expectedValue)) return true;
+			if (caseSensitiveMatch(applyAlgorithmToBytes(algorithm, bytes), expectedValue)) return true;
 		}
 		return false;
 	};
@@ -15335,8 +15295,7 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/fe
 			taskDestination = request$2.client.globalObject;
 			crossOriginIsolatedCapability = request$2.client.crossOriginIsolatedCapability;
 		}
-		const currentTime = coarsenedSharedCurrentTime(crossOriginIsolatedCapability);
-		const timingInfo = createOpaqueTimingInfo({ startTime: currentTime });
+		const timingInfo = createOpaqueTimingInfo({ startTime: coarsenedSharedCurrentTime(crossOriginIsolatedCapability) });
 		const fetchParams = {
 			controller: new Fetch(dispatcher),
 			request: request$2,
@@ -15447,8 +15406,7 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/fe
 					response.headersList.set("content-type", type, true);
 				} else {
 					response.rangeRequested = true;
-					const rangeHeader = request$2.headersList.get("range", true);
-					const rangeValue = simpleRangeHeaderValue(rangeHeader, true);
+					const rangeValue = simpleRangeHeaderValue(request$2.headersList.get("range", true), true);
 					if (rangeValue === "failure") return Promise.resolve(makeNetworkError("failed to fetch the data URL"));
 					let { rangeStartValue: rangeStart, rangeEndValue: rangeEnd } = rangeValue;
 					if (rangeStart === null) {
@@ -15471,8 +15429,7 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/fe
 				return Promise.resolve(response);
 			}
 			case "data:": {
-				const currentURL = requestCurrentURL(request$2);
-				const dataURLStruct = dataURLProcessor(currentURL);
+				const dataURLStruct = dataURLProcessor(requestCurrentURL(request$2));
 				if (dataURLStruct === "failure") return Promise.resolve(makeNetworkError("failed to fetch the data URL"));
 				const mimeType = serializeAMimeType$1(dataURLStruct.mimeType);
 				return Promise.resolve(makeResponse({
@@ -15912,9 +15869,7 @@ var require_util$3 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/c
 	* @returns {boolean}
 	*/
 	function urlEquals$1(A, B, excludeFragment = false) {
-		const serializedA = URLSerializer$1(A, excludeFragment);
-		const serializedB = URLSerializer$1(B, excludeFragment);
-		return serializedA === serializedB;
+		return URLSerializer$1(A, excludeFragment) === URLSerializer$1(B, excludeFragment);
 	}
 	/**
 	* @see https://github.com/chromium/chromium/blob/694d20d134cb553d8d89e5500b9148012b1ba299/content/browser/cache_storage/cache_storage_cache.cc#L260-L262
@@ -16113,10 +16068,8 @@ var require_cache = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/ca
 			});
 			const clonedResponse = cloneResponse(innerResponse);
 			const bodyReadPromise = createDeferredPromise$1();
-			if (innerResponse.body != null) {
-				const reader = innerResponse.body.stream.getReader();
-				readAllBytes(reader, bodyReadPromise.resolve, bodyReadPromise.reject);
-			} else bodyReadPromise.resolve(void 0);
+			if (innerResponse.body != null) readAllBytes(innerResponse.body.stream.getReader(), bodyReadPromise.resolve, bodyReadPromise.reject);
+			else bodyReadPromise.resolve(void 0);
 			/** @type {CacheBatchOperation[]} */
 			const operations = [];
 			/** @type {CacheBatchOperation} */
@@ -16319,9 +16272,7 @@ var require_cache = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/ca
 			const fieldValues = getFieldValues(response.headersList.get("vary"));
 			for (const fieldValue of fieldValues) {
 				if (fieldValue === "*") return false;
-				const requestValue = request$2.headersList.get(fieldValue);
-				const queryValue = requestQuery.headersList.get(fieldValue);
-				if (requestValue !== queryValue) return false;
+				if (request$2.headersList.get(fieldValue) !== requestQuery.headersList.get(fieldValue)) return false;
 			}
 			return true;
 		}
@@ -16411,10 +16362,7 @@ var require_cachestorage = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib
 			request$2 = webidl$6.converters.RequestInfo(request$2);
 			options = webidl$6.converters.MultiCacheQueryOptions(options);
 			if (options.cacheName != null) {
-				if (this.#caches.has(options.cacheName)) {
-					const cacheList = this.#caches.get(options.cacheName);
-					return await new Cache(kConstruct$3, cacheList).match(request$2, options);
-				}
+				if (this.#caches.has(options.cacheName)) return await new Cache(kConstruct$3, this.#caches.get(options.cacheName)).match(request$2, options);
 			} else for (const cacheList of this.#caches.values()) {
 				const response = await new Cache(kConstruct$3, cacheList).match(request$2, options);
 				if (response !== void 0) return response;
@@ -16442,10 +16390,7 @@ var require_cachestorage = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib
 			const prefix = "CacheStorage.open";
 			webidl$6.argumentLengthCheck(arguments, 1, prefix);
 			cacheName = webidl$6.converters.DOMString(cacheName, prefix, "cacheName");
-			if (this.#caches.has(cacheName)) {
-				const cache$1 = this.#caches.get(cacheName);
-				return new Cache(kConstruct$3, cache$1);
-			}
+			if (this.#caches.has(cacheName)) return new Cache(kConstruct$3, this.#caches.get(cacheName));
 			const cache = [];
 			this.#caches.set(cacheName, cache);
 			return new Cache(kConstruct$3, cache);
@@ -17722,9 +17667,7 @@ var require_connection = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/w
 					failWebsocketConnection$3(handler, 1002, "Server did not set Connection header to \"upgrade\".");
 					return;
 				}
-				const secWSAccept = response.headersList.get("Sec-WebSocket-Accept");
-				const digest = crypto.createHash("sha1").update(keyValue + uid).digest("base64");
-				if (secWSAccept !== digest) {
+				if (response.headersList.get("Sec-WebSocket-Accept") !== crypto.createHash("sha1").update(keyValue + uid).digest("base64")) {
 					failWebsocketConnection$3(handler, 1002, "Incorrect hash received in Sec-WebSocket-Accept header.");
 					return;
 				}
@@ -19738,8 +19681,7 @@ const server = createServer(async (req, res) => {
 				const localPath = path.join(root, req.url);
 				if (existsSync(localPath)) {
 					console.log("<-", localPath);
-					const ext = path.parse(localPath).ext;
-					const contentType = mimeTypes[ext] || "application/octet-stream";
+					const contentType = mimeTypes[path.parse(localPath).ext] || "application/octet-stream";
 					res.writeHead(200, {
 						"Content-Type": contentType,
 						"Content-Disposition": `attachment; filename="${path.basename(localPath)}"`
