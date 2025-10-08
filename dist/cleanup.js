@@ -2360,14 +2360,13 @@ var require_multipart$1 = /* @__PURE__ */ __commonJS({ "node_modules/@fastify/bu
 		this._cb = void 0;
 		this._nparts = 0;
 		this._boy = boy;
-		const parserCfg = {
+		this.parser = new Dicer$1({
 			boundary,
 			maxHeaderPairs: headerPairsLimit,
 			maxHeaderSize: headerSizeLimit,
 			partHwm: fileOpts.highWaterMark,
 			highWaterMark: cfg.highWaterMark
-		};
-		this.parser = new Dicer$1(parserCfg);
+		});
 		this.parser.on("drain", function() {
 			self$1._needDrain = false;
 			if (self$1._cb && !self$1._pause) {
@@ -3427,8 +3426,7 @@ var require_util$13 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 		const parsedMetadata = parseMetadata$1(metadataList);
 		if (parsedMetadata === "no metadata") return true;
 		if (parsedMetadata.length === 0) return true;
-		const strongest = getStrongestMetadata$1(parsedMetadata);
-		const metadata = filterMetadataListByAlgorithm(parsedMetadata, strongest);
+		const metadata = filterMetadataListByAlgorithm(parsedMetadata, getStrongestMetadata$1(parsedMetadata));
 		for (const item of metadata) {
 			const algorithm = item.algo;
 			const expectedValue = item.hash;
@@ -3572,8 +3570,7 @@ var require_util$13 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 				if (Object.getPrototypeOf(this) !== i$1) throw new TypeError(`'next' called on an object that does not implement interface ${name} Iterator.`);
 				const { index, kind: kind$1, target } = object;
 				const values = target();
-				const len = values.length;
-				if (index >= len) return {
+				if (index >= values.length) return {
 					value: void 0,
 					done: true
 				};
@@ -3618,8 +3615,7 @@ var require_util$13 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 			return;
 		}
 		try {
-			const result = await readAllBytes$3(reader);
-			successSteps(result);
+			successSteps(await readAllBytes$3(reader));
 		} catch (e) {
 			errorSteps(e);
 		}
@@ -4060,11 +4056,9 @@ var require_dataURL = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 		mimeType = removeASCIIWhitespace$1(mimeType, true, true);
 		if (position.position >= input.length) return "failure";
 		position.position++;
-		const encodedBody = input.slice(mimeTypeLength + 1);
-		let body = stringPercentDecode$1(encodedBody);
+		let body = stringPercentDecode$1(input.slice(mimeTypeLength + 1));
 		if (/;(\u0020){0,}base64$/i.test(mimeType)) {
-			const stringBody = isomorphicDecode$2(body);
-			body = forgivingBase64$1(stringBody);
+			body = forgivingBase64$1(isomorphicDecode$2(body));
 			if (body === "failure") return "failure";
 			mimeType = mimeType.slice(0, -6);
 			mimeType = mimeType.replace(/(\u0020)+$/, "");
@@ -4119,8 +4113,7 @@ var require_dataURL = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 	}
 	/** @param {string} input */
 	function stringPercentDecode$1(input) {
-		const bytes = encoder$2.encode(input);
-		return percentDecode$1(bytes);
+		return percentDecode$1(encoder$2.encode(input));
 	}
 	/** @param {Uint8Array} input */
 	function percentDecode$1(input) {
@@ -4342,14 +4335,11 @@ var require_file$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cl
 	};
 	var FileLike$1 = class FileLike$1 {
 		constructor(blobLike, fileName, options = {}) {
-			const n = fileName;
-			const t$1 = options.type;
-			const d$1 = options.lastModified ?? Date.now();
 			this[kState$9] = {
 				blobLike,
-				name: n,
-				type: t$1,
-				lastModified: d$1
+				name: fileName,
+				type: options.type,
+				lastModified: options.lastModified ?? Date.now()
 			};
 		}
 		stream(...args) {
@@ -8774,10 +8764,7 @@ var require_mock_utils$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/h
 		}
 		if (typeof mockDispatch$2.headers === "undefined") return true;
 		if (typeof headers !== "object" || typeof mockDispatch$2.headers !== "object") return false;
-		for (const [matchHeaderName, matchHeaderValue] of Object.entries(mockDispatch$2.headers)) {
-			const headerValue = getHeaderByName$1(headers, matchHeaderName);
-			if (!matchValue$3(matchHeaderValue, headerValue)) return false;
-		}
+		for (const [matchHeaderName, matchHeaderValue] of Object.entries(mockDispatch$2.headers)) if (!matchValue$3(matchHeaderValue, getHeaderByName$1(headers, matchHeaderName))) return false;
 		return true;
 	}
 	function safeUrl$1(path$13) {
@@ -9024,20 +9011,18 @@ var require_mock_interceptor$1 = /* @__PURE__ */ __commonJS({ "node_modules/@act
 		createMockScopeDispatchData(statusCode, data, responseOptions = {}) {
 			const responseData = getResponseData$2(data);
 			const contentLength = this[kContentLength$2] ? { "content-length": responseData.length } : {};
-			const headers = {
-				...this[kDefaultHeaders$1],
-				...contentLength,
-				...responseOptions.headers
-			};
-			const trailers = {
-				...this[kDefaultTrailers$1],
-				...responseOptions.trailers
-			};
 			return {
 				statusCode,
 				data,
-				headers,
-				trailers
+				headers: {
+					...this[kDefaultHeaders$1],
+					...contentLength,
+					...responseOptions.headers
+				},
+				trailers: {
+					...this[kDefaultTrailers$1],
+					...responseOptions.trailers
+				}
 			};
 		}
 		validateReplyParameters(statusCode, data, responseOptions) {
@@ -9057,22 +9042,19 @@ var require_mock_interceptor$1 = /* @__PURE__ */ __commonJS({ "node_modules/@act
 					this.validateReplyParameters(statusCode$1, data$1, responseOptions$1);
 					return { ...this.createMockScopeDispatchData(statusCode$1, data$1, responseOptions$1) };
 				};
-				const newMockDispatch$1 = addMockDispatch$2(this[kDispatches$8], this[kDispatchKey$1], wrappedDefaultsCallback);
-				return new MockScope$1(newMockDispatch$1);
+				return new MockScope$1(addMockDispatch$2(this[kDispatches$8], this[kDispatchKey$1], wrappedDefaultsCallback));
 			}
 			const [statusCode, data = "", responseOptions = {}] = [...arguments];
 			this.validateReplyParameters(statusCode, data, responseOptions);
 			const dispatchData = this.createMockScopeDispatchData(statusCode, data, responseOptions);
-			const newMockDispatch = addMockDispatch$2(this[kDispatches$8], this[kDispatchKey$1], dispatchData);
-			return new MockScope$1(newMockDispatch);
+			return new MockScope$1(addMockDispatch$2(this[kDispatches$8], this[kDispatchKey$1], dispatchData));
 		}
 		/**
 		* Mock an undici request with a defined error.
 		*/
 		replyWithError(error$1) {
 			if (typeof error$1 === "undefined") throw new InvalidArgumentError$39("error must be defined");
-			const newMockDispatch = addMockDispatch$2(this[kDispatches$8], this[kDispatchKey$1], { error: error$1 });
-			return new MockScope$1(newMockDispatch);
+			return new MockScope$1(addMockDispatch$2(this[kDispatches$8], this[kDispatchKey$1], { error: error$1 }));
 		}
 		/**
 		* Set default reply headers on the interceptor for subsequent replies
@@ -10119,8 +10101,7 @@ var require_response$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/htt
 		static json(data, init$1 = {}) {
 			webidl$26.argumentLengthCheck(arguments, 1, { header: "Response.json" });
 			if (init$1 !== null) init$1 = webidl$26.converters.ResponseInit(init$1);
-			const bytes = textEncoder$2.encode(serializeJavascriptValueToJSONString$2(data));
-			const body = extractBody$7(bytes);
+			const body = extractBody$7(textEncoder$2.encode(serializeJavascriptValueToJSONString$2(data)));
 			const relevantRealm$1 = { settingsObject: {} };
 			const responseObject = new Response$3();
 			responseObject[kRealm$3] = relevantRealm$1;
@@ -10275,11 +10256,10 @@ var require_response$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/htt
 		};
 	}
 	function makeNetworkError$3(reason) {
-		const isError$2 = isErrorLike$4(reason);
 		return makeResponse$3({
 			type: "error",
 			status: 0,
-			error: isError$2 ? reason : new Error(reason ? String(reason) : reason),
+			error: isErrorLike$4(reason) ? reason : new Error(reason ? String(reason) : reason),
 			aborted: reason && reason.name === "AbortError"
 		});
 	}
@@ -10975,8 +10955,7 @@ var require_fetch$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 			taskDestination = request$3.client.globalObject;
 			crossOriginIsolatedCapability = request$3.client.crossOriginIsolatedCapability;
 		}
-		const currenTime = coarsenedSharedCurrentTime$2(crossOriginIsolatedCapability);
-		const timingInfo = createOpaqueTimingInfo$2({ startTime: currenTime });
+		const timingInfo = createOpaqueTimingInfo$2({ startTime: coarsenedSharedCurrentTime$2(crossOriginIsolatedCapability) });
 		const fetchParams = {
 			controller: new Fetch$1(dispatcher),
 			request: request$3,
@@ -11090,8 +11069,7 @@ var require_fetch$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 				return Promise.resolve(response);
 			}
 			case "data:": {
-				const currentURL = requestCurrentURL$2(request$3);
-				const dataURLStruct = dataURLProcessor$2(currentURL);
+				const dataURLStruct = dataURLProcessor$2(requestCurrentURL$2(request$3));
 				if (dataURLStruct === "failure") return Promise.resolve(makeNetworkError$2("failed to fetch the data URL"));
 				const mimeType = serializeAMimeType$5(dataURLStruct.mimeType);
 				return Promise.resolve(makeResponse$2({
@@ -12245,9 +12223,7 @@ var require_util$10 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 	* @returns {boolean}
 	*/
 	function urlEquals$3(A, B, excludeFragment = false) {
-		const serializedA = URLSerializer$6(A, excludeFragment);
-		const serializedB = URLSerializer$6(B, excludeFragment);
-		return serializedA === serializedB;
+		return URLSerializer$6(A, excludeFragment) === URLSerializer$6(B, excludeFragment);
 	}
 	/**
 	* @see https://github.com/chromium/chromium/blob/694d20d134cb553d8d89e5500b9148012b1ba299/content/browser/cache_storage/cache_storage_cache.cc#L260-L262
@@ -12464,10 +12440,8 @@ var require_cache$6 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 			});
 			const clonedResponse = cloneResponse$2(innerResponse);
 			const bodyReadPromise = createDeferredPromise$5();
-			if (innerResponse.body != null) {
-				const reader = innerResponse.body.stream.getReader();
-				readAllBytes$2(reader).then(bodyReadPromise.resolve, bodyReadPromise.reject);
-			} else bodyReadPromise.resolve(void 0);
+			if (innerResponse.body != null) readAllBytes$2(innerResponse.body.stream.getReader()).then(bodyReadPromise.resolve, bodyReadPromise.reject);
+			else bodyReadPromise.resolve(void 0);
 			/** @type {CacheBatchOperation[]} */
 			const operations = [];
 			/** @type {CacheBatchOperation} */
@@ -12672,9 +12646,7 @@ var require_cache$6 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 			const fieldValues$1 = getFieldValues$2(response.headersList.get("vary"));
 			for (const fieldValue of fieldValues$1) {
 				if (fieldValue === "*") return false;
-				const requestValue = request$3.headersList.get(fieldValue);
-				const queryValue = requestQuery.headersList.get(fieldValue);
-				if (requestValue !== queryValue) return false;
+				if (request$3.headersList.get(fieldValue) !== requestQuery.headersList.get(fieldValue)) return false;
 			}
 			return true;
 		}
@@ -12741,10 +12713,7 @@ var require_cachestorage$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions
 			request$3 = webidl$20.converters.RequestInfo(request$3);
 			options = webidl$20.converters.MultiCacheQueryOptions(options);
 			if (options.cacheName != null) {
-				if (this.#caches.has(options.cacheName)) {
-					const cacheList = this.#caches.get(options.cacheName);
-					return await new Cache$2(kConstruct$8, cacheList).match(request$3, options);
-				}
+				if (this.#caches.has(options.cacheName)) return await new Cache$2(kConstruct$8, this.#caches.get(options.cacheName)).match(request$3, options);
 			} else for (const cacheList of this.#caches.values()) {
 				const response = await new Cache$2(kConstruct$8, cacheList).match(request$3, options);
 				if (response !== void 0) return response;
@@ -12770,10 +12739,7 @@ var require_cachestorage$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions
 			webidl$20.brandCheck(this, CacheStorage$2);
 			webidl$20.argumentLengthCheck(arguments, 1, { header: "CacheStorage.open" });
 			cacheName = webidl$20.converters.DOMString(cacheName);
-			if (this.#caches.has(cacheName)) {
-				const cache$1 = this.#caches.get(cacheName);
-				return new Cache$2(kConstruct$8, cache$1);
-			}
+			if (this.#caches.has(cacheName)) return new Cache$2(kConstruct$8, this.#caches.get(cacheName));
 			const cache = [];
 			this.#caches.set(cacheName, cache);
 			return new Cache$2(kConstruct$8, cache);
@@ -12924,7 +12890,7 @@ var require_util$9 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cl
 	*/
 	function toIMFDate$1(date) {
 		if (typeof date === "number") date = new Date(date);
-		const days = [
+		return `${[
 			"Sun",
 			"Mon",
 			"Tue",
@@ -12932,8 +12898,7 @@ var require_util$9 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cl
 			"Thu",
 			"Fri",
 			"Sat"
-		];
-		const months = [
+		][date.getUTCDay()]}, ${date.getUTCDate().toString().padStart(2, "0")} ${[
 			"Jan",
 			"Feb",
 			"Mar",
@@ -12946,15 +12911,7 @@ var require_util$9 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-cl
 			"Oct",
 			"Nov",
 			"Dec"
-		];
-		const dayName = days[date.getUTCDay()];
-		const day = date.getUTCDate().toString().padStart(2, "0");
-		const month = months[date.getUTCMonth()];
-		const year = date.getUTCFullYear();
-		const hour = date.getUTCHours().toString().padStart(2, "0");
-		const minute = date.getUTCMinutes().toString().padStart(2, "0");
-		const second = date.getUTCSeconds().toString().padStart(2, "0");
-		return `${dayName}, ${day} ${month} ${year} ${hour}:${minute}:${second} GMT`;
+		][date.getUTCMonth()]} ${date.getUTCFullYear()} ${date.getUTCHours().toString().padStart(2, "0")}:${date.getUTCMinutes().toString().padStart(2, "0")}:${date.getUTCSeconds().toString().padStart(2, "0")} GMT`;
 	}
 	/**
 	max-age-av        = "Max-Age=" non-zero-digit *DIGIT
@@ -13737,9 +13694,7 @@ var require_connection$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/h
 					failWebsocketConnection$6(ws, "Server did not set Connection header to \"upgrade\".");
 					return;
 				}
-				const secWSAccept = response.headersList.get("Sec-WebSocket-Accept");
-				const digest = crypto$6.createHash("sha1").update(keyValue + uid$2).digest("base64");
-				if (secWSAccept !== digest) {
+				if (response.headersList.get("Sec-WebSocket-Accept") !== crypto$6.createHash("sha1").update(keyValue + uid$2).digest("base64")) {
 					failWebsocketConnection$6(ws, "Incorrect hash received in Sec-WebSocket-Accept header.");
 					return;
 				}
@@ -14863,8 +14818,7 @@ var require_lib = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-clien
 				}
 			}
 			const req$1 = info$1.httpModule.request(info$1.options, (msg) => {
-				const res = new HttpClientResponse(msg);
-				handleResult$1(void 0, res);
+				handleResult$1(void 0, new HttpClientResponse(msg));
 			});
 			let socket;
 			req$1.on("socket", (sock) => {
@@ -15932,13 +15886,10 @@ var require_io = /* @__PURE__ */ __commonJS({ "node_modules/@actions/io/lib/io.j
 	}
 	exports.findInPath = findInPath;
 	function readCopyOptions(options) {
-		const force = options.force == null ? true : options.force;
-		const recursive = Boolean(options.recursive);
-		const copySourceDirectory = options.copySourceDirectory == null ? true : Boolean(options.copySourceDirectory);
 		return {
-			force,
-			recursive,
-			copySourceDirectory
+			force: options.force == null ? true : options.force,
+			recursive: Boolean(options.recursive),
+			copySourceDirectory: options.copySourceDirectory == null ? true : Boolean(options.copySourceDirectory)
 		};
 	}
 	function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
@@ -16079,8 +16030,7 @@ var require_toolrunner = /* @__PURE__ */ __commonJS({ "node_modules/@actions/exe
 				let s$1 = strBuffer + data.toString();
 				let n = s$1.indexOf(os$2.EOL);
 				while (n > -1) {
-					const line = s$1.substring(0, n);
-					onLine(line);
+					onLine(s$1.substring(0, n));
 					s$1 = s$1.substring(n + os$2.EOL.length);
 					n = s$1.indexOf(os$2.EOL);
 				}
@@ -21573,8 +21523,7 @@ var require_redirectPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@types
 		return {
 			name: exports.redirectPolicyName,
 			async sendRequest(request$3, next) {
-				const response = await next(request$3);
-				return handleRedirect(next, response, maxRetries);
+				return handleRedirect(next, await next(request$3), maxRetries);
 			}
 		};
 	}
@@ -21589,8 +21538,7 @@ var require_redirectPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@types
 				delete request$3.body;
 			}
 			request$3.headers.delete("Authorization");
-			const res = await next(request$3);
-			return handleRedirect(next, res, maxRetries, currentRetries + 1);
+			return handleRedirect(next, await next(request$3), maxRetries, currentRetries + 1);
 		}
 		return response;
 	}
@@ -23394,9 +23342,7 @@ var require_dist$1 = /* @__PURE__ */ __commonJS({ "node_modules/http-proxy-agent
 		}
 		setRequestProps(req$1, opts) {
 			const { proxy } = this;
-			const protocol = opts.secureEndpoint ? "https:" : "http:";
-			const hostname = req$1.getHeader("host") || "localhost";
-			const base = `${protocol}//${hostname}`;
+			const base = `${opts.secureEndpoint ? "https:" : "http:"}//${req$1.getHeader("host") || "localhost"}`;
 			const url = new url_1$1.URL(req$1.path, base);
 			if (opts.port !== 80) url.port = String(opts.port);
 			req$1.path = String(url);
@@ -24170,10 +24116,9 @@ var require_multipart = /* @__PURE__ */ __commonJS({ "node_modules/@typespec/ts-
 		const headers = (0, httpHeaders_js_1$4.createHttpHeaders)(descriptor.headers ?? {});
 		if (contentType) headers.set("content-type", contentType);
 		if (contentDisposition) headers.set("content-disposition", contentDisposition);
-		const body = normalizeBody(descriptor.body, contentType);
 		return {
 			headers,
-			body
+			body: normalizeBody(descriptor.body, contentType)
 		};
 	}
 	function buildMultipartBody(parts) {
@@ -26171,13 +26116,12 @@ var require_tracingClient = /* @__PURE__ */ __commonJS({ "node_modules/@azure/co
 			const span = startSpanResult.span;
 			if (!tracingContext.getValue(tracingContext_js_1.knownContextKeys.namespace)) tracingContext = tracingContext.setValue(tracingContext_js_1.knownContextKeys.namespace, namespace);
 			span.setAttribute("az.namespace", tracingContext.getValue(tracingContext_js_1.knownContextKeys.namespace));
-			const updatedOptions = Object.assign({}, operationOptions, { tracingOptions: {
-				...operationOptions?.tracingOptions,
-				tracingContext
-			} });
 			return {
 				span,
-				updatedOptions
+				updatedOptions: Object.assign({}, operationOptions, { tracingOptions: {
+					...operationOptions?.tracingOptions,
+					tracingContext
+				} })
 			};
 		}
 		async function withSpan(name, operationOptions, callback, spanOptions) {
@@ -26779,12 +26723,11 @@ var require_bearerTokenAuthenticationPolicy = /* @__PURE__ */ __commonJS({ "node
 	*/
 	async function defaultAuthorizeRequest(options) {
 		const { scopes, getAccessToken, request: request$3 } = options;
-		const getTokenOptions = {
+		const accessToken = await getAccessToken(scopes, {
 			abortSignal: request$3.abortSignal,
 			tracingOptions: request$3.tracingOptions,
 			enableCae: true
-		};
-		const accessToken = await getAccessToken(scopes, getTokenOptions);
+		});
 		if (accessToken) options.request.headers.set("Authorization", `Bearer ${accessToken.token}`);
 	}
 	/**
@@ -26966,11 +26909,10 @@ var require_auxiliaryAuthenticationHeaderPolicy = /* @__PURE__ */ __commonJS({ "
 	const AUTHORIZATION_AUXILIARY_HEADER = "x-ms-authorization-auxiliary";
 	async function sendAuthorizeRequest(options) {
 		const { scopes, getAccessToken, request: request$3 } = options;
-		const getTokenOptions = {
+		return (await getAccessToken(scopes, {
 			abortSignal: request$3.abortSignal,
 			tracingOptions: request$3.tracingOptions
-		};
-		return (await getAccessToken(scopes, getTokenOptions))?.token ?? "";
+		}))?.token ?? "";
 	}
 	/**
 	* A policy for external tokens to `x-ms-authorization-auxiliary` header.
@@ -27920,8 +27862,7 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 	function bufferToBase64Url(buffer$2) {
 		if (!buffer$2) return;
 		if (!(buffer$2 instanceof Uint8Array)) throw new Error(`Please provide an input of type Uint8Array for converting to Base64Url.`);
-		const str = base64.encodeByteArray(buffer$2);
-		return trimEnd(str, "=").replace(/\+/g, "-").replace(/\//g, "_");
+		return trimEnd(base64.encodeByteArray(buffer$2), "=").replace(/\+/g, "-").replace(/\//g, "_");
 	}
 	function base64UrlToByteArray(str) {
 		if (!str) return;
@@ -28038,10 +27979,7 @@ var require_serializer = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core-
 		const valueType = mapper.type.value;
 		if (!valueType || typeof valueType !== "object") throw new Error(`"value" metadata for a Dictionary must be defined in the mapper and it must of type "object" in ${objectName}.`);
 		const tempDictionary = {};
-		for (const key of Object.keys(object)) {
-			const serializedValue = serializer.serialize(valueType, object[key], objectName, options);
-			tempDictionary[key] = getXmlObjectValue(valueType, serializedValue, isXml, options);
-		}
+		for (const key of Object.keys(object)) tempDictionary[key] = getXmlObjectValue(valueType, serializer.serialize(valueType, object[key], objectName, options), isXml, options);
 		if (isXml && mapper.xmlNamespace) {
 			const xmlnsKey = mapper.xmlNamespacePrefix ? `xmlns:${mapper.xmlNamespacePrefix}` : "xmlns";
 			const result = tempDictionary;
@@ -28424,8 +28362,7 @@ var require_deserializationPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@
 		return {
 			name: exports.deserializationPolicyName,
 			async sendRequest(request$3, next) {
-				const response = await next(request$3);
-				return deserializeResponseBody(jsonContentTypes, xmlContentTypes, response, updatedOptions, parseXML$1);
+				return deserializeResponseBody(jsonContentTypes, xmlContentTypes, await next(request$3), updatedOptions, parseXML$1);
 			}
 		};
 	}
@@ -31584,8 +31521,7 @@ var require_utils_common$2 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/s
 		const maxSourceStringLength = 48;
 		const maxAllowedBlockIDPrefixLength = maxSourceStringLength - 6;
 		if (blockIDPrefix.length > maxAllowedBlockIDPrefixLength) blockIDPrefix = blockIDPrefix.slice(0, maxAllowedBlockIDPrefixLength);
-		const res = blockIDPrefix + padStart$1(blockIndex.toString(), maxSourceStringLength - blockIDPrefix.length, "0");
-		return base64encode$2(res);
+		return base64encode$2(blockIDPrefix + padStart$1(blockIndex.toString(), maxSourceStringLength - blockIDPrefix.length, "0"));
 	}
 	/**
 	* Delay specified time interval.
@@ -33664,8 +33600,7 @@ var require_utils_common$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/s
 		const maxSourceStringLength = 48;
 		const maxAllowedBlockIDPrefixLength = maxSourceStringLength - 6;
 		if (blockIDPrefix.length > maxAllowedBlockIDPrefixLength) blockIDPrefix = blockIDPrefix.slice(0, maxAllowedBlockIDPrefixLength);
-		const res = blockIDPrefix + padStart(blockIndex.toString(), maxSourceStringLength - blockIDPrefix.length, "0");
-		return base64encode$1(res);
+		return base64encode$1(blockIDPrefix + padStart(blockIndex.toString(), maxSourceStringLength - blockIDPrefix.length, "0"));
 	}
 	/**
 	* Delay specified time interval.
@@ -49372,11 +49307,9 @@ var require_AvroParser = /* @__PURE__ */ __commonJS({ "node_modules/@azure/stora
 			return new TextDecoder().decode(u8arr);
 		}
 		static async readMapPair(stream$5, readItemMethod, options = {}) {
-			const key = await AvroParser.readString(stream$5, options);
-			const value = await readItemMethod(stream$5, options);
 			return {
-				key,
-				value
+				key: await AvroParser.readString(stream$5, options),
+				value: await readItemMethod(stream$5, options)
 			};
 		}
 		static async readMap(stream$5, readItemMethod, options = {}) {
@@ -50480,14 +50413,13 @@ var require_operation$2 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 		};
 		logger_js_1$2.logger.verbose(`LRO: Operation description:`, config);
 		const state = stateProxy.initState(config);
-		const status = getOperationStatus$1({
-			response,
-			state,
-			operationLocation
-		});
 		processOperationStatus({
 			state,
-			status,
+			status: getOperationStatus$1({
+				response,
+				state,
+				operationLocation
+			}),
 			stateProxy,
 			response,
 			setErrorAsResult,
@@ -50601,11 +50533,9 @@ var require_operation$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 	}
 	function inferLroMode(inputs) {
 		const { rawResponse, requestMethod, requestPath, resourceLocationConfig } = inputs;
-		const operationLocation = getOperationLocationHeader(rawResponse);
-		const azureAsyncOperation = getAzureAsyncOperationHeader(rawResponse);
 		const pollingUrl = getOperationLocationPollingUrl({
-			operationLocation,
-			azureAsyncOperation
+			operationLocation: getOperationLocationHeader(rawResponse),
+			azureAsyncOperation: getAzureAsyncOperationHeader(rawResponse)
 		});
 		const location = getLocationHeader(rawResponse);
 		const normalizedRequestMethod = requestMethod === null || requestMethod === void 0 ? void 0 : requestMethod.toLocaleUpperCase();
@@ -50660,9 +50590,8 @@ var require_operation$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/core
 	function getProvisioningState(rawResponse) {
 		var _a$1, _b;
 		const { properties, provisioningState } = (_a$1 = rawResponse.body) !== null && _a$1 !== void 0 ? _a$1 : {};
-		const status = (_b = properties === null || properties === void 0 ? void 0 : properties.provisioningState) !== null && _b !== void 0 ? _b : provisioningState;
 		return transformStatus({
-			status,
+			status: (_b = properties === null || properties === void 0 ? void 0 : properties.provisioningState) !== null && _b !== void 0 ? _b : provisioningState,
 			statusCode: rawResponse.statusCode
 		});
 	}
@@ -55377,10 +55306,9 @@ var require_ContainerClient = /* @__PURE__ */ __commonJS({ "node_modules/@azure/
 		async uploadBlockBlob(blobName, body, contentLength, options = {}) {
 			return tracing_js_1$1.tracingClient.withSpan("ContainerClient-uploadBlockBlob", options, async (updatedOptions) => {
 				const blockBlobClient = this.getBlockBlobClient(blobName);
-				const response = await blockBlobClient.upload(body, contentLength, updatedOptions);
 				return {
 					blockBlobClient,
-					response
+					response: await blockBlobClient.upload(body, contentLength, updatedOptions)
 				};
 			});
 		}
@@ -56553,10 +56481,9 @@ var require_BlobServiceClient = /* @__PURE__ */ __commonJS({ "node_modules/@azur
 		async createContainer(containerName, options = {}) {
 			return tracing_js_1.tracingClient.withSpan("BlobServiceClient-createContainer", options, async (updatedOptions) => {
 				const containerClient = this.getContainerClient(containerName);
-				const containerCreateResponse = await containerClient.create(updatedOptions);
 				return {
 					containerClient,
-					containerCreateResponse
+					containerCreateResponse: await containerClient.create(updatedOptions)
 				};
 			});
 		}
@@ -56585,14 +56512,13 @@ var require_BlobServiceClient = /* @__PURE__ */ __commonJS({ "node_modules/@azur
 			return tracing_js_1.tracingClient.withSpan("BlobServiceClient-undeleteContainer", options, async (updatedOptions) => {
 				const containerClient = this.getContainerClient(options.destinationContainerName || deletedContainerName);
 				const containerContext = containerClient["storageClientContext"].container;
-				const containerUndeleteResponse = (0, utils_common_js_2.assertResponse)(await containerContext.restore({
-					deletedContainerName,
-					deletedContainerVersion,
-					tracingOptions: updatedOptions.tracingOptions
-				}));
 				return {
 					containerClient,
-					containerUndeleteResponse
+					containerUndeleteResponse: (0, utils_common_js_2.assertResponse)(await containerContext.restore({
+						deletedContainerName,
+						deletedContainerVersion,
+						tracingOptions: updatedOptions.tracingOptions
+					}))
 				};
 			});
 		}
@@ -58508,10 +58434,9 @@ var require_cacheHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@action
 	function reserveCache(key, paths, options) {
 		return __awaiter$8(this, void 0, void 0, function* () {
 			const httpClient = createHttpClient();
-			const version = utils$2.getCacheVersion(paths, options === null || options === void 0 ? void 0 : options.compressionMethod, options === null || options === void 0 ? void 0 : options.enableCrossOsArchive);
 			const reserveCacheRequest = {
 				key,
-				version,
+				version: utils$2.getCacheVersion(paths, options === null || options === void 0 ? void 0 : options.compressionMethod, options === null || options === void 0 ? void 0 : options.enableCrossOsArchive),
 				cacheSize: options === null || options === void 0 ? void 0 : options.cacheSize
 			};
 			return yield (0, requestUtils_1.retryTypedResponse)("reserveCache", () => __awaiter$8(this, void 0, void 0, function* () {
@@ -64080,8 +64005,7 @@ var require_tar = /* @__PURE__ */ __commonJS({ "node_modules/@actions/cache/lib/
 	}
 	function listTar(archivePath, compressionMethod) {
 		return __awaiter$1(this, void 0, void 0, function* () {
-			const commands = yield getCommands(compressionMethod, "list", archivePath);
-			yield execCommands(commands);
+			yield execCommands(yield getCommands(compressionMethod, "list", archivePath));
 		});
 	}
 	exports.listTar = listTar;
@@ -64089,16 +64013,14 @@ var require_tar = /* @__PURE__ */ __commonJS({ "node_modules/@actions/cache/lib/
 		return __awaiter$1(this, void 0, void 0, function* () {
 			const workingDirectory = getWorkingDirectory();
 			yield io.mkdirP(workingDirectory);
-			const commands = yield getCommands(compressionMethod, "extract", archivePath);
-			yield execCommands(commands);
+			yield execCommands(yield getCommands(compressionMethod, "extract", archivePath));
 		});
 	}
 	exports.extractTar = extractTar;
 	function createTar(archiveFolder, sourceDirectories, compressionMethod) {
 		return __awaiter$1(this, void 0, void 0, function* () {
 			(0, fs_1.writeFileSync)(path$1.join(archiveFolder, constants_1.ManifestFilename), sourceDirectories.join("\n"));
-			const commands = yield getCommands(compressionMethod, "create");
-			yield execCommands(commands, archiveFolder);
+			yield execCommands(yield getCommands(compressionMethod, "create"), archiveFolder);
 		});
 	}
 	exports.createTar = createTar;
@@ -67808,11 +67730,9 @@ var require_data_url = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web
 		mimeType = removeASCIIWhitespace(mimeType, true, true);
 		if (position.position >= input.length) return "failure";
 		position.position++;
-		const encodedBody = input.slice(mimeTypeLength + 1);
-		let body = stringPercentDecode(encodedBody);
+		let body = stringPercentDecode(input.slice(mimeTypeLength + 1));
 		if (/;(\u0020){0,}base64$/i.test(mimeType)) {
-			const stringBody = isomorphicDecode$1(body);
-			body = forgivingBase64(stringBody);
+			body = forgivingBase64(isomorphicDecode$1(body));
 			if (body === "failure") return "failure";
 			mimeType = mimeType.slice(0, -6);
 			mimeType = mimeType.replace(/(\u0020)+$/, "");
@@ -67869,8 +67789,7 @@ var require_data_url = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web
 	}
 	/** @param {string} input */
 	function stringPercentDecode(input) {
-		const bytes = encoder.encode(input);
-		return percentDecode(bytes);
+		return percentDecode(encoder.encode(input));
 	}
 	/**
 	* @param {number} byte
@@ -68977,8 +68896,7 @@ var require_util$4 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/f
 				if (typeof this !== "object" || this === null || !(#target in this)) throw new TypeError(`'next' called on an object that does not implement interface ${name} Iterator.`);
 				const index = this.#index;
 				const values = kInternalIterator(this.#target);
-				const len = values.length;
-				if (index >= len) return {
+				if (index >= values.length) return {
 					value: void 0,
 					done: true
 				};
@@ -69098,8 +69016,7 @@ var require_util$4 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/f
 		const successSteps = processBody;
 		const errorSteps = processBodyError;
 		try {
-			const reader = body.stream.getReader();
-			readAllBytes$1(reader, successSteps, errorSteps);
+			readAllBytes$1(body.stream.getReader(), successSteps, errorSteps);
 		} catch (e) {
 			errorSteps(e);
 		}
@@ -74127,10 +74044,7 @@ var require_mock_utils = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/m
 		}
 		if (typeof mockDispatch$2.headers === "undefined") return true;
 		if (typeof headers !== "object" || typeof mockDispatch$2.headers !== "object") return false;
-		for (const [matchHeaderName, matchHeaderValue] of Object.entries(mockDispatch$2.headers)) {
-			const headerValue = getHeaderByName(headers, matchHeaderName);
-			if (!matchValue$1(matchHeaderValue, headerValue)) return false;
-		}
+		for (const [matchHeaderName, matchHeaderValue] of Object.entries(mockDispatch$2.headers)) if (!matchValue$1(matchHeaderValue, getHeaderByName(headers, matchHeaderName))) return false;
 		return true;
 	}
 	function normalizeSearchParams$1(query) {
@@ -74188,10 +74102,7 @@ var require_mock_utils = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/m
 		matchedMockDispatches = matchedMockDispatches.filter(({ body }) => typeof body !== "undefined" ? matchValue$1(body, key.body) : true);
 		if (matchedMockDispatches.length === 0) throw new MockNotMatchedError(`Mock dispatch not matched for body '${key.body}' on path '${resolvedPath}'`);
 		matchedMockDispatches = matchedMockDispatches.filter((mockDispatch$2) => matchHeaders(mockDispatch$2, key.headers));
-		if (matchedMockDispatches.length === 0) {
-			const headers = typeof key.headers === "object" ? JSON.stringify(key.headers) : key.headers;
-			throw new MockNotMatchedError(`Mock dispatch not matched for headers '${headers}' on path '${resolvedPath}'`);
-		}
+		if (matchedMockDispatches.length === 0) throw new MockNotMatchedError(`Mock dispatch not matched for headers '${typeof key.headers === "object" ? JSON.stringify(key.headers) : key.headers}' on path '${resolvedPath}'`);
 		return matchedMockDispatches[0];
 	}
 	function addMockDispatch$1(mockDispatches, key, data, opts) {
@@ -74423,20 +74334,18 @@ var require_mock_interceptor = /* @__PURE__ */ __commonJS({ "node_modules/undici
 		createMockScopeDispatchData({ statusCode, data, responseOptions }) {
 			const responseData = getResponseData(data);
 			const contentLength = this[kContentLength] ? { "content-length": responseData.length } : {};
-			const headers = {
-				...this[kDefaultHeaders],
-				...contentLength,
-				...responseOptions.headers
-			};
-			const trailers = {
-				...this[kDefaultTrailers],
-				...responseOptions.trailers
-			};
 			return {
 				statusCode,
 				data,
-				headers,
-				trailers
+				headers: {
+					...this[kDefaultHeaders],
+					...contentLength,
+					...responseOptions.headers
+				},
+				trailers: {
+					...this[kDefaultTrailers],
+					...responseOptions.trailers
+				}
 			};
 		}
 		validateReplyParameters(replyParameters) {
@@ -74459,8 +74368,7 @@ var require_mock_interceptor = /* @__PURE__ */ __commonJS({ "node_modules/undici
 					this.validateReplyParameters(replyParameters$1);
 					return { ...this.createMockScopeDispatchData(replyParameters$1) };
 				};
-				const newMockDispatch$1 = addMockDispatch(this[kDispatches$3], this[kDispatchKey], wrappedDefaultsCallback, { ignoreTrailingSlash: this[kIgnoreTrailingSlash$3] });
-				return new MockScope(newMockDispatch$1);
+				return new MockScope(addMockDispatch(this[kDispatches$3], this[kDispatchKey], wrappedDefaultsCallback, { ignoreTrailingSlash: this[kIgnoreTrailingSlash$3] }));
 			}
 			const replyParameters = {
 				statusCode: replyOptionsCallbackOrStatusCode,
@@ -74469,16 +74377,14 @@ var require_mock_interceptor = /* @__PURE__ */ __commonJS({ "node_modules/undici
 			};
 			this.validateReplyParameters(replyParameters);
 			const dispatchData = this.createMockScopeDispatchData(replyParameters);
-			const newMockDispatch = addMockDispatch(this[kDispatches$3], this[kDispatchKey], dispatchData, { ignoreTrailingSlash: this[kIgnoreTrailingSlash$3] });
-			return new MockScope(newMockDispatch);
+			return new MockScope(addMockDispatch(this[kDispatches$3], this[kDispatchKey], dispatchData, { ignoreTrailingSlash: this[kIgnoreTrailingSlash$3] }));
 		}
 		/**
 		* Mock an undici request with a defined error.
 		*/
 		replyWithError(error$1) {
 			if (typeof error$1 === "undefined") throw new InvalidArgumentError$12("error must be defined");
-			const newMockDispatch = addMockDispatch(this[kDispatches$3], this[kDispatchKey], { error: error$1 }, { ignoreTrailingSlash: this[kIgnoreTrailingSlash$3] });
-			return new MockScope(newMockDispatch);
+			return new MockScope(addMockDispatch(this[kDispatches$3], this[kDispatchKey], { error: error$1 }, { ignoreTrailingSlash: this[kIgnoreTrailingSlash$3] }));
 		}
 		/**
 		* Set default reply headers on the interceptor for subsequent replies
@@ -74846,8 +74752,7 @@ var require_mock_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/m
 			const dispatchOpts = { ...opts };
 			if (acceptNonStandardSearchParameters && dispatchOpts.path) {
 				const [path$13, searchParams] = dispatchOpts.path.split("?");
-				const normalizedSearchParams = normalizeSearchParams(searchParams, acceptNonStandardSearchParameters);
-				dispatchOpts.path = `${path$13}?${normalizedSearchParams}`;
+				dispatchOpts.path = `${path$13}?${normalizeSearchParams(searchParams, acceptNonStandardSearchParameters)}`;
 			}
 			return this[kAgent].dispatch(dispatchOpts, handler);
 		}
@@ -75213,8 +75118,7 @@ var require_snapshot_recorder = /* @__PURE__ */ __commonJS({ "node_modules/undic
 			}
 		}
 		parts.push(formattedRequest.body);
-		const content = parts.join("|");
-		return hashId(content);
+		return hashId(parts.join("|"));
 	}
 	var SnapshotRecorder$1 = class {
 		/** @type {NodeJS.Timeout | null} */
@@ -75303,8 +75207,7 @@ var require_snapshot_recorder = /* @__PURE__ */ __commonJS({ "node_modules/undic
 			if (!this.shouldPlayback(requestOpts)) return;
 			const url = new URL(requestOpts.path, requestOpts.origin).toString();
 			if (this.#isUrlExcluded(url)) return;
-			const request$3 = formatRequestKey(requestOpts, this.#headerFilters, this.matchOptions);
-			const hash = createRequestHash(request$3);
+			const hash = createRequestHash(formatRequestKey(requestOpts, this.#headerFilters, this.matchOptions));
 			const snapshot = this.#snapshots.get(hash);
 			if (!snapshot) return void 0;
 			const currentCallCount = snapshot.callCount || 0;
@@ -75386,8 +75289,7 @@ var require_snapshot_recorder = /* @__PURE__ */ __commonJS({ "node_modules/undic
 		* @returns {boolean} - True if snapshot was deleted, false if not found
 		*/
 		deleteSnapshot(requestOpts) {
-			const request$3 = formatRequestKey(requestOpts, this.#headerFilters, this.matchOptions);
-			const hash = createRequestHash(request$3);
+			const hash = createRequestHash(formatRequestKey(requestOpts, this.#headerFilters, this.matchOptions));
 			return this.#snapshots.delete(hash);
 		}
 		/**
@@ -75396,8 +75298,7 @@ var require_snapshot_recorder = /* @__PURE__ */ __commonJS({ "node_modules/undic
 		* @returns {SnapshotInfo|null} - Snapshot information or null if not found
 		*/
 		getSnapshotInfo(requestOpts) {
-			const request$3 = formatRequestKey(requestOpts, this.#headerFilters, this.matchOptions);
-			const hash = createRequestHash(request$3);
+			const hash = createRequestHash(formatRequestKey(requestOpts, this.#headerFilters, this.matchOptions));
 			const snapshot = this.#snapshots.get(hash);
 			if (!snapshot) return null;
 			return {
@@ -75967,8 +75868,7 @@ var require_redirect = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/int
 				const { maxRedirections = defaultMaxRedirections,...rest } = opts;
 				if (maxRedirections == null || maxRedirections === 0) return dispatch(opts, handler);
 				const dispatchOpts = { ...rest };
-				const redirectHandler = new RedirectHandler$1(dispatch, maxRedirections, dispatchOpts, handler);
-				return dispatch(dispatchOpts, redirectHandler);
+				return dispatch(dispatchOpts, new RedirectHandler$1(dispatch, maxRedirections, dispatchOpts, handler));
 			};
 		};
 	}
@@ -76125,11 +76025,10 @@ var require_dump = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/interce
 		return (dispatch) => {
 			return function Intercept(opts, handler) {
 				const { dumpMaxSize = defaultMaxSize } = opts;
-				const dumpHandler = new DumpHandler({
+				return dispatch(opts, new DumpHandler({
 					maxSize: dumpMaxSize,
 					signal: opts.signal
-				}, handler);
-				return dispatch(opts, dumpHandler);
+				}, handler));
 			};
 		};
 	}
@@ -76347,22 +76246,21 @@ var require_dns = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/intercep
 		let affinity;
 		if (dualStack) affinity = interceptorOpts?.affinity ?? null;
 		else affinity = interceptorOpts?.affinity ?? 4;
-		const opts = {
+		const instance = new DNSInstance({
 			maxTTL: interceptorOpts?.maxTTL ?? 1e4,
 			lookup: interceptorOpts?.lookup ?? null,
 			pick: interceptorOpts?.pick ?? null,
 			dualStack,
 			affinity,
 			maxItems: interceptorOpts?.maxItems ?? Infinity
-		};
-		const instance = new DNSInstance(opts);
+		});
 		return (dispatch) => {
 			return function dnsInterceptor(origDispatchOpts, handler) {
 				const origin = origDispatchOpts.origin.constructor === URL ? origDispatchOpts.origin : new URL(origDispatchOpts.origin);
 				if (isIP(origin.hostname) !== 0) return dispatch(origDispatchOpts, handler);
 				instance.runLookup(origin, origDispatchOpts, (err, newOrigin) => {
 					if (err) return handler.onResponseError(null, err);
-					const dispatchOpts = {
+					dispatch({
 						...origDispatchOpts,
 						servername: origin.hostname,
 						origin: newOrigin.origin,
@@ -76370,8 +76268,7 @@ var require_dns = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/intercep
 							host: origin.host,
 							...origDispatchOpts.headers
 						}
-					};
-					dispatch(dispatchOpts, instance.getHandler({
+					}, instance.getHandler({
 						origin,
 						dispatch,
 						handler,
@@ -77028,14 +76925,13 @@ var require_cache_handler = /* @__PURE__ */ __commonJS({ "node_modules/undici/li
 				if (!varyDirectives) return downstreamOnHeaders();
 			}
 			const deleteAt = determineDeleteAt(baseTime, cacheControlDirectives, absoluteStaleAt);
-			const strippedHeaders = stripNecessaryHeaders(resHeaders, cacheControlDirectives);
 			/**
 			* @type {import('../../types/cache-interceptor.d.ts').default.CacheValue}
 			*/
 			const value = {
 				statusCode,
 				statusMessage,
-				headers: strippedHeaders,
+				headers: stripNecessaryHeaders(resHeaders, cacheControlDirectives),
 				vary: varyDirectives,
 				cacheControlDirectives,
 				cachedAt: resAge ? now - resAge : now,
@@ -77459,17 +77355,10 @@ var require_cache$1 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/inte
 		if (result.cacheControlDirectives?.["no-cache"] && !Array.isArray(result.cacheControlDirectives["no-cache"])) return true;
 		const now = Date.now();
 		if (now > result.staleAt) {
-			if (cacheControlDirectives?.["max-stale"]) {
-				const gracePeriod = result.staleAt + cacheControlDirectives["max-stale"] * 1e3;
-				return now > gracePeriod;
-			}
+			if (cacheControlDirectives?.["max-stale"]) return now > result.staleAt + cacheControlDirectives["max-stale"] * 1e3;
 			return true;
 		}
-		if (cacheControlDirectives?.["min-fresh"]) {
-			const timeLeftTillStale = result.staleAt - now;
-			const threshold = cacheControlDirectives["min-fresh"] * 1e3;
-			return timeLeftTillStale <= threshold;
-		}
+		if (cacheControlDirectives?.["min-fresh"]) return result.staleAt - now <= cacheControlDirectives["min-fresh"] * 1e3;
 		return false;
 	}
 	/**
@@ -77480,9 +77369,7 @@ var require_cache$1 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/inte
 	function withinStaleWhileRevalidateWindow(result) {
 		const staleWhileRevalidate = result.cacheControlDirectives?.["stale-while-revalidate"];
 		if (!staleWhileRevalidate) return false;
-		const now = Date.now();
-		const staleWhileRevalidateExpiry = result.staleAt + staleWhileRevalidate * 1e3;
-		return now <= staleWhileRevalidateExpiry;
+		return Date.now() <= result.staleAt + staleWhileRevalidate * 1e3;
 	}
 	/**
 	* @param {DispatchFn} dispatch
@@ -77868,8 +77755,7 @@ var require_decompress = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/i
 		}
 		return (dispatch) => {
 			return (opts, handler) => {
-				const decompressHandler = new DecompressHandler(handler, options);
-				return dispatch(opts, decompressHandler);
+				return dispatch(opts, new DecompressHandler(handler, options));
 			};
 		};
 	}
@@ -78615,8 +78501,7 @@ var require_response = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web
 		static json(data, init$1 = void 0) {
 			webidl$10.argumentLengthCheck(arguments, 1, "Response.json");
 			if (init$1 !== null) init$1 = webidl$10.converters.ResponseInit(init$1);
-			const bytes = textEncoder.encode(serializeJavascriptValueToJSONString(data));
-			const body = extractBody$2(bytes);
+			const body = extractBody$2(textEncoder.encode(serializeJavascriptValueToJSONString(data)));
 			const responseObject = fromInnerResponse$2(makeResponse$1({}), "response");
 			initializeResponse(responseObject, init$1, {
 				body: body[0],
@@ -78805,11 +78690,10 @@ var require_response = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web
 		};
 	}
 	function makeNetworkError$1(reason) {
-		const isError$2 = isErrorLike$1(reason);
 		return makeResponse$1({
 			type: "error",
 			status: 0,
-			error: isError$2 ? reason : new Error(reason ? String(reason) : reason),
+			error: isErrorLike$1(reason) ? reason : new Error(reason ? String(reason) : reason),
 			aborted: reason && reason.name === "AbortError"
 		});
 	}
@@ -79109,8 +78993,7 @@ var require_request = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/
 			if (signal != null) if (signal.aborted) ac.abort(signal.reason);
 			else {
 				this[kAbortController] = ac;
-				const acRef = new WeakRef(ac);
-				const abort$2 = buildAbort(acRef);
+				const abort$2 = buildAbort(new WeakRef(ac));
 				if (abortSignalHasEventHandlerLeakWarning && getMaxListeners(signal) === defaultMaxListeners) setMaxListeners(1500, signal);
 				util$1.addAbortListener(signal, abort$2);
 				requestFinalizer.register(ac, {
@@ -79585,8 +79468,7 @@ var require_subresource_integrity = /* @__PURE__ */ __commonJS({ "node_modules/u
 		for (const item of metadata) {
 			const algorithm = item.alg;
 			const expectedValue = item.val;
-			const actualValue = applyAlgorithmToBytes(algorithm, bytes);
-			if (caseSensitiveMatch(actualValue, expectedValue)) return true;
+			if (caseSensitiveMatch(applyAlgorithmToBytes(algorithm, bytes), expectedValue)) return true;
 		}
 		return false;
 	};
@@ -79822,8 +79704,7 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/fe
 			taskDestination = request$3.client.globalObject;
 			crossOriginIsolatedCapability = request$3.client.crossOriginIsolatedCapability;
 		}
-		const currentTime = coarsenedSharedCurrentTime(crossOriginIsolatedCapability);
-		const timingInfo = createOpaqueTimingInfo({ startTime: currentTime });
+		const timingInfo = createOpaqueTimingInfo({ startTime: coarsenedSharedCurrentTime(crossOriginIsolatedCapability) });
 		const fetchParams = {
 			controller: new Fetch(dispatcher),
 			request: request$3,
@@ -79934,8 +79815,7 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/fe
 					response.headersList.set("content-type", type, true);
 				} else {
 					response.rangeRequested = true;
-					const rangeHeader = request$3.headersList.get("range", true);
-					const rangeValue = simpleRangeHeaderValue(rangeHeader, true);
+					const rangeValue = simpleRangeHeaderValue(request$3.headersList.get("range", true), true);
 					if (rangeValue === "failure") return Promise.resolve(makeNetworkError("failed to fetch the data URL"));
 					let { rangeStartValue: rangeStart, rangeEndValue: rangeEnd } = rangeValue;
 					if (rangeStart === null) {
@@ -79958,8 +79838,7 @@ var require_fetch = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/fe
 				return Promise.resolve(response);
 			}
 			case "data:": {
-				const currentURL = requestCurrentURL(request$3);
-				const dataURLStruct = dataURLProcessor(currentURL);
+				const dataURLStruct = dataURLProcessor(requestCurrentURL(request$3));
 				if (dataURLStruct === "failure") return Promise.resolve(makeNetworkError("failed to fetch the data URL"));
 				const mimeType = serializeAMimeType$1(dataURLStruct.mimeType);
 				return Promise.resolve(makeResponse({
@@ -80399,9 +80278,7 @@ var require_util$3 = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/c
 	* @returns {boolean}
 	*/
 	function urlEquals$1(A, B, excludeFragment = false) {
-		const serializedA = URLSerializer$1(A, excludeFragment);
-		const serializedB = URLSerializer$1(B, excludeFragment);
-		return serializedA === serializedB;
+		return URLSerializer$1(A, excludeFragment) === URLSerializer$1(B, excludeFragment);
 	}
 	/**
 	* @see https://github.com/chromium/chromium/blob/694d20d134cb553d8d89e5500b9148012b1ba299/content/browser/cache_storage/cache_storage_cache.cc#L260-L262
@@ -80600,10 +80477,8 @@ var require_cache = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/ca
 			});
 			const clonedResponse = cloneResponse(innerResponse);
 			const bodyReadPromise = createDeferredPromise$1();
-			if (innerResponse.body != null) {
-				const reader = innerResponse.body.stream.getReader();
-				readAllBytes(reader, bodyReadPromise.resolve, bodyReadPromise.reject);
-			} else bodyReadPromise.resolve(void 0);
+			if (innerResponse.body != null) readAllBytes(innerResponse.body.stream.getReader(), bodyReadPromise.resolve, bodyReadPromise.reject);
+			else bodyReadPromise.resolve(void 0);
 			/** @type {CacheBatchOperation[]} */
 			const operations = [];
 			/** @type {CacheBatchOperation} */
@@ -80806,9 +80681,7 @@ var require_cache = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/web/ca
 			const fieldValues$1 = getFieldValues(response.headersList.get("vary"));
 			for (const fieldValue of fieldValues$1) {
 				if (fieldValue === "*") return false;
-				const requestValue = request$3.headersList.get(fieldValue);
-				const queryValue = requestQuery.headersList.get(fieldValue);
-				if (requestValue !== queryValue) return false;
+				if (request$3.headersList.get(fieldValue) !== requestQuery.headersList.get(fieldValue)) return false;
 			}
 			return true;
 		}
@@ -80898,10 +80771,7 @@ var require_cachestorage = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib
 			request$3 = webidl$6.converters.RequestInfo(request$3);
 			options = webidl$6.converters.MultiCacheQueryOptions(options);
 			if (options.cacheName != null) {
-				if (this.#caches.has(options.cacheName)) {
-					const cacheList = this.#caches.get(options.cacheName);
-					return await new Cache(kConstruct$3, cacheList).match(request$3, options);
-				}
+				if (this.#caches.has(options.cacheName)) return await new Cache(kConstruct$3, this.#caches.get(options.cacheName)).match(request$3, options);
 			} else for (const cacheList of this.#caches.values()) {
 				const response = await new Cache(kConstruct$3, cacheList).match(request$3, options);
 				if (response !== void 0) return response;
@@ -80929,10 +80799,7 @@ var require_cachestorage = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib
 			const prefix = "CacheStorage.open";
 			webidl$6.argumentLengthCheck(arguments, 1, prefix);
 			cacheName = webidl$6.converters.DOMString(cacheName, prefix, "cacheName");
-			if (this.#caches.has(cacheName)) {
-				const cache$1 = this.#caches.get(cacheName);
-				return new Cache(kConstruct$3, cache$1);
-			}
+			if (this.#caches.has(cacheName)) return new Cache(kConstruct$3, this.#caches.get(cacheName));
 			const cache = [];
 			this.#caches.set(cacheName, cache);
 			return new Cache(kConstruct$3, cache);
@@ -82209,9 +82076,7 @@ var require_connection = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/w
 					failWebsocketConnection$3(handler, 1002, "Server did not set Connection header to \"upgrade\".");
 					return;
 				}
-				const secWSAccept = response.headersList.get("Sec-WebSocket-Accept");
-				const digest = crypto.createHash("sha1").update(keyValue + uid).digest("base64");
-				if (secWSAccept !== digest) {
+				if (response.headersList.get("Sec-WebSocket-Accept") !== crypto.createHash("sha1").update(keyValue + uid).digest("base64")) {
 					failWebsocketConnection$3(handler, 1002, "Incorrect hash received in Sec-WebSocket-Accept header.");
 					return;
 				}
