@@ -30949,8 +30949,8 @@ var require_RequestPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/
 var require_constants$7 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/storage-blob/dist/commonjs/utils/constants.js": ((exports) => {
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.PathStylePorts = exports.BlobDoesNotUseCustomerSpecifiedEncryption = exports.BlobUsesCustomerSpecifiedEncryptionMsg = exports.StorageBlobLoggingAllowedQueryParameters = exports.StorageBlobLoggingAllowedHeaderNames = exports.DevelopmentConnectionString = exports.EncryptionAlgorithmAES25 = exports.HTTP_VERSION_1_1 = exports.HTTP_LINE_ENDING = exports.BATCH_MAX_PAYLOAD_IN_BYTES = exports.BATCH_MAX_REQUEST = exports.SIZE_1_MB = exports.ETagAny = exports.ETagNone = exports.HeaderConstants = exports.HTTPURLConnection = exports.URLConstants = exports.StorageOAuthScopes = exports.REQUEST_TIMEOUT = exports.DEFAULT_MAX_DOWNLOAD_RETRY_REQUESTS = exports.DEFAULT_BLOB_DOWNLOAD_BLOCK_BYTES = exports.DEFAULT_BLOCK_BUFFER_SIZE_BYTES = exports.BLOCK_BLOB_MAX_BLOCKS = exports.BLOCK_BLOB_MAX_STAGE_BLOCK_BYTES = exports.BLOCK_BLOB_MAX_UPLOAD_BLOB_BYTES = exports.SERVICE_VERSION = exports.SDK_VERSION = void 0;
-	exports.SDK_VERSION = "12.28.0";
-	exports.SERVICE_VERSION = "2025-07-05";
+	exports.SDK_VERSION = "12.29.1";
+	exports.SERVICE_VERSION = "2025-11-05";
 	exports.BLOCK_BLOB_MAX_UPLOAD_BLOB_BYTES = 256 * 1024 * 1024;
 	exports.BLOCK_BLOB_MAX_STAGE_BLOCK_BYTES = 4e3 * 1024 * 1024;
 	exports.BLOCK_BLOB_MAX_BLOCKS = 5e4;
@@ -31947,6 +31947,16 @@ var require_StorageRetryPolicy$1 = /* @__PURE__ */ __commonJS({ "node_modules/@a
 				if (statusCode === 503 || statusCode === 500) {
 					log_js_1$6.logger.info(`RetryPolicy: Will retry for status code ${statusCode}.`);
 					return true;
+				}
+			}
+			if (response) {
+				if (response?.status >= 400) {
+					const copySourceError = response.headers.get(constants_js_1$28.HeaderConstants.X_MS_CopySourceErrorCode);
+					if (copySourceError !== void 0) switch (copySourceError) {
+						case "InternalError":
+						case "OperationTimedOut":
+						case "ServerBusy": return true;
+					}
 				}
 			}
 			if (err?.code === "PARSE_ERROR" && err?.message.startsWith(`Error "Error: Unclosed root tag`)) {
@@ -34700,6 +34710,16 @@ var require_StorageRetryPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@azu
 					return true;
 				}
 			}
+			if (response) {
+				if (response?.status >= 400) {
+					const copySourceError = response.headers.get(constants_js_1$23.HeaderConstants.X_MS_CopySourceErrorCode);
+					if (copySourceError !== void 0) switch (copySourceError) {
+						case "InternalError":
+						case "OperationTimedOut":
+						case "ServerBusy": return true;
+					}
+				}
+			}
 			if (err?.code === "PARSE_ERROR" && err?.message.startsWith(`Error "Error: Unclosed root tag`)) {
 				log_js_1$5.logger.info("RetryPolicy: Incomplete XML response likely due to service timeout, will retry.");
 				return true;
@@ -34907,6 +34927,16 @@ var require_StorageRetryPolicyV2$1 = /* @__PURE__ */ __commonJS({ "node_modules/
 					return true;
 				}
 			}
+			if (response) {
+				if (response?.status >= 400) {
+					const copySourceError = response.headers.get(constants_js_1$20.HeaderConstants.X_MS_CopySourceErrorCode);
+					if (copySourceError !== void 0) switch (copySourceError) {
+						case "InternalError":
+						case "OperationTimedOut":
+						case "ServerBusy": return true;
+					}
+				}
+			}
 			return false;
 		}
 		function calculateDelay(isPrimaryRetry, attempt) {
@@ -35080,6 +35110,36 @@ var require_StorageSharedKeyCredentialPolicyV2$1 = /* @__PURE__ */ __commonJS({ 
 }) });
 
 //#endregion
+//#region node_modules/@azure/storage-common/dist/commonjs/policies/StorageRequestFailureDetailsParserPolicy.js
+var require_StorageRequestFailureDetailsParserPolicy = /* @__PURE__ */ __commonJS({ "node_modules/@azure/storage-common/dist/commonjs/policies/StorageRequestFailureDetailsParserPolicy.js": ((exports) => {
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.storageRequestFailureDetailsParserPolicyName = void 0;
+	exports.storageRequestFailureDetailsParserPolicy = storageRequestFailureDetailsParserPolicy;
+	/**
+	* The programmatic identifier of the StorageRequestFailureDetailsParserPolicy.
+	*/
+	exports.storageRequestFailureDetailsParserPolicyName = "storageRequestFailureDetailsParserPolicy";
+	/**
+	* StorageRequestFailureDetailsParserPolicy
+	*/
+	function storageRequestFailureDetailsParserPolicy() {
+		return {
+			name: exports.storageRequestFailureDetailsParserPolicyName,
+			async sendRequest(request$3, next) {
+				try {
+					return await next(request$3);
+				} catch (err) {
+					if (typeof err === "object" && err !== null && err.response && err.response.parsedBody) {
+						if (err.response.parsedBody.code === "InvalidHeaderValue" && err.response.parsedBody.HeaderName === "x-ms-version") err.message = "The provided service version is not enabled on this storage account. Please see https://learn.microsoft.com/rest/api/storageservices/versioning-for-the-azure-storage-services for additional information.\n";
+					}
+					throw err;
+				}
+			}
+		};
+	}
+}) });
+
+//#endregion
 //#region node_modules/@azure/storage-common/dist/commonjs/index.js
 var require_commonjs$4 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/storage-common/dist/commonjs/index.js": ((exports) => {
 	Object.defineProperty(exports, "__esModule", { value: true });
@@ -35116,6 +35176,7 @@ var require_commonjs$4 = /* @__PURE__ */ __commonJS({ "node_modules/@azure/stora
 	tslib_1$12.__exportStar(require_StorageSharedKeyCredentialPolicy(), exports);
 	tslib_1$12.__exportStar(require_StorageSharedKeyCredentialPolicyV2$1(), exports);
 	tslib_1$12.__exportStar(require_StorageRetryPolicyFactory(), exports);
+	tslib_1$12.__exportStar(require_StorageRequestFailureDetailsParserPolicy(), exports);
 }) });
 
 //#endregion
@@ -35220,6 +35281,16 @@ var require_StorageRetryPolicyV2 = /* @__PURE__ */ __commonJS({ "node_modules/@a
 				if (statusCode === 503 || statusCode === 500) {
 					log_js_1$3.logger.info(`RetryPolicy: Will retry for status code ${statusCode}.`);
 					return true;
+				}
+			}
+			if (response) {
+				if (response?.status >= 400) {
+					const copySourceError = response.headers.get(constants_js_1$17.HeaderConstants.X_MS_CopySourceErrorCode);
+					if (copySourceError !== void 0) switch (copySourceError) {
+						case "InternalError":
+						case "OperationTimedOut":
+						case "ServerBusy": return true;
+					}
 				}
 			}
 			return false;
@@ -35645,6 +35716,7 @@ var require_Pipeline = /* @__PURE__ */ __commonJS({ "node_modules/@azure/storage
 			corePipeline.removePolicy({ name: core_rest_pipeline_1$6.decompressResponsePolicyName });
 			corePipeline.addPolicy((0, StorageCorrectContentLengthPolicy_js_1.storageCorrectContentLengthPolicy)());
 			corePipeline.addPolicy((0, StorageRetryPolicyV2_js_1.storageRetryPolicy)(restOptions.retryOptions), { phase: "Retry" });
+			corePipeline.addPolicy((0, storage_common_1$1.storageRequestFailureDetailsParserPolicy)());
 			corePipeline.addPolicy((0, StorageBrowserPolicyV2_js_1.storageBrowserPolicy)());
 			const downlevelResults = processDownlevelPipeline(pipeline$8);
 			if (downlevelResults) corePipeline.addPolicy(downlevelResults.wrappedPolicies, downlevelResults.afterRetry ? { afterPhase: "Retry" } : void 0);
@@ -36235,6 +36307,21 @@ var require_mappers = /* @__PURE__ */ __commonJS({ "node_modules/@azure/storage-
 				message: {
 					serializedName: "Message",
 					xmlName: "Message",
+					type: { name: "String" }
+				},
+				copySourceStatusCode: {
+					serializedName: "CopySourceStatusCode",
+					xmlName: "CopySourceStatusCode",
+					type: { name: "Number" }
+				},
+				copySourceErrorCode: {
+					serializedName: "CopySourceErrorCode",
+					xmlName: "CopySourceErrorCode",
+					type: { name: "String" }
+				},
+				copySourceErrorMessage: {
+					serializedName: "CopySourceErrorMessage",
+					xmlName: "CopySourceErrorMessage",
 					type: { name: "String" }
 				},
 				code: {
@@ -40522,11 +40609,23 @@ var require_mappers = /* @__PURE__ */ __commonJS({ "node_modules/@azure/storage-
 		type: {
 			name: "Composite",
 			className: "BlobStartCopyFromURLExceptionHeaders",
-			modelProperties: { errorCode: {
-				serializedName: "x-ms-error-code",
-				xmlName: "x-ms-error-code",
-				type: { name: "String" }
-			} }
+			modelProperties: {
+				errorCode: {
+					serializedName: "x-ms-error-code",
+					xmlName: "x-ms-error-code",
+					type: { name: "String" }
+				},
+				copySourceErrorCode: {
+					serializedName: "x-ms-copy-source-error-code",
+					xmlName: "x-ms-copy-source-error-code",
+					type: { name: "String" }
+				},
+				copySourceStatusCode: {
+					serializedName: "x-ms-copy-source-status-code",
+					xmlName: "x-ms-copy-source-status-code",
+					type: { name: "Number" }
+				}
+			}
 		}
 	};
 	exports.BlobCopyFromURLHeaders = {
@@ -40609,11 +40708,23 @@ var require_mappers = /* @__PURE__ */ __commonJS({ "node_modules/@azure/storage-
 		type: {
 			name: "Composite",
 			className: "BlobCopyFromURLExceptionHeaders",
-			modelProperties: { errorCode: {
-				serializedName: "x-ms-error-code",
-				xmlName: "x-ms-error-code",
-				type: { name: "String" }
-			} }
+			modelProperties: {
+				errorCode: {
+					serializedName: "x-ms-error-code",
+					xmlName: "x-ms-error-code",
+					type: { name: "String" }
+				},
+				copySourceErrorCode: {
+					serializedName: "x-ms-copy-source-error-code",
+					xmlName: "x-ms-copy-source-error-code",
+					type: { name: "String" }
+				},
+				copySourceStatusCode: {
+					serializedName: "x-ms-copy-source-status-code",
+					xmlName: "x-ms-copy-source-status-code",
+					type: { name: "Number" }
+				}
+			}
 		}
 	};
 	exports.BlobAbortCopyFromURLHeaders = {
@@ -41406,11 +41517,23 @@ var require_mappers = /* @__PURE__ */ __commonJS({ "node_modules/@azure/storage-
 		type: {
 			name: "Composite",
 			className: "PageBlobUploadPagesFromURLExceptionHeaders",
-			modelProperties: { errorCode: {
-				serializedName: "x-ms-error-code",
-				xmlName: "x-ms-error-code",
-				type: { name: "String" }
-			} }
+			modelProperties: {
+				errorCode: {
+					serializedName: "x-ms-error-code",
+					xmlName: "x-ms-error-code",
+					type: { name: "String" }
+				},
+				copySourceErrorCode: {
+					serializedName: "x-ms-copy-source-error-code",
+					xmlName: "x-ms-copy-source-error-code",
+					type: { name: "String" }
+				},
+				copySourceStatusCode: {
+					serializedName: "x-ms-copy-source-status-code",
+					xmlName: "x-ms-copy-source-status-code",
+					type: { name: "Number" }
+				}
+			}
 		}
 	};
 	exports.PageBlobGetPageRangesHeaders = {
@@ -41982,11 +42105,23 @@ var require_mappers = /* @__PURE__ */ __commonJS({ "node_modules/@azure/storage-
 		type: {
 			name: "Composite",
 			className: "AppendBlobAppendBlockFromUrlExceptionHeaders",
-			modelProperties: { errorCode: {
-				serializedName: "x-ms-error-code",
-				xmlName: "x-ms-error-code",
-				type: { name: "String" }
-			} }
+			modelProperties: {
+				errorCode: {
+					serializedName: "x-ms-error-code",
+					xmlName: "x-ms-error-code",
+					type: { name: "String" }
+				},
+				copySourceErrorCode: {
+					serializedName: "x-ms-copy-source-error-code",
+					xmlName: "x-ms-copy-source-error-code",
+					type: { name: "String" }
+				},
+				copySourceStatusCode: {
+					serializedName: "x-ms-copy-source-status-code",
+					xmlName: "x-ms-copy-source-status-code",
+					type: { name: "Number" }
+				}
+			}
 		}
 	};
 	exports.AppendBlobSealHeaders = {
@@ -42200,11 +42335,23 @@ var require_mappers = /* @__PURE__ */ __commonJS({ "node_modules/@azure/storage-
 		type: {
 			name: "Composite",
 			className: "BlockBlobPutBlobFromUrlExceptionHeaders",
-			modelProperties: { errorCode: {
-				serializedName: "x-ms-error-code",
-				xmlName: "x-ms-error-code",
-				type: { name: "String" }
-			} }
+			modelProperties: {
+				errorCode: {
+					serializedName: "x-ms-error-code",
+					xmlName: "x-ms-error-code",
+					type: { name: "String" }
+				},
+				copySourceErrorCode: {
+					serializedName: "x-ms-copy-source-error-code",
+					xmlName: "x-ms-copy-source-error-code",
+					type: { name: "String" }
+				},
+				copySourceStatusCode: {
+					serializedName: "x-ms-copy-source-status-code",
+					xmlName: "x-ms-copy-source-status-code",
+					type: { name: "Number" }
+				}
+			}
 		}
 	};
 	exports.BlockBlobStageBlockHeaders = {
@@ -42342,11 +42489,23 @@ var require_mappers = /* @__PURE__ */ __commonJS({ "node_modules/@azure/storage-
 		type: {
 			name: "Composite",
 			className: "BlockBlobStageBlockFromURLExceptionHeaders",
-			modelProperties: { errorCode: {
-				serializedName: "x-ms-error-code",
-				xmlName: "x-ms-error-code",
-				type: { name: "String" }
-			} }
+			modelProperties: {
+				errorCode: {
+					serializedName: "x-ms-error-code",
+					xmlName: "x-ms-error-code",
+					type: { name: "String" }
+				},
+				copySourceErrorCode: {
+					serializedName: "x-ms-copy-source-error-code",
+					xmlName: "x-ms-copy-source-error-code",
+					type: { name: "String" }
+				},
+				copySourceStatusCode: {
+					serializedName: "x-ms-copy-source-status-code",
+					xmlName: "x-ms-copy-source-status-code",
+					type: { name: "Number" }
+				}
+			}
 		}
 	};
 	exports.BlockBlobCommitBlockListHeaders = {
@@ -42570,7 +42729,7 @@ var require_parameters = /* @__PURE__ */ __commonJS({ "node_modules/@azure/stora
 	exports.version = {
 		parameterPath: "version",
 		mapper: {
-			defaultValue: "2025-07-05",
+			defaultValue: "2025-11-05",
 			isConstant: true,
 			serializedName: "x-ms-version",
 			type: { name: "String" }
@@ -47096,7 +47255,7 @@ var require_storageClient = /* @__PURE__ */ __commonJS({ "node_modules/@azure/st
 			if (url === void 0) throw new Error("'url' cannot be null");
 			if (!options) options = {};
 			const defaults = { requestContentType: "application/json; charset=utf-8" };
-			const packageDetails = `azsdk-js-azure-storage-blob/12.28.0`;
+			const packageDetails = `azsdk-js-azure-storage-blob/12.29.1`;
 			const userAgentPrefix = options.userAgentOptions && options.userAgentOptions.userAgentPrefix ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}` : `${packageDetails}`;
 			const optionsWithDefaults = {
 				...defaults,
@@ -47106,7 +47265,7 @@ var require_storageClient = /* @__PURE__ */ __commonJS({ "node_modules/@azure/st
 			};
 			super(optionsWithDefaults);
 			this.url = url;
-			this.version = options.version || "2025-07-05";
+			this.version = options.version || "2025-11-05";
 			this.service = new index_js_1$2.ServiceImpl(this);
 			this.container = new index_js_1$2.ContainerImpl(this);
 			this.blob = new index_js_1$2.BlobImpl(this);
