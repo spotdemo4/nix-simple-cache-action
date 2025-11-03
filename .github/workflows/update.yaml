@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Initialize
         id: init
-        uses: spotdemo4/nix-init@66d8f152d46a575eda9336e09d6f7fccc7756b16 # v1.1.0
+        uses: spotdemo4/nix-init@4c3c9543ce79b63946e8d805d3e5d9f6959477d0 # v1.1.1
         with:
           shell: ci
           app_id: ${{ vars.CLIENT_ID }}
