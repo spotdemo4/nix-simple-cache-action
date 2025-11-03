@@ -14,7 +14,6 @@ inputs:
 outputs:
   cache-hit:
     description: A string value to indicate if the cache was found.
-    value: ${{ steps.nix-cache.outputs.cache-hit }}
 
 runs:
   using: node24
