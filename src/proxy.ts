@@ -162,11 +162,10 @@ const server = createServer(async (req, res) => {
 				}
 
 				// update substitutors
-				substituters = (
-					await execPromise("nix config show substituters")
-				).stdout
-					.split(" ")
-					.map((s) => s.trim());
+				const configSubs = await getConfigSubs();
+				const flakeSubs = await getFlakeSubs();
+				substituters = configSubs.concat(flakeSubs);
+
 				console.log("substituters:", substituters.join(", "));
 				res.writeHead(200, { "Content-Type": "application/json" });
 				res.end(JSON.stringify(substituters));
@@ -180,6 +179,39 @@ const server = createServer(async (req, res) => {
 		res.end("internal server error");
 	}
 });
+
+async function getConfigSubs(): Promise<string[]> {
+	try {
+		const configEval = (await execPromise("nix config show substituters"))
+			.stdout;
+		if (!configEval) {
+			return [];
+		}
+
+		const subs = configEval.split(" ").map((s) => s.trim());
+		return subs;
+	} catch {
+		return [];
+	}
+}
+
+async function getFlakeSubs(): Promise<string[]> {
+	try {
+		const flakeEval = (
+			await execPromise("nix eval --json --file ./flake.nix nixConfig")
+		).stdout;
+		if (!flakeEval) {
+			return [];
+		}
+
+		const parsed = JSON.parse(flakeEval);
+		const subs: string[] = parsed.substituters || [];
+		const extraSubs: string[] = parsed["extra-substituters"] || [];
+		return [...subs, ...extraSubs];
+	} catch {
+		return [];
+	}
+}
 
 console.log(`starting server at http://${hostname}:${port}`);
 server.listen(port, hostname);
