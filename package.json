@@ -1,7 +1,7 @@
 {
 	"name": "nix-simple-cache-action",
 	"description": "cache the nix store",
-	"version": "1.4.12",
+	"version": "1.4.13",
 	"type": "module",
 	"keywords": [
 		"actions"
