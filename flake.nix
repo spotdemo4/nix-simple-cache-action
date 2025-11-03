@@ -51,6 +51,7 @@
         ci = pkgs.mkShell {
           packages = with pkgs; [
             node
+            biome
             flake-checker
             trev.renovate
           ];
