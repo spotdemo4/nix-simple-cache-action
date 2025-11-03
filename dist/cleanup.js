@@ -22465,7 +22465,7 @@ var require_browser = /* @__PURE__ */ __commonJS({ "node_modules/debug/src/brows
 	* This is the web browser implementation of `debug()`.
 	*/
 	exports.formatArgs = formatArgs$1;
-	exports.save = save$1;
+	exports.save = save$2;
 	exports.load = load$1;
 	exports.useColors = useColors$1;
 	exports.storage = localstorage();
@@ -22606,7 +22606,7 @@ var require_browser = /* @__PURE__ */ __commonJS({ "node_modules/debug/src/brows
 	* @param {String} namespaces
 	* @api private
 	*/
-	function save$1(namespaces) {
+	function save$2(namespaces) {
 		try {
 			if (namespaces) exports.storage.setItem("debug", namespaces);
 			else exports.storage.removeItem("debug");
@@ -22669,7 +22669,7 @@ var require_node = /* @__PURE__ */ __commonJS({ "node_modules/debug/src/node.js"
 	exports.init = init;
 	exports.log = log;
 	exports.formatArgs = formatArgs;
-	exports.save = save;
+	exports.save = save$1;
 	exports.load = load;
 	exports.useColors = useColors;
 	exports.destroy = util$23.deprecate(() => {}, "Instance method `debug.destroy()` is deprecated and no longer does anything. It will be removed in the next major version of `debug`.");
@@ -22821,7 +22821,7 @@ var require_node = /* @__PURE__ */ __commonJS({ "node_modules/debug/src/node.js"
 	* @param {String} namespaces
 	* @api private
 	*/
-	function save(namespaces) {
+	function save$1(namespaces) {
 		if (namespaces) process.env.DEBUG = namespaces;
 		else delete process.env.DEBUG;
 	}
@@ -84428,18 +84428,45 @@ function formatBytes(bytes, decimals = 2) {
 //#endregion
 //#region src/cleanup.ts
 async function main() {
+	if (import_core.getState("directHit") === "true") import_core.info("cache was a direct hit, skipping save");
+	else {
+		const flakeHash = import_core.getState("flakeHash");
+		if (!flakeHash) {
+			import_core.warning("flake hash not found, not saving cache");
+			return;
+		}
+		const lockHash = import_core.getState("lockHash");
+		if (!lockHash) {
+			import_core.warning("lock hash not found, not saving cache");
+			return;
+		}
+		const publicKey = import_core.getState("publicKey");
+		if (!publicKey) {
+			import_core.warning("public key hash not found, not saving cache");
+			return;
+		}
+		await save(flakeHash, lockHash, publicKey);
+	}
+	const proxyPID = import_core.getState("proxyPID");
+	if (proxyPID) {
+		import_core.info("stopping proxy server");
+		process.kill(parseInt(proxyPID, 10));
+	}
+	const stdout = readFileSync("/tmp/out.log", "utf8").trim();
+	if (stdout) {
+		import_core.debug("proxy server stdout:");
+		import_core.debug(stdout);
+	}
+	const stderr = readFileSync("/tmp/err.log", "utf8").trim();
+	if (stderr) {
+		import_core.warning("proxy server exited with errors");
+		import_core.info("proxy server stderr:");
+		import_core.info(stderr);
+	}
+}
+async function save(flakeHash, lockHash, publicKey) {
 	if (!import_cache.isFeatureAvailable()) {
 		import_core.warning("cache is not available");
-		return;
-	}
-	const flakeHash = import_core.getState("flakeHash");
-	if (!flakeHash) {
-		import_core.warning("flake hash not found, not saving cache");
-		return;
-	}
-	const publicKey = import_core.getState("publicKey");
-	if (!publicKey) {
-		import_core.warning("public key hash not found, not saving cache");
 		return;
 	}
 	let size = 0;
@@ -84490,31 +84517,7 @@ async function main() {
 		"--all"
 	], { ignoreReturnCode: true });
 	if (copy$1 !== 0) import_core.warning(`failed to copy some store paths (exit code ${copy$1})`);
-	const cacheHash = (await import_exec.getExecOutput("nix", [
-		"hash",
-		"path",
-		"--type",
-		"sha256",
-		"/tmp/nix-cache"
-	], { silent: true })).stdout.trim().split("sha256-")[1];
-	import_core.info(`cache hash: ${cacheHash}`);
-	await import_cache.saveCache(["/tmp/nix-cache", "/tmp/.secret-key"], `nix-store-${flakeHash}-${cacheHash}`);
-	const proxyPID = import_core.getState("proxyPID");
-	if (proxyPID) {
-		import_core.info("stopping proxy server");
-		process.kill(parseInt(proxyPID, 10));
-	}
-	const stdout = readFileSync("/tmp/out.log", "utf8").trim();
-	if (stdout) {
-		import_core.debug("proxy server stdout:");
-		import_core.debug(stdout);
-	}
-	const stderr = readFileSync("/tmp/err.log", "utf8").trim();
-	if (stderr) {
-		import_core.warning("proxy server exited with errors");
-		import_core.info("proxy server stderr:");
-		import_core.info(stderr);
-	}
+	await import_cache.saveCache(["/tmp/nix-cache", "/tmp/.secret-key"], `nix-store-${flakeHash}-${lockHash}`);
 }
 try {
 	await main();

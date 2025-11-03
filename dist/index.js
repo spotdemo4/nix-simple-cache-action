@@ -64819,16 +64819,31 @@ async function main() {
 		"hash",
 		"file",
 		"--type",
-		"sha256",
-		"flake.lock"
-	], { silent: true })).stdout.trim().split("sha256-")[1];
+		"sha1",
+		"--base64",
+		"flake.nix"
+	], { silent: true })).stdout.trim();
 	import_core.info(`flake hash: ${flakeHash}`);
 	import_core.saveState("flakeHash", flakeHash);
-	const restore = await import_cache.restoreCache(["/tmp/nix-cache", "/tmp/.secret-key"], `nix-store-${flakeHash}`, ["nix-store"]);
-	import_core.setOutput("cache-hit", restore ? "true" : "false");
-	if (!restore) {
-		import_core.info("cache not found");
-		import_core.info("generating cache secret key");
+	const lockHash = (await import_exec.getExecOutput("nix", [
+		"hash",
+		"file",
+		"--type",
+		"sha1",
+		"--base64",
+		"flake.lock"
+	], { silent: true })).stdout.trim();
+	import_core.info(`lock hash: ${lockHash}`);
+	import_core.saveState("lockHash", lockHash);
+	const restore = await import_cache.restoreCache(["/tmp/nix-cache", "/tmp/.secret-key"], `nix-store-${flakeHash}-${lockHash}`, [`nix-store-${flakeHash}`, "nix-store"]);
+	if (restore) {
+		import_core.info("cache restored");
+		import_core.setOutput("cache-hit", "true");
+		import_core.saveState("directHit", restore === `nix-store-${flakeHash}-${lockHash}`);
+	} else {
+		import_core.info("cache not found, generating cache secret key");
+		import_core.setOutput("cache-hit", "false");
+		import_core.saveState("directHit", "false");
 		writeFileSync("/tmp/.secret-key", (await import_exec.getExecOutput("nix", [
 			"key",
 			"generate-secret",
