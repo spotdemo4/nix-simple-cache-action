@@ -60,7 +60,7 @@
 
       packages.default = pkgs.buildNpmPackage (finalAttrs: {
         pname = "nix-simple-cache-action";
-        version = "1.4.11";
+        version = "1.4.12";
         src = ./.;
         nodejs = node;
 
