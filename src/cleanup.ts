@@ -1,6 +1,7 @@
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
+import * as github from "@actions/github";
 import { loadSubstituters, startServer, stopServer } from "./util.js";
 
 async function main() {
@@ -12,9 +13,7 @@ async function main() {
 			break;
 
 		case "indirect": {
-			core.info(
-				"cache was an indirect hit, creating new cache from prior cache",
-			);
+			core.info("cache was an indirect hit, creating new cache");
 
 			const indirectPID = await startServer("5002", "/tmp/nix-cache");
 			if (!indirectPID) {
@@ -134,7 +133,7 @@ async function save() {
 	// save cache
 	await cache.saveCache(
 		["/tmp/nix-cache", "/tmp/.secret-key"],
-		`nix-store-${flakeHash}-${lockHash}`,
+		`nix-cache-${flakeHash}-${lockHash}-${github.context.job}`,
 	);
 }
 

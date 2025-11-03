@@ -19738,6 +19738,7 @@ const server = createServer(async (req, res) => {
 				const configSubs = await getConfigSubs();
 				const flakeSubs = await getFlakeSubs();
 				substituters = configSubs.concat(flakeSubs);
+				substituters = substituters.filter((sub) => !sub.includes("127.0.0.1"));
 				console.log("substituters:", substituters.join(", "));
 				res.writeHead(200, { "Content-Type": "application/json" });
 				res.end(JSON.stringify(substituters));

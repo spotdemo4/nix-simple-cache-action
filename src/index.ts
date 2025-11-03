@@ -2,6 +2,7 @@ import { writeFileSync } from "node:fs";
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
+import * as github from "@actions/github";
 import { startServer } from "./util.js";
 
 async function main() {
@@ -53,8 +54,12 @@ async function main() {
 	let hitType = "none";
 	const restore = await cache.restoreCache(
 		["/tmp/nix-cache", "/tmp/.secret-key"],
-		`nix-store-${flakeHash}-${lockHash}`,
-		[`nix-store-${flakeHash}`, "nix-store"],
+		`nix-cache-${flakeHash}-${lockHash}-${github.context.job}`,
+		[
+			`nix-cache-${flakeHash}-${lockHash}`,
+			`nix-cache-${flakeHash}`,
+			`nix-cache`,
+		],
 	);
 	if (restore === `nix-store-${flakeHash}-${lockHash}`) {
 		hitType = "direct";
