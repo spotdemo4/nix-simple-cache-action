@@ -100098,7 +100098,7 @@ async function main() {
 		`nix-cache-${flakeHash}`,
 		`nix-cache`
 	]);
-	if (restore === `nix-store-${flakeHash}-${lockHash}`) {
+	if (restore === `nix-cache-${flakeHash}-${lockHash}-${import_github.context.job}`) {
 		import_core.saveState("hit-type", "direct");
 		import_core.info("cache restored (direct hit)");
 		import_core.setOutput("cache-hit", "true");

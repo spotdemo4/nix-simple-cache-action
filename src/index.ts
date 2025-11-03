@@ -60,7 +60,7 @@ async function main() {
 			`nix-cache`,
 		],
 	);
-	if (restore === `nix-store-${flakeHash}-${lockHash}`) {
+	if (restore === `nix-cache-${flakeHash}-${lockHash}-${github.context.job}`) {
 		core.saveState("hit-type", "direct");
 		core.info("cache restored (direct hit)");
 		core.setOutput("cache-hit", "true");
