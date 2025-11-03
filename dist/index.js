@@ -100053,8 +100053,8 @@ async function startServer(port, root) {
 	}
 	if (attempts >= 5) {
 		import_core$1.warning("proxy server did not start.");
-		import_core$1.warning(`stdout: ${readFileSync("/tmp/out.log", "utf8")}`);
-		import_core$1.warning(`stderr: ${readFileSync("/tmp/err.log", "utf8")}`);
+		import_core$1.warning(`stdout: ${readFileSync(`/tmp/out-${port}.log`, "utf8")}`);
+		import_core$1.warning(`stderr: ${readFileSync(`/tmp/err-${port}.log`, "utf8")}`);
 		return;
 	}
 	return proxy.pid;
@@ -100093,24 +100093,20 @@ async function main() {
 	], { silent: true })).stdout.trim();
 	import_core.info(`lock hash: ${lockHash}`);
 	import_core.saveState("lock-hash", lockHash);
-	let hitType = "none";
 	const restore = await import_cache.restoreCache(["/tmp/nix-cache", "/tmp/.secret-key"], `nix-cache-${flakeHash}-${lockHash}-${import_github.context.job}`, [
 		`nix-cache-${flakeHash}-${lockHash}`,
 		`nix-cache-${flakeHash}`,
 		`nix-cache`
 	]);
 	if (restore === `nix-store-${flakeHash}-${lockHash}`) {
-		hitType = "direct";
 		import_core.saveState("hit-type", "direct");
 		import_core.info("cache restored (direct hit)");
 		import_core.setOutput("cache-hit", "true");
 	} else if (restore) {
-		hitType = "indirect";
 		import_core.saveState("hit-type", "indirect");
 		import_core.info("cache restored (indirect hit)");
 		import_core.setOutput("cache-hit", "true");
 	} else {
-		hitType = "none";
 		import_core.saveState("hit-type", "none");
 		import_core.info("cache not found");
 		import_core.setOutput("cache-hit", "false");
@@ -100124,9 +100120,7 @@ async function main() {
 	const publicKey = (await import_exec.getExecOutput("bash", ["-c", "cat /tmp/.secret-key | nix key convert-secret-to-public"], { silent: true })).stdout.trim();
 	import_core.info(`public key: ${publicKey}`);
 	import_core.saveState("public-key", publicKey);
-	let pid;
-	if (hitType === "indirect") pid = await startServer("5001", "/tmp/nix-indirect-cache");
-	else pid = await startServer("5001", "/tmp/nix-cache");
+	const pid = await startServer("5001", "/tmp/nix-cache");
 	if (!pid) {
 		import_core.warning("failed to start proxy server");
 		return;
