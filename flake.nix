@@ -3,10 +3,10 @@
 
   nixConfig = {
     extra-substituters = [
-      "https://trevnur.cachix.org"
+      "https://cache.trev.zip/nur"
     ];
     extra-trusted-public-keys = [
-      "trevnur.cachix.org-1:hBd15IdszwT52aOxdKs5vNTbq36emvEeGqpb25Bkq6o="
+      "nur:70xGHUW1+1b8FqBchldaunN//pZNVo6FKuPL4U/n844="
     ];
   };
 
@@ -43,8 +43,6 @@
             node
             biome
             prettier
-
-            # nix
             alejandra
           ];
           shellHook = pkgs.trev.shellhook.ref;
@@ -56,7 +54,6 @@
             flake-checker
             trev.renovate
           ];
-          shellHook = pkgs.trev.shellhook.ref;
         };
       };
 
