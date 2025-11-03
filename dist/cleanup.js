@@ -84495,7 +84495,7 @@ async function main() {
 			const indirectPID = await startServer("5002", "/tmp/nix-cache");
 			if (!indirectPID) {
 				import_core.warning("failed to start proxy server");
-				return;
+				break;
 			}
 			await loadSubstituters("5002");
 			await fixupStore();
@@ -84516,6 +84516,7 @@ async function main() {
 	await stopServer(parseInt(pid, 10), "5001");
 }
 async function fixupStore() {
+	import_core.info("optimising");
 	await import_exec.exec("nix", ["store", "optimise"]);
 	import_core.info("signing");
 	await import_exec.exec("nix", [
@@ -84525,7 +84526,7 @@ async function fixupStore() {
 		"/tmp/.secret-key",
 		"--all"
 	], { silent: true });
-	const publicKey = import_core.getState("publicKey");
+	const publicKey = import_core.getState("public-key");
 	if (!publicKey) {
 		import_core.warning("public key hash not found, not saving cache");
 		return;
@@ -84557,12 +84558,12 @@ async function save() {
 		import_core.warning("cache is not available");
 		return;
 	}
-	const flakeHash = import_core.getState("flakeHash");
+	const flakeHash = import_core.getState("flake-hash");
 	if (!flakeHash) {
 		import_core.warning("flake hash not found, not saving cache");
 		return;
 	}
-	const lockHash = import_core.getState("lockHash");
+	const lockHash = import_core.getState("lock-hash");
 	if (!lockHash) {
 		import_core.warning("lock hash not found, not saving cache");
 		return;
