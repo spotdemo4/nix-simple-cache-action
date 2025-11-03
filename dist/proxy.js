@@ -19729,17 +19729,20 @@ const server = createServer(async (req, res) => {
 				req.pipe(fileStream);
 				return;
 			}
-			case "POST":
+			case "POST": {
 				if (req.url !== "/substituters") {
 					res.writeHead(404, { "Content-Type": "text/plain" });
 					res.end("not found");
 					return;
 				}
-				substituters = (await execPromise("nix config show substituters")).stdout.split(" ").map((s) => s.trim());
+				const configSubs = await getConfigSubs();
+				const flakeSubs = await getFlakeSubs();
+				substituters = configSubs.concat(flakeSubs);
 				console.log("substituters:", substituters.join(", "));
 				res.writeHead(200, { "Content-Type": "application/json" });
 				res.end(JSON.stringify(substituters));
 				return;
+			}
 		}
 	} catch (err) {
 		console.error("error handling request:", err);
@@ -19747,6 +19750,27 @@ const server = createServer(async (req, res) => {
 		res.end("internal server error");
 	}
 });
+async function getConfigSubs() {
+	try {
+		const configEval = (await execPromise("nix config show substituters")).stdout;
+		if (!configEval) return [];
+		return configEval.split(" ").map((s) => s.trim());
+	} catch {
+		return [];
+	}
+}
+async function getFlakeSubs() {
+	try {
+		const flakeEval = (await execPromise("nix eval --json --file ./flake.nix nixConfig")).stdout;
+		if (!flakeEval) return [];
+		const parsed = JSON.parse(flakeEval);
+		const subs = parsed.substituters || [];
+		const extraSubs = parsed["extra-substituters"] || [];
+		return [...subs, ...extraSubs];
+	} catch {
+		return [];
+	}
+}
 console.log(`starting server at http://${hostname}:${port}`);
 server.listen(port, hostname);
 
