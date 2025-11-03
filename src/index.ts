@@ -51,7 +51,6 @@ async function main() {
 	core.saveState("lock-hash", lockHash);
 
 	// restore cache to tmp
-	let hitType = "none";
 	const restore = await cache.restoreCache(
 		["/tmp/nix-cache", "/tmp/.secret-key"],
 		`nix-cache-${flakeHash}-${lockHash}-${github.context.job}`,
@@ -62,17 +61,14 @@ async function main() {
 		],
 	);
 	if (restore === `nix-store-${flakeHash}-${lockHash}`) {
-		hitType = "direct";
 		core.saveState("hit-type", "direct");
 		core.info("cache restored (direct hit)");
 		core.setOutput("cache-hit", "true");
 	} else if (restore) {
-		hitType = "indirect";
 		core.saveState("hit-type", "indirect");
 		core.info("cache restored (indirect hit)");
 		core.setOutput("cache-hit", "true");
 	} else {
-		hitType = "none";
 		core.saveState("hit-type", "none");
 		core.info("cache not found");
 		core.setOutput("cache-hit", "false");
@@ -104,18 +100,11 @@ async function main() {
 	core.saveState("public-key", publicKey);
 
 	// start proxy server and get pid
-	let pid: number | undefined;
-	if (hitType === "indirect") {
-		pid = await startServer("5001", "/tmp/nix-indirect-cache");
-	} else {
-		pid = await startServer("5001", "/tmp/nix-cache");
-	}
-
+	const pid = await startServer("5001", "/tmp/nix-cache");
 	if (!pid) {
 		core.warning("failed to start proxy server");
 		return;
 	}
-
 	core.saveState("pid", pid.toString());
 
 	// add cache as a substituter

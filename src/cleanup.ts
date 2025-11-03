@@ -2,7 +2,8 @@ import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as github from "@actions/github";
-import { loadSubstituters, startServer, stopServer } from "./util.js";
+import * as io from "@actions/io";
+import { loadSubstituters, stopServer } from "./util.js";
 
 async function main() {
 	// get direct hit from state
@@ -15,17 +16,12 @@ async function main() {
 		case "indirect": {
 			core.info("cache was an indirect hit, creating new cache");
 
-			const indirectPID = await startServer("5002", "/tmp/nix-cache");
-			if (!indirectPID) {
-				core.warning("failed to start proxy server");
-				break;
-			}
+			await io.rmRF("/tmp/nix-cache");
 
-			await loadSubstituters("5002");
+			await loadSubstituters("5001");
 			await fixupStore();
-			await copyTo("5002");
+			await copyTo("5001");
 			await save();
-			await stopServer(indirectPID, "5002");
 
 			break;
 		}
