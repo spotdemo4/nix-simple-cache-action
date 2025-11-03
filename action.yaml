@@ -17,6 +17,6 @@ outputs:
     value: ${{ steps.nix-cache.outputs.cache-hit }}
 
 runs:
-  using: node20
+  using: node24
   main: dist/index.js
   post: dist/cleanup.js
