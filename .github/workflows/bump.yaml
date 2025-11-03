@@ -16,6 +16,7 @@ jobs:
         uses: spotdemo4/nix-init@66d8f152d46a575eda9336e09d6f7fccc7756b16 # v1.1.0
         with:
           shell: ci
+          fetch_depth: 0
           app_id: ${{ vars.CLIENT_ID }}
           private_key: ${{ secrets.PRIVATE_KEY }}
 
