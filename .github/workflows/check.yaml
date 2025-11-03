@@ -18,5 +18,7 @@ jobs:
         uses: spotdemo4/nix-init@4c3c9543ce79b63946e8d805d3e5d9f6959477d0 # v1.1.1
 
       - name: Run checks
-        run: nix flake check
+        run: |
+          nix config show
+          nix flake check
 
