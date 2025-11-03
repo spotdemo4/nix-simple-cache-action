@@ -7,23 +7,62 @@ import { request } from "undici";
 import { formatBytes } from "./util.js";
 
 async function main() {
+	// get direct hit from state
+	const directHit = core.getState("directHit");
+	if (directHit === "true") {
+		core.info("cache was a direct hit, skipping save");
+	} else {
+		// get flake hash from state
+		const flakeHash = core.getState("flakeHash");
+		if (!flakeHash) {
+			core.warning("flake hash not found, not saving cache");
+			return;
+		}
+
+		// get lock hash from state
+		const lockHash = core.getState("lockHash");
+		if (!lockHash) {
+			core.warning("lock hash not found, not saving cache");
+			return;
+		}
+
+		// get public key from state
+		const publicKey = core.getState("publicKey");
+		if (!publicKey) {
+			core.warning("public key hash not found, not saving cache");
+			return;
+		}
+
+		await save(flakeHash, lockHash, publicKey);
+	}
+
+	// close proxy server
+	const proxyPID = core.getState("proxyPID");
+	if (proxyPID) {
+		core.info("stopping proxy server");
+		process.kill(parseInt(proxyPID, 10));
+	}
+
+	// print proxy stdout to debug
+	const stdout = readFileSync("/tmp/out.log", "utf8").trim();
+	if (stdout) {
+		core.debug("proxy server stdout:");
+		core.debug(stdout);
+	}
+
+	// print proxy errors if they exist
+	const stderr = readFileSync("/tmp/err.log", "utf8").trim();
+	if (stderr) {
+		core.warning("proxy server exited with errors");
+		core.info("proxy server stderr:");
+		core.info(stderr);
+	}
+}
+
+async function save(flakeHash: string, lockHash: string, publicKey: string) {
 	// make sure caching is available
 	if (!cache.isFeatureAvailable()) {
 		core.warning("cache is not available");
-		return;
-	}
-
-	// get flake hash from state
-	const flakeHash = core.getState("flakeHash");
-	if (!flakeHash) {
-		core.warning("flake hash not found, not saving cache");
-		return;
-	}
-
-	// get public key from state
-	const publicKey = core.getState("publicKey");
-	if (!publicKey) {
-		core.warning("public key hash not found, not saving cache");
 		return;
 	}
 
@@ -109,47 +148,11 @@ async function main() {
 		core.warning(`failed to copy some store paths (exit code ${copy})`);
 	}
 
-	// get hash of cache
-	const cacheHash = (
-		await exec.getExecOutput(
-			"nix",
-			["hash", "path", "--type", "sha256", "/tmp/nix-cache"],
-			{
-				silent: true,
-			},
-		)
-	).stdout
-		.trim()
-		.split("sha256-")[1];
-	core.info(`cache hash: ${cacheHash}`);
-
 	// save cache
 	await cache.saveCache(
 		["/tmp/nix-cache", "/tmp/.secret-key"],
-		`nix-store-${flakeHash}-${cacheHash}`,
+		`nix-store-${flakeHash}-${lockHash}`,
 	);
-
-	// close proxy server
-	const proxyPID = core.getState("proxyPID");
-	if (proxyPID) {
-		core.info("stopping proxy server");
-		process.kill(parseInt(proxyPID, 10));
-	}
-
-	// print proxy stdout to debug
-	const stdout = readFileSync("/tmp/out.log", "utf8").trim();
-	if (stdout) {
-		core.debug("proxy server stdout:");
-		core.debug(stdout);
-	}
-
-	// print proxy errors if they exist
-	const stderr = readFileSync("/tmp/err.log", "utf8").trim();
-	if (stderr) {
-		core.warning("proxy server exited with errors");
-		core.info("proxy server stderr:");
-		core.info(stderr);
-	}
 }
 
 try {

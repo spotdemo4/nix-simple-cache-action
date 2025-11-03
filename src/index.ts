@@ -29,27 +29,47 @@ async function main() {
 	const flakeHash = (
 		await exec.getExecOutput(
 			"nix",
-			["hash", "file", "--type", "sha256", "flake.lock"],
+			["hash", "file", "--type", "sha1", "--base64", "flake.nix"],
 			{
 				silent: true,
 			},
 		)
-	).stdout
-		.trim()
-		.split("sha256-")[1];
+	).stdout.trim();
 	core.info(`flake hash: ${flakeHash}`);
 	core.saveState("flakeHash", flakeHash);
+
+	// get lock hash
+	const lockHash = (
+		await exec.getExecOutput(
+			"nix",
+			["hash", "file", "--type", "sha1", "--base64", "flake.lock"],
+			{
+				silent: true,
+			},
+		)
+	).stdout.trim();
+	core.info(`lock hash: ${lockHash}`);
+	core.saveState("lockHash", lockHash);
 
 	// restore cache to tmp
 	const restore = await cache.restoreCache(
 		["/tmp/nix-cache", "/tmp/.secret-key"],
-		`nix-store-${flakeHash}`,
-		["nix-store"],
+		`nix-store-${flakeHash}-${lockHash}`,
+		[`nix-store-${flakeHash}`, "nix-store"],
 	);
-	core.setOutput("cache-hit", restore ? "true" : "false");
-	if (!restore) {
-		core.info("cache not found");
-		core.info("generating cache secret key");
+	if (restore) {
+		core.info("cache restored");
+
+		core.setOutput("cache-hit", "true");
+		core.saveState(
+			"directHit",
+			restore === `nix-store-${flakeHash}-${lockHash}`,
+		);
+	} else {
+		core.info("cache not found, generating cache secret key");
+
+		core.setOutput("cache-hit", "false");
+		core.saveState("directHit", "false");
 
 		// generate store secret key
 		const secretKey = (
