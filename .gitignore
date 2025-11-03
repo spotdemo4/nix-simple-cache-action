@@ -1,4 +1,6 @@
-# Build
+/.envrc
+
+# Node
 /node_modules/
 
 # Nix
