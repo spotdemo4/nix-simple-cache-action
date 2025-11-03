@@ -37,7 +37,6 @@
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	"files.associations": {
 		".semgrepignore": "ignore",
-		"renovate.json": "jsonc",
 		".envrc.project": "shellscript"
 	}
 }
