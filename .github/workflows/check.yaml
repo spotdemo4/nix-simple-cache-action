@@ -14,8 +14,9 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: spotdemo4/nix-simple-cache-action/.github/actions/init@main
+      - name: Initialize
+        uses: spotdemo4/nix-init@08a91698a7d25d7492b4883a37cd889db53353b1 # v1.0.2
 
-      - run: nix flake check -L
-      
-      - run: nix build .# --no-link --print-out-paths
+      - name: Run checks
+        run: nix flake check
+

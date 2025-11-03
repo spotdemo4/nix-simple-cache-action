@@ -1,6 +1,17 @@
 {
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
-	"extends": ["config:recommended", "group:allDigest"],
+
+	// self-hosted
+	"onboarding": false,
+	"requireConfig": "ignored",
+	"platform": "github",
+	"repositories": ["spotdemo4/nix-simple-cache-action"],
+	"allowedCommands": ["npm install", "npm run build", "biome migrate --write"],
+
+	// repository
+	"extends": ["config:recommended"],
+	"branchPrefix": "renovate/",
+	"dependencyDashboardTitle": "Dependency Dashboard",
 	"lockFileMaintenance": {
 		"enabled": true,
 		"automerge": true
@@ -14,9 +25,14 @@
 			"automerge": true
 		},
 		{
+			"groupName": "Nix Inputs",
+			"matchManagers": ["nix"],
+			"matchPackageNames": ["*"]
+		},
+		{
+			"groupName": "GitHub Actions",
 			"matchManagers": ["github-actions"],
-			"matchPackageNames": ["*"],
-			"groupName": "GitHub Actions"
+			"matchPackageNames": ["*"]
 		},
 		{
 			"matchManagers": ["npm"],

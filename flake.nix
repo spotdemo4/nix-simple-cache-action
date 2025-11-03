@@ -18,7 +18,7 @@
       inputs.systems.follows = "systems";
     };
     nur = {
-      url = "github:nix-community/NUR";
+      url = "github:spotdemo4/nur";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -34,27 +34,30 @@
         inherit system;
         overlays = [nur.overlays.default];
       };
-      trev = pkgs.nur.repos.trev;
+
       node = pkgs.nodejs_24; # increment as needed
-    in rec {
-      devShells.default = pkgs.mkShell {
-        packages = with pkgs; [
-          node
-          biome
-          prettier
+    in {
+      devShells = {
+        default = pkgs.mkShell {
+          packages = with pkgs; [
+            node
+            biome
+            prettier
 
-          # utils
-          trev.bumper
+            # nix
+            alejandra
+          ];
+          shellHook = pkgs.trev.shellhook.ref;
+        };
 
-          # nix
-          alejandra
-          flake-checker
-
-          # actions
-          action-validator
-          trev.renovate
-        ];
-        shellHook = trev.shellhook.ref;
+        ci = pkgs.mkShell {
+          packages = with pkgs; [
+            node
+            flake-checker
+            trev.renovate
+          ];
+          shellHook = pkgs.trev.shellhook.ref;
+        };
       };
 
       packages.default = pkgs.buildNpmPackage (finalAttrs: {
@@ -88,29 +91,42 @@
         meta.mainProgram = "nix-simple-cache-action";
       });
 
-      checks =
-        trev.lib.mkChecks {
-          lint = {
-            src = ./.;
-            nativeBuildInputs = with pkgs; [
-              biome
-              prettier
-              alejandra
-              action-validator
-              trev.renovate
-            ];
-            checkPhase = ''
-              biome check .
-              prettier --check .
-              alejandra -c flake.nix
-              action-validator .github/**/*.yaml
-              renovate-config-validator .github/renovate*.json
-            '';
-          };
-        }
-        // {
-          shell = devShells.default;
+      checks = pkgs.trev.lib.mkChecks {
+        node = {
+          src = ./.;
+          deps = with pkgs; [
+            biome
+          ];
+          script = ''
+            biome check .
+          '';
         };
+
+        nix = {
+          src = ./.;
+          deps = with pkgs; [
+            alejandra
+          ];
+          script = ''
+            alejandra -c .
+          '';
+        };
+
+        actions = {
+          src = ./.;
+          deps = with pkgs; [
+            prettier
+            action-validator
+            trev.renovate
+          ];
+          script = ''
+            prettier --check .
+            action-validator action.yaml
+            action-validator .github/**/*.yaml
+            renovate-config-validator .github/renovate.json
+          '';
+        };
+      };
 
       formatter = pkgs.alejandra;
     });

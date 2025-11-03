@@ -1,27 +1,26 @@
-name: update
+name: bump
 
 on:
   schedule:
-    - cron: "0 9 * * *" # every day at 09:00 UTC
+    - cron: "0 22 * * 1-5" # every weekday at 22:00 UTC
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  renovate:
+  bump:
     runs-on: ubuntu-latest
     steps:
       - name: Initialize
-        id: init
         uses: spotdemo4/nix-init@08a91698a7d25d7492b4883a37cd889db53353b1 # v1.0.2
         with:
-          shell: ci
           app_id: ${{ vars.CLIENT_ID }}
           private_key: ${{ secrets.PRIVATE_KEY }}
 
-      - name: Renovate
-        env:
-          RENOVATE_CONFIG_FILE: .github/renovate-global.json
-          RENOVATE_TOKEN: ${{ steps.init.outputs.token }}
-        run: renovate
+      - name: Bump
+        uses: spotdemo4/bumper@e52d8482bd743a754ce727c61d011870284ecc5d # v0.1.19
+        with:
+          files: >-
+            action.yaml
+            README.md
