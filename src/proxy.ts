@@ -12,9 +12,9 @@ import { request } from "undici";
 
 const execPromise = promisify(exec);
 
-const root = "/tmp/nix-cache";
 const hostname = "127.0.0.1";
-const port = 5001;
+const port = process.argv[2] ? parseInt(process.argv[2], 10) : 5001;
+const root = process.argv[3] ?? "/tmp/nix-cache";
 const mimeTypes: Record<string, string> = {
 	".nar": "application/x-nix-nar",
 	".nar.xz": "application/x-xz",

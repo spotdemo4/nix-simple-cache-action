@@ -1,10 +1,8 @@
-import { spawn } from "node:child_process";
-import { existsSync, openSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { writeFileSync } from "node:fs";
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
+import { startServer } from "./util.js";
 
 async function main() {
 	// make sure caching is available
@@ -13,7 +11,7 @@ async function main() {
 		return;
 	}
 
-	// print nix version
+	// get nix version
 	const version = (
 		await exec.getExecOutput("nix", ["--version"], {
 			silent: true,
@@ -21,7 +19,7 @@ async function main() {
 	).stdout.trim();
 	core.info(`nix version: ${version}`);
 
-	// print node version
+	// get node version
 	const nodeVersion = process.version;
 	core.info(`node version: ${nodeVersion}`);
 
@@ -36,7 +34,7 @@ async function main() {
 		)
 	).stdout.trim();
 	core.info(`flake hash: ${flakeHash}`);
-	core.saveState("flakeHash", flakeHash);
+	core.saveState("flake-hash", flakeHash);
 
 	// get lock hash
 	const lockHash = (
@@ -49,27 +47,30 @@ async function main() {
 		)
 	).stdout.trim();
 	core.info(`lock hash: ${lockHash}`);
-	core.saveState("lockHash", lockHash);
+	core.saveState("lock-hash", lockHash);
 
 	// restore cache to tmp
+	let hitType = "none";
 	const restore = await cache.restoreCache(
 		["/tmp/nix-cache", "/tmp/.secret-key"],
 		`nix-store-${flakeHash}-${lockHash}`,
 		[`nix-store-${flakeHash}`, "nix-store"],
 	);
-	if (restore) {
-		core.info("cache restored");
-
+	if (restore === `nix-store-${flakeHash}-${lockHash}`) {
+		hitType = "direct";
+		core.saveState("hit-type", "direct");
+		core.info("cache restored (direct hit)");
 		core.setOutput("cache-hit", "true");
-		core.saveState(
-			"directHit",
-			restore === `nix-store-${flakeHash}-${lockHash}`,
-		);
+	} else if (restore) {
+		hitType = "indirect";
+		core.saveState("hit-type", "indirect");
+		core.info("cache restored (indirect hit)");
+		core.setOutput("cache-hit", "true");
 	} else {
-		core.info("cache not found, generating cache secret key");
-
+		hitType = "none";
+		core.saveState("hit-type", "none");
+		core.info("cache not found");
 		core.setOutput("cache-hit", "false");
-		core.saveState("directHit", "false");
 
 		// generate store secret key
 		const secretKey = (
@@ -95,50 +96,22 @@ async function main() {
 		)
 	).stdout.trim();
 	core.info(`public key: ${publicKey}`);
-	core.saveState("publicKey", publicKey);
+	core.saveState("public-key", publicKey);
 
-	// determine path to proxy.js
-	const __filename = fileURLToPath(import.meta.url);
-	const __dirname = dirname(__filename);
-	if (!existsSync(`${__dirname}/proxy.js`)) {
-		core.warning(
-			`${__dirname}/proxy.js not found, skipping binary cache server`,
-		);
+	// start proxy server and get pid
+	let pid: number | undefined;
+	if (hitType === "indirect") {
+		pid = await startServer("5001", "/tmp/nix-indirect-cache");
+	} else {
+		pid = await startServer("5001", "/tmp/nix-cache");
+	}
+
+	if (!pid) {
+		core.warning("failed to start proxy server");
 		return;
 	}
 
-	// create HTTP binary cache proxy server
-	core.info("starting binary cache proxy server");
-	const out = openSync("/tmp/out.log", "as"); // Open file for stdout
-	const err = openSync("/tmp/err.log", "as"); // Open file for stderr
-	const proxy = spawn("node", [`${__dirname}/proxy.js`], {
-		detached: true,
-		stdio: ["ignore", out, err],
-	});
-	core.saveState("proxyPID", proxy.pid?.toString());
-	proxy.unref();
-
-	// wait for the proxy server to start
-	let ping = 1;
-	let attempts = 0;
-	while (ping !== 0 && attempts < 5) {
-		ping = await exec.exec(
-			"nix",
-			["store", "info", "--store", "http://127.0.0.1:5001"],
-			{ ignoreReturnCode: true, silent: true },
-		);
-		if (ping !== 0) {
-			attempts++;
-			core.info(`waiting for proxy server to start, attempt ${attempts}...`);
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-		}
-	}
-	if (attempts >= 5) {
-		core.warning("proxy server did not start.");
-		core.warning(`stdout: ${readFileSync("/tmp/out.log", "utf8")}`);
-		core.warning(`stderr: ${readFileSync("/tmp/err.log", "utf8")}`);
-		return;
-	}
+	core.saveState("pid", pid.toString());
 
 	// add cache as a substituter
 	core.exportVariable(

@@ -19636,9 +19636,9 @@ var require_undici = /* @__PURE__ */ __commonJS({ "node_modules/undici/index.js"
 //#region src/proxy.ts
 var import_undici = /* @__PURE__ */ __toESM(require_undici(), 1);
 const execPromise = promisify(exec);
-const root = "/tmp/nix-cache";
 const hostname = "127.0.0.1";
-const port = 5001;
+const port = process.argv[2] ? parseInt(process.argv[2], 10) : 5001;
+const root = process.argv[3] ?? "/tmp/nix-cache";
 const mimeTypes = {
 	".nar": "application/x-nix-nar",
 	".nar.xz": "application/x-xz",

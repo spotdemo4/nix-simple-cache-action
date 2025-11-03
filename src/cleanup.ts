@@ -1,90 +1,56 @@
-import { readFileSync } from "node:fs";
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
-import * as io from "@actions/io";
-import { request } from "undici";
-import { formatBytes } from "./util.js";
+import { loadSubstituters, startServer, stopServer } from "./util.js";
 
 async function main() {
 	// get direct hit from state
-	const directHit = core.getState("directHit");
-	if (directHit === "true") {
-		core.info("cache was a direct hit, skipping save");
-	} else {
-		// get flake hash from state
-		const flakeHash = core.getState("flakeHash");
-		if (!flakeHash) {
-			core.warning("flake hash not found, not saving cache");
-			return;
+	const hitType = core.getState("hit-type");
+	switch (hitType) {
+		case "direct":
+			core.info("cache was a direct hit, skipping save");
+			break;
+
+		case "indirect": {
+			core.info(
+				"cache was an indirect hit, creating new cache from prior cache",
+			);
+
+			const indirectPID = await startServer("5002", "/tmp/nix-cache");
+			if (!indirectPID) {
+				core.warning("failed to start proxy server");
+				break;
+			}
+
+			await loadSubstituters("5002");
+			await fixupStore();
+			await copyTo("5002");
+			await save();
+			await stopServer(indirectPID, "5002");
+
+			break;
 		}
 
-		// get lock hash from state
-		const lockHash = core.getState("lockHash");
-		if (!lockHash) {
-			core.warning("lock hash not found, not saving cache");
-			return;
-		}
+		default:
+			core.info("cache was a miss, saving cache");
 
-		// get public key from state
-		const publicKey = core.getState("publicKey");
-		if (!publicKey) {
-			core.warning("public key hash not found, not saving cache");
-			return;
-		}
+			await loadSubstituters("5001");
+			await fixupStore();
+			await copyTo("5001");
+			await save();
 
-		await save(flakeHash, lockHash, publicKey);
+			break;
 	}
 
 	// close proxy server
-	const proxyPID = core.getState("proxyPID");
-	if (proxyPID) {
-		core.info("stopping proxy server");
-		process.kill(parseInt(proxyPID, 10));
-	}
-
-	// print proxy stdout to debug
-	const stdout = readFileSync("/tmp/out.log", "utf8").trim();
-	if (stdout) {
-		core.debug("proxy server stdout:");
-		core.debug(stdout);
-	}
-
-	// print proxy errors if they exist
-	const stderr = readFileSync("/tmp/err.log", "utf8").trim();
-	if (stderr) {
-		core.warning("proxy server exited with errors");
-		core.info("proxy server stderr:");
-		core.info(stderr);
-	}
+	const pid = core.getState("pid");
+	await stopServer(parseInt(pid, 10), "5001");
 }
 
-async function save(flakeHash: string, lockHash: string, publicKey: string) {
-	// make sure caching is available
-	if (!cache.isFeatureAvailable()) {
-		core.warning("cache is not available");
-		return;
-	}
-
-	// get size of cache
-	let size = 0;
-	const du = await exec.getExecOutput("du", ["-sb", "/tmp/nix-cache"], {
-		ignoreReturnCode: true,
-		silent: true,
-	});
-	if (du.exitCode === 0) {
-		size = parseInt(du.stdout.trim(), 10);
-	}
-	core.info(`cache size: ${formatBytes(size)}`);
-
-	// delete cache if size exceeds max-size
-	const max = parseInt(core.getInput("max-size") || "1000000000", 10); // default to 1GB
-	if (size > max) {
-		core.info(`${formatBytes(size)} > max ${formatBytes(max)}, deleting cache`);
-		await io.rmRF("/tmp/nix-cache");
-	}
-
+// fixup nix store before copying
+async function fixupStore() {
 	// optimise
+	core.info("optimising");
 	await exec.exec("nix", ["store", "optimise"]);
 
 	// sign
@@ -94,6 +60,13 @@ async function save(flakeHash: string, lockHash: string, publicKey: string) {
 		["store", "sign", "--key-file", "/tmp/.secret-key", "--all"],
 		{ silent: true },
 	);
+
+	// get public key from state
+	const publicKey = core.getState("public-key");
+	if (!publicKey) {
+		core.warning("public key hash not found, not saving cache");
+		return;
+	}
 
 	// verify
 	core.info("verifying");
@@ -111,30 +84,17 @@ async function save(flakeHash: string, lockHash: string, publicKey: string) {
 			silent: true,
 		},
 	);
+}
 
-	// have proxy server load in substituters so already cached paths are not added
-	core.info("loading substituters");
-	const { statusCode, body } = await request(
-		"http://127.0.0.1:5001/substituters",
-		{
-			method: "POST",
-		},
-	);
-	if (statusCode >= 300) {
-		core.warning("failed to load substituters");
-	} else {
-		const substituters = (await body.json()) as string[];
-		core.info(`substituters: ${substituters.join(", ")}`);
-	}
-
+// copy all store paths to proxy server
+async function copyTo(port: string) {
 	// add to cache
-	core.info("adding to cache");
 	const copy = await exec.exec(
 		"nix",
 		[
 			"copy",
 			"--to",
-			"http://127.0.0.1:5001?compression=zstd&parallel-compression=true",
+			`http://127.0.0.1:${port}?compression=zstd&parallel-compression=true`,
 			"--connect-timeout",
 			"60",
 			"--keep-going",
@@ -146,6 +106,29 @@ async function save(flakeHash: string, lockHash: string, publicKey: string) {
 	);
 	if (copy !== 0) {
 		core.warning(`failed to copy some store paths (exit code ${copy})`);
+	}
+}
+
+// save /tmp/nix-cache to action cache
+async function save() {
+	// make sure caching is available
+	if (!cache.isFeatureAvailable()) {
+		core.warning("cache is not available");
+		return;
+	}
+
+	// get flake hash from state
+	const flakeHash = core.getState("flake-hash");
+	if (!flakeHash) {
+		core.warning("flake hash not found, not saving cache");
+		return;
+	}
+
+	// get lock hash from state
+	const lockHash = core.getState("lock-hash");
+	if (!lockHash) {
+		core.warning("lock hash not found, not saving cache");
+		return;
 	}
 
 	// save cache
