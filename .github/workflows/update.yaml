@@ -22,6 +22,6 @@ jobs:
 
       - name: Renovate
         env:
-          RENOVATE_CONFIG_FILE: .github/renovate.jsonc
+          RENOVATE_CONFIG_FILE: .github/renovate.json
           RENOVATE_TOKEN: ${{ steps.init.outputs.token }}
         run: renovate

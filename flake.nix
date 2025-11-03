@@ -121,7 +121,7 @@
             prettier --check .
             action-validator action.yaml
             action-validator .github/**/*.yaml
-            renovate-config-validator .github/renovate.jsonc
+            renovate-config-validator .github/renovate.json
           '';
         };
       };

@@ -6,7 +6,7 @@
 		"useIgnoreFile": true
 	},
 	"files": {
-		"includes": ["**/*.ts", "**/*.js", "**/*.json", "**/*.jsonc", "!dist"],
+		"includes": ["**/*.ts", "**/*.js", "**/*.json", "!dist"],
 		"ignoreUnknown": true
 	},
 	"formatter": {
@@ -30,6 +30,11 @@
 			"source": {
 				"organizeImports": "on"
 			}
+		}
+	},
+	"json": {
+		"parser": {
+			"allowComments": true
 		}
 	}
 }
