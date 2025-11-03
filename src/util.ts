@@ -48,8 +48,8 @@ export async function startServer(port: string, root: string) {
 	// starting failed
 	if (attempts >= 5) {
 		core.warning("proxy server did not start.");
-		core.warning(`stdout: ${readFileSync("/tmp/out.log", "utf8")}`);
-		core.warning(`stderr: ${readFileSync("/tmp/err.log", "utf8")}`);
+		core.warning(`stdout: ${readFileSync(`/tmp/out-${port}.log`, "utf8")}`);
+		core.warning(`stderr: ${readFileSync(`/tmp/err-${port}.log`, "utf8")}`);
 		return;
 	}
 
