@@ -32,7 +32,10 @@
     utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {
         inherit system;
-        overlays = [nur.overlays.default];
+        overlays = [
+          nur.overlays.packages
+          nur.overlays.libs
+        ];
       };
 
       node = pkgs.nodejs_24; # increment as needed
@@ -45,7 +48,7 @@
             prettier
             alejandra
           ];
-          shellHook = pkgs.trev.shellhook.ref;
+          shellHook = pkgs.shellhook.ref;
         };
 
         ci = pkgs.mkShell {
@@ -53,7 +56,7 @@
             node
             biome
             flake-checker
-            trev.renovate
+            renovate
           ];
         };
       };
@@ -89,7 +92,7 @@
         meta.mainProgram = "nix-simple-cache-action";
       });
 
-      checks = pkgs.trev.lib.mkChecks {
+      checks = pkgs.lib.mkChecks {
         node = {
           src = ./.;
           deps = with pkgs; [
@@ -115,7 +118,7 @@
           deps = with pkgs; [
             prettier
             action-validator
-            trev.renovate
+            renovate
           ];
           script = ''
             prettier --check .
