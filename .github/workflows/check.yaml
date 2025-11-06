@@ -14,8 +14,13 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Initialize
-        uses: spotdemo4/nix-init@448722165938617ea8b814719c33d73122390c9a # v1.2.0
+      - uses: DeterminateSystems/nix-installer-action@786fff0690178f1234e4e1fe9b536e94f5433196 # v20
+        with:
+          extra-conf: |
+            accept-flake-config = true
+            download-buffer-size = 524288000
+
+      - uses: spotdemo4/nix-simple-cache-action@main
 
       - name: Run checks
         run: nix flake check

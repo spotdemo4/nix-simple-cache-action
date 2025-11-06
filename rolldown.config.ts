@@ -2,9 +2,9 @@ import { defineConfig } from "rolldown";
 
 export default defineConfig([
 	{
-		input: "src/index.ts",
+		input: "src/start.ts",
 		output: {
-			file: "dist/index.js",
+			file: "dist/start.js",
 		},
 		platform: "node",
 	},
@@ -16,9 +16,9 @@ export default defineConfig([
 		platform: "node",
 	},
 	{
-		input: "src/proxy.ts",
+		input: "src/server/server.ts",
 		output: {
-			file: "dist/proxy.js",
+			file: "dist/server.js",
 		},
 		platform: "node",
 	},

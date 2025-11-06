@@ -5,17 +5,11 @@ branding:
   icon: chevron-up
   color: yellow
 
-inputs:
-  max-size:
-    description: Maximum size of the cache in bytes.
-    default: "1000000000" # 1GB
-    required: false
-
 outputs:
   cache-hit:
     description: A string value to indicate if the cache was found.
 
 runs:
   using: node24
-  main: dist/index.js
+  main: dist/start.js
   post: dist/cleanup.js

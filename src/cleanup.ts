@@ -1,117 +1,78 @@
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
-import * as exec from "@actions/exec";
 import * as github from "@actions/github";
 import * as io from "@actions/io";
-import { loadSubstituters, stopServer } from "./util.js";
+import * as nix from "./nix/nix.js";
+import * as server from "./server/client.js";
+import { cachePath, keyPath } from "./var.js";
 
 async function main() {
-	// get direct hit from state
-	const hitType = core.getState("hit-type");
-	switch (hitType) {
-		case "direct":
-			core.info("cache was a direct hit, skipping save");
-			break;
-
-		case "indirect": {
-			core.info("cache was an indirect hit, creating new cache");
-
-			await io.rmRF("/tmp/nix-cache");
-
-			await loadSubstituters("5001");
-			await fixupStore();
-			await copyTo("5001");
-			await save();
-
-			break;
-		}
-
-		default:
-			core.info("cache was a miss, saving cache");
-
-			await loadSubstituters("5001");
-			await fixupStore();
-			await copyTo("5001");
-			await save();
-
-			break;
-	}
-
-	// close proxy server
-	const pid = core.getState("pid");
-	await stopServer(parseInt(pid, 10), "5001");
-}
-
-// fixup nix store before copying
-async function fixupStore() {
-	// optimise
-	core.info("optimising");
-	await exec.exec("nix", ["store", "optimise"]);
-
-	// sign
-	core.info("signing");
-	await exec.exec(
-		"nix",
-		["store", "sign", "--key-file", "/tmp/.secret-key", "--all"],
-		{ silent: true },
-	);
-
-	// get public key from state
-	const publicKey = core.getState("public-key");
-	if (!publicKey) {
-		core.warning("public key hash not found, not saving cache");
-		return;
-	}
-
-	// verify
-	core.info("verifying");
-	await exec.exec(
-		"nix",
-		[
-			"store",
-			"verify",
-			"--repair",
-			"--trusted-public-keys",
-			publicKey,
-			"--all",
-		],
-		{
-			silent: true,
-		},
-	);
-}
-
-// copy all store paths to proxy server
-async function copyTo(port: string) {
-	// add to cache
-	const copy = await exec.exec(
-		"nix",
-		[
-			"copy",
-			"--to",
-			`http://127.0.0.1:${port}?compression=zstd&parallel-compression=true`,
-			"--connect-timeout",
-			"60",
-			"--keep-going",
-			"--all",
-		],
-		{
-			ignoreReturnCode: true,
-		},
-	);
-	if (copy !== 0) {
-		core.warning(`failed to copy some store paths (exit code ${copy})`);
-	}
-}
-
-// save /tmp/nix-cache to action cache
-async function save() {
 	// make sure caching is available
 	if (!cache.isFeatureAvailable()) {
 		core.warning("cache is not available");
 		return;
 	}
 
+	// get hit type
+	const hitType = core.getState("hit-type");
+	if (hitType === "direct") {
+		core.info("cache was a direct hit, skipping save");
+		await server.stop();
+		return;
+	}
+
+	// get nix store paths in local and cache
+	const localPaths = await nix.store.list();
+	const cachePaths = await nix.store.list(`file://${cachePath}`);
+
+	// get all paths that are in local but not in cache
+	const pathsToCopy = localPaths.filter((p) => !cachePaths.includes(p));
+	core.info(`found ${pathsToCopy.length} paths to copy to cache`);
+
+	// get all substituters
+	const substituters = await nix.substituters();
+
+	// copy paths to cache
+	pathLoop: for (const path of pathsToCopy) {
+		for (const sub of substituters) {
+			const check = await nix.store.check(sub, path);
+			if (check) {
+				core.info(`path ${path} found in substituter ${sub}, skipping copy`);
+				continue pathLoop;
+			}
+		}
+
+		core.info(`copying ${path} to cache`);
+		await nix.store.sign(path);
+		await nix.store.copy(path, `file://${cachePath}`);
+	}
+
+	if (hitType === "none") {
+		core.info("no cache was restored, skipping cleanup");
+		await server.stop();
+		await save();
+		return;
+	}
+
+	// get all paths that are in cache but not in local
+	const pathsToRemove = cachePaths.filter((p) => !localPaths.includes(p));
+	core.info(`found ${pathsToRemove.length} old paths to remove from cache`);
+
+	// remove paths from cache
+	for (const path of pathsToRemove) {
+		core.info(`removing ${path} from cache`);
+		const info = await nix.store.info(`file://${cachePath}`, path);
+
+		await io.rmRF(`${cachePath}/${info.narInfo}`);
+		await io.rmRF(`${cachePath}/${info.url}`);
+	}
+
+	await save();
+	await server.stop();
+}
+
+// save to action cache
+async function save() {
 	// get flake hash from state
 	const flakeHash = core.getState("flake-hash");
 	if (!flakeHash) {
@@ -128,8 +89,8 @@ async function save() {
 
 	// save cache
 	await cache.saveCache(
-		["/tmp/nix-cache", "/tmp/.secret-key"],
-		`nix-cache-${flakeHash}-${lockHash}-${github.context.job}`,
+		[cachePath, keyPath],
+		`nix-cache-${flakeHash}-${lockHash}-${github.context.workflow}-${github.context.job}`,
 	);
 }
 
