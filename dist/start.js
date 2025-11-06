@@ -80424,10 +80424,7 @@ async function ping(store) {
 		"info",
 		"--store",
 		store
-	], {
-		ignoreReturnCode: true,
-		silent: true
-	}) === 0;
+	], { ignoreReturnCode: true }) === 0;
 }
 
 //#endregion
@@ -80485,7 +80482,7 @@ async function start() {
 	let ping$1 = false;
 	let attempts = 0;
 	while (!ping$1 && attempts < 5) {
-		ping$1 = await ping(port$1);
+		ping$1 = await ping(`http://127.0.0.1:${port$1}`);
 		if (!ping$1) {
 			attempts++;
 			import_core$1.info(`waiting for proxy server to start, attempt ${attempts}...`);

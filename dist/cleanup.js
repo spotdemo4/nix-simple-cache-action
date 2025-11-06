@@ -80728,7 +80728,7 @@ async function sign(path$17) {
 		"--key-file",
 		keyPath,
 		path$17
-	], { silent: true });
+	], {});
 }
 async function list(store) {
 	if (store?.startsWith("file://")) {
@@ -80760,7 +80760,7 @@ async function copy(path$17, store) {
 		"--to",
 		store,
 		path$17
-	], { silent: true });
+	], {});
 }
 async function info(store, path$17) {
 	const e = await import_exec$1.getExecOutput("nix", [
