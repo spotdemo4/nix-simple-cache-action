@@ -100469,7 +100469,11 @@ async function main() {
 async function check(path$17, substituter) {
 	substituter = substituter.replace(/\/+$/, "");
 	const narInfo = `${getTextBetween(path$17, "/nix/store/", "-")}.narinfo`;
-	return (await (0, import_undici.request)(`${substituter}/${narInfo}`, { method: "HEAD" })).statusCode < 300;
+	return (await (0, import_undici.request)(`${substituter}/${narInfo}`, {
+		method: "HEAD",
+		reset: true,
+		bodyTimeout: 0
+	})).statusCode < 300;
 }
 async function save() {
 	const flakeHash = import_core.getState("flake-hash");

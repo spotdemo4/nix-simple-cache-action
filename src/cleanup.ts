@@ -108,7 +108,11 @@ async function main() {
 export async function check(path: string, substituter: string) {
 	substituter = substituter.replace(/\/+$/, ""); // remove trailing slash
 	const narInfo = `${getTextBetween(path, "/nix/store/", "-")}.narinfo`;
-	const res = await request(`${substituter}/${narInfo}`, { method: "HEAD" });
+	const res = await request(`${substituter}/${narInfo}`, {
+		method: "HEAD",
+		reset: true,
+		bodyTimeout: 0,
+	});
 
 	return res.statusCode < 300;
 }
