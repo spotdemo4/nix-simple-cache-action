@@ -100392,13 +100392,7 @@ async function substituters() {
 
 //#endregion
 //#region src/server/client.ts
-async function stop() {
-	const pidStr = import_core$1.getState("pid");
-	if (!pidStr) {
-		import_core$1.warning("no proxy server running");
-		return;
-	}
-	const pid = parseInt(pidStr, 10);
+async function stop(pid) {
 	process.kill(pid);
 	const stdout = readFileSync(logPath, "utf8").trim();
 	if (stdout) {
@@ -100421,10 +100415,16 @@ async function main() {
 		import_core.warning("cache is not available");
 		return;
 	}
+	const pidStr = import_core.getState("pid");
+	if (!pidStr) {
+		import_core.warning("no proxy server running");
+		return;
+	}
+	const pid = parseInt(pidStr, 10);
 	const hitType = import_core.getState("hit-type");
 	if (hitType === "direct") {
 		import_core.info("cache was a direct hit, skipping save");
-		await stop();
+		await stop(pid);
 		return;
 	}
 	const localPaths = await list();
@@ -100445,7 +100445,7 @@ async function main() {
 	}
 	if (hitType === "none") {
 		import_core.info("no cache was restored, skipping cleanup");
-		await stop();
+		await stop(pid);
 		await save();
 		return;
 	}
@@ -100458,7 +100458,7 @@ async function main() {
 		await import_io.rmRF(`${cachePath}/${info$2.url}`);
 	}
 	await save();
-	await stop();
+	await stop(pid);
 }
 async function check(path$17, substituter) {
 	substituter = substituter.replace(/\/+$/, "");

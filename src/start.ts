@@ -1,3 +1,4 @@
+import * as fs from "node:fs";
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
@@ -9,6 +10,12 @@ async function main() {
 	// make sure caching is available
 	if (!cache.isFeatureAvailable()) {
 		core.warning("cache is not available");
+		return;
+	}
+
+	// make sure repo contains flake.nix and flake.lock
+	if (!fs.existsSync("flake.nix") || !fs.existsSync("flake.lock")) {
+		core.warning("flake.nix or flake.lock not found in repository root");
 		return;
 	}
 

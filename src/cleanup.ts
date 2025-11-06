@@ -15,11 +15,19 @@ async function main() {
 		return;
 	}
 
+	// get proxy server pid to make sure it's running
+	const pidStr = core.getState("pid");
+	if (!pidStr) {
+		core.warning("no proxy server running");
+		return;
+	}
+	const pid = parseInt(pidStr, 10);
+
 	// get hit type
 	const hitType = core.getState("hit-type");
 	if (hitType === "direct") {
 		core.info("cache was a direct hit, skipping save");
-		await server.stop();
+		await server.stop(pid);
 		return;
 	}
 
@@ -62,7 +70,7 @@ async function main() {
 
 	if (hitType === "none") {
 		core.info("no cache was restored, skipping cleanup");
-		await server.stop();
+		await server.stop(pid);
 		await save();
 		return;
 	}
@@ -81,7 +89,7 @@ async function main() {
 	}
 
 	await save();
-	await server.stop();
+	await server.stop(pid);
 }
 
 // check if path exists in substituter

@@ -61,15 +61,8 @@ export async function start() {
 }
 
 // close proxy server
-export async function stop() {
-	const pidStr = core.getState("pid");
-	if (!pidStr) {
-		core.warning("no proxy server running");
-		return;
-	}
-
+export async function stop(pid: number) {
 	// kill process
-	const pid = parseInt(pidStr, 10);
 	process.kill(pid);
 
 	// print proxy stdout to debug

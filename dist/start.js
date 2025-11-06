@@ -1,4 +1,5 @@
 import { createRequire } from "node:module";
+import * as fs from "node:fs";
 import { existsSync, openSync, readFileSync, writeFileSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { dirname } from "node:path";
@@ -205,14 +206,14 @@ var require_file_command = /* @__PURE__ */ __commonJS({ "node_modules/@actions/c
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
 	const crypto$7 = __importStar$32(__require("crypto"));
-	const fs$6 = __importStar$32(__require("fs"));
+	const fs$7 = __importStar$32(__require("fs"));
 	const os$3 = __importStar$32(__require("os"));
 	const utils_1$4 = require_utils$6();
 	function issueFileCommand(command, message) {
 		const filePath = process.env[`GITHUB_${command}`];
 		if (!filePath) throw new Error(`Unable to find environment variable for file command ${command}`);
-		if (!fs$6.existsSync(filePath)) throw new Error(`Missing file at path: ${filePath}`);
-		fs$6.appendFileSync(filePath, `${(0, utils_1$4.toCommandValue)(message)}${os$3.EOL}`, { encoding: "utf8" });
+		if (!fs$7.existsSync(filePath)) throw new Error(`Missing file at path: ${filePath}`);
+		fs$7.appendFileSync(filePath, `${(0, utils_1$4.toCommandValue)(message)}${os$3.EOL}`, { encoding: "utf8" });
 	}
 	exports.issueFileCommand = issueFileCommand;
 	function prepareKeyValueMessage(key, value) {
@@ -15594,12 +15595,12 @@ var require_io_util$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/exec
 	var _a$1;
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
-	const fs$5 = __importStar$29(__require("fs"));
+	const fs$6 = __importStar$29(__require("fs"));
 	const path$13 = __importStar$29(__require("path"));
-	_a$1 = fs$5.promises, exports.chmod = _a$1.chmod, exports.copyFile = _a$1.copyFile, exports.lstat = _a$1.lstat, exports.mkdir = _a$1.mkdir, exports.open = _a$1.open, exports.readdir = _a$1.readdir, exports.readlink = _a$1.readlink, exports.rename = _a$1.rename, exports.rm = _a$1.rm, exports.rmdir = _a$1.rmdir, exports.stat = _a$1.stat, exports.symlink = _a$1.symlink, exports.unlink = _a$1.unlink;
+	_a$1 = fs$6.promises, exports.chmod = _a$1.chmod, exports.copyFile = _a$1.copyFile, exports.lstat = _a$1.lstat, exports.mkdir = _a$1.mkdir, exports.open = _a$1.open, exports.readdir = _a$1.readdir, exports.readlink = _a$1.readlink, exports.rename = _a$1.rename, exports.rm = _a$1.rm, exports.rmdir = _a$1.rmdir, exports.stat = _a$1.stat, exports.symlink = _a$1.symlink, exports.unlink = _a$1.unlink;
 	exports.IS_WINDOWS = process.platform === "win32";
 	exports.UV_FS_O_EXLOCK = 268435456;
-	exports.READONLY = fs$5.constants.O_RDONLY;
+	exports.READONLY = fs$6.constants.O_RDONLY;
 	function exists$1(fsPath) {
 		return __awaiter$24(this, void 0, void 0, function* () {
 			try {
@@ -18406,7 +18407,7 @@ var require_internal_globber = /* @__PURE__ */ __commonJS({ "node_modules/@actio
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.DefaultGlobber = void 0;
 	const core$7 = __importStar$18(require_core());
-	const fs$4 = __importStar$18(__require("fs"));
+	const fs$5 = __importStar$18(__require("fs"));
 	const globOptionsHelper = __importStar$18(require_internal_glob_options_helper());
 	const path$5 = __importStar$18(__require("path"));
 	const patternHelper = __importStar$18(require_internal_pattern_helper());
@@ -18456,7 +18457,7 @@ var require_internal_globber = /* @__PURE__ */ __commonJS({ "node_modules/@actio
 				for (const searchPath of patternHelper.getSearchPaths(patterns)) {
 					core$7.debug(`Search path '${searchPath}'`);
 					try {
-						yield __await$1(fs$4.promises.lstat(searchPath));
+						yield __await$1(fs$5.promises.lstat(searchPath));
 					} catch (err) {
 						if (err.code === "ENOENT") continue;
 						throw err;
@@ -18475,7 +18476,7 @@ var require_internal_globber = /* @__PURE__ */ __commonJS({ "node_modules/@actio
 						if (match$1 & internal_match_kind_1.MatchKind.Directory) yield yield __await$1(item.path);
 						else if (!partialMatch$1) continue;
 						const childLevel = item.level + 1;
-						const childItems = (yield __await$1(fs$4.promises.readdir(item.path))).map((x) => new internal_search_state_1.SearchState(path$5.join(item.path, x), childLevel));
+						const childItems = (yield __await$1(fs$5.promises.readdir(item.path))).map((x) => new internal_search_state_1.SearchState(path$5.join(item.path, x), childLevel));
 						stack.push(...childItems.reverse());
 					} else if (match$1 & internal_match_kind_1.MatchKind.File) yield yield __await$1(item.path);
 				}
@@ -18502,7 +18503,7 @@ var require_internal_globber = /* @__PURE__ */ __commonJS({ "node_modules/@actio
 			return __awaiter$18(this, void 0, void 0, function* () {
 				let stats;
 				if (options.followSymbolicLinks) try {
-					stats = yield fs$4.promises.stat(item.path);
+					stats = yield fs$5.promises.stat(item.path);
 				} catch (err) {
 					if (err.code === "ENOENT") {
 						if (options.omitBrokenSymbolicLinks) {
@@ -18513,9 +18514,9 @@ var require_internal_globber = /* @__PURE__ */ __commonJS({ "node_modules/@actio
 					}
 					throw err;
 				}
-				else stats = yield fs$4.promises.lstat(item.path);
+				else stats = yield fs$5.promises.lstat(item.path);
 				if (stats.isDirectory() && options.followSymbolicLinks) {
-					const realPath = yield fs$4.promises.realpath(item.path);
+					const realPath = yield fs$5.promises.realpath(item.path);
 					while (traversalChain.length >= item.level) traversalChain.pop();
 					if (traversalChain.some((x) => x === realPath)) {
 						core$7.debug(`Symlink cycle detected for path '${item.path}' and realpath '${realPath}'`);
@@ -18639,12 +18640,12 @@ var require_io_util = /* @__PURE__ */ __commonJS({ "node_modules/@actions/cache/
 	var _a;
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
-	const fs$3 = __importStar$17(__require("fs"));
+	const fs$4 = __importStar$17(__require("fs"));
 	const path$4 = __importStar$17(__require("path"));
-	_a = fs$3.promises, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.open = _a.open, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rm = _a.rm, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
+	_a = fs$4.promises, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.open = _a.open, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rm = _a.rm, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
 	exports.IS_WINDOWS = process.platform === "win32";
 	exports.UV_FS_O_EXLOCK = 268435456;
-	exports.READONLY = fs$3.constants.O_RDONLY;
+	exports.READONLY = fs$4.constants.O_RDONLY;
 	function exists(fsPath) {
 		return __awaiter$16(this, void 0, void 0, function* () {
 			try {
@@ -19999,7 +20000,7 @@ var require_cacheUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/cac
 	const glob = __importStar$15(require_glob());
 	const io$1 = __importStar$15(require_io());
 	const crypto$3 = __importStar$15(__require("crypto"));
-	const fs$2 = __importStar$15(__require("fs"));
+	const fs$3 = __importStar$15(__require("fs"));
 	const path$2 = __importStar$15(__require("path"));
 	const semver = __importStar$15(require_semver());
 	const util$19 = __importStar$15(__require("util"));
@@ -20023,7 +20024,7 @@ var require_cacheUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/cac
 	}
 	exports.createTempDirectory = createTempDirectory;
 	function getArchiveFileSizeInBytes(filePath) {
-		return fs$2.statSync(filePath).size;
+		return fs$3.statSync(filePath).size;
 	}
 	exports.getArchiveFileSizeInBytes = getArchiveFileSizeInBytes;
 	function resolvePaths(patterns) {
@@ -20058,7 +20059,7 @@ var require_cacheUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/cac
 	exports.resolvePaths = resolvePaths;
 	function unlinkFile(filePath) {
 		return __awaiter$14(this, void 0, void 0, function* () {
-			return util$19.promisify(fs$2.unlink)(filePath);
+			return util$19.promisify(fs$3.unlink)(filePath);
 		});
 	}
 	exports.unlinkFile = unlinkFile;
@@ -20100,7 +20101,7 @@ var require_cacheUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/cac
 	exports.getCacheFileName = getCacheFileName;
 	function getGnuTarPathOnWindows() {
 		return __awaiter$14(this, void 0, void 0, function* () {
-			if (fs$2.existsSync(constants_1$3.GnuTarPathOnWindows)) return constants_1$3.GnuTarPathOnWindows;
+			if (fs$3.existsSync(constants_1$3.GnuTarPathOnWindows)) return constants_1$3.GnuTarPathOnWindows;
 			return (yield getVersion("tar")).toLowerCase().includes("gnu tar") ? io$1.which("tar") : "";
 		});
 	}
@@ -58530,7 +58531,7 @@ var require_downloadUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/
 	const http_client_1$3 = require_lib();
 	const storage_blob_1 = require_commonjs$2();
 	const buffer = __importStar$7(__require("buffer"));
-	const fs$1 = __importStar$7(__require("fs"));
+	const fs$2 = __importStar$7(__require("fs"));
 	const stream$2 = __importStar$7(__require("stream"));
 	const util$17 = __importStar$7(__require("util"));
 	const utils$3 = __importStar$7(require_cacheUtils());
@@ -58649,7 +58650,7 @@ var require_downloadUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/
 	*/
 	function downloadCacheHttpClient(archiveLocation, archivePath) {
 		return __awaiter$10(this, void 0, void 0, function* () {
-			const writeStream$2 = fs$1.createWriteStream(archivePath);
+			const writeStream$2 = fs$2.createWriteStream(archivePath);
 			const httpClient$1 = new http_client_1$3.HttpClient("actions/cache");
 			const downloadResponse = yield (0, requestUtils_1$1.retryHttpClientResponse)("downloadCache", () => __awaiter$10(this, void 0, void 0, function* () {
 				return httpClient$1.get(archiveLocation);
@@ -58677,7 +58678,7 @@ var require_downloadUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/
 	function downloadCacheHttpClientConcurrent(archiveLocation, archivePath, options) {
 		var _a$2;
 		return __awaiter$10(this, void 0, void 0, function* () {
-			const archiveDescriptor = yield fs$1.promises.open(archivePath, "w");
+			const archiveDescriptor = yield fs$2.promises.open(archivePath, "w");
 			const httpClient$1 = new http_client_1$3.HttpClient("actions/cache", void 0, {
 				socketTimeout: options.timeoutInMs,
 				keepAlive: true
@@ -58775,7 +58776,7 @@ var require_downloadUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/
 			} else {
 				const maxSegmentSize = Math.min(134217728, buffer.constants.MAX_LENGTH);
 				const downloadProgress = new DownloadProgress(contentLength);
-				const fd = fs$1.openSync(archivePath, "w");
+				const fd = fs$2.openSync(archivePath, "w");
 				try {
 					downloadProgress.startDisplayTimer();
 					const controller = new abort_controller_1.AbortController();
@@ -58792,11 +58793,11 @@ var require_downloadUtils = /* @__PURE__ */ __commonJS({ "node_modules/@actions/
 						if (result === "timeout") {
 							controller.abort();
 							throw new Error("Aborting cache download as the download time exceeded the timeout.");
-						} else if (Buffer.isBuffer(result)) fs$1.writeFileSync(fd, result);
+						} else if (Buffer.isBuffer(result)) fs$2.writeFileSync(fd, result);
 					}
 				} finally {
 					downloadProgress.stopDisplayTimer();
-					fs$1.closeSync(fd);
+					fs$2.closeSync(fd);
 				}
 			}
 		});
@@ -59078,7 +59079,7 @@ var require_cacheHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@action
 	const core$1 = __importStar$5(require_core());
 	const http_client_1$2 = require_lib();
 	const auth_1$1 = require_auth();
-	const fs = __importStar$5(__require("fs"));
+	const fs$1 = __importStar$5(__require("fs"));
 	const url_1 = __require("url");
 	const utils$2 = __importStar$5(require_cacheUtils());
 	const uploadUtils_1 = require_uploadUtils();
@@ -59189,7 +59190,7 @@ var require_cacheHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@action
 		return __awaiter$9(this, void 0, void 0, function* () {
 			const fileSize = utils$2.getArchiveFileSizeInBytes(archivePath);
 			const resourceUrl = getCacheApiUrl(`caches/${cacheId.toString()}`);
-			const fd = fs.openSync(archivePath, "r");
+			const fd = fs$1.openSync(archivePath, "r");
 			const uploadOptions = (0, options_1.getUploadOptions)(options);
 			const concurrency = utils$2.assertDefined("uploadConcurrency", uploadOptions.uploadConcurrency);
 			const maxChunkSize = utils$2.assertDefined("uploadChunkSize", uploadOptions.uploadChunkSize);
@@ -59203,7 +59204,7 @@ var require_cacheHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@action
 						const start$1 = offset;
 						const end = offset + chunkSize - 1;
 						offset += maxChunkSize;
-						yield uploadChunk(httpClient$1, resourceUrl, () => fs.createReadStream(archivePath, {
+						yield uploadChunk(httpClient$1, resourceUrl, () => fs$1.createReadStream(archivePath, {
 							fd,
 							start: start$1,
 							end,
@@ -59214,7 +59215,7 @@ var require_cacheHttpClient = /* @__PURE__ */ __commonJS({ "node_modules/@action
 					}
 				})));
 			} finally {
-				fs.closeSync(fd);
+				fs$1.closeSync(fd);
 			}
 		});
 	}
@@ -80507,6 +80508,10 @@ var import_core = /* @__PURE__ */ __toESM$1(require_core(), 1);
 async function main() {
 	if (!import_cache.isFeatureAvailable()) {
 		import_core.warning("cache is not available");
+		return;
+	}
+	if (!fs.existsSync("flake.nix") || !fs.existsSync("flake.lock")) {
+		import_core.warning("flake.nix or flake.lock not found in repository root");
 		return;
 	}
 	const version$1 = await version();
