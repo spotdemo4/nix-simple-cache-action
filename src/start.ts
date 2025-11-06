@@ -72,7 +72,6 @@ async function main() {
 		core.warning("failed to start proxy server");
 		return;
 	}
-	core.saveState("pid", pid.toString());
 
 	// add cache as a substituter
 	core.exportVariable(

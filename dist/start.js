@@ -80539,12 +80539,10 @@ async function main() {
 	const publicKey = await getPublicKey();
 	import_core.info(`public key: ${publicKey}`);
 	import_core.saveState("public-key", publicKey);
-	const pid = await start();
-	if (!pid) {
+	if (!await start()) {
 		import_core.warning("failed to start proxy server");
 		return;
 	}
-	import_core.saveState("pid", pid.toString());
 	import_core.exportVariable("NIX_CONFIG", `
             extra-substituters = http://127.0.0.1:${port}?priority=0
             extra-trusted-public-keys = ${publicKey}
