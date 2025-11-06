@@ -40,7 +40,7 @@ export async function start() {
 	let ping = false;
 	let attempts = 0;
 	while (!ping && attempts < 5) {
-		ping = await nix.store.ping(port);
+		ping = await nix.store.ping(`http://127.0.0.1:${port}`);
 
 		if (!ping) {
 			attempts++;
