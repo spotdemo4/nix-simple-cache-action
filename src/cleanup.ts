@@ -35,50 +35,25 @@ async function main() {
 	const localPaths = await nix.store.list();
 	const cachePaths = await nix.store.list(`file://${cachePath}`);
 
-	// get all paths that are in local but not in cache
-	const pathsToCheck = localPaths.filter((p) => !cachePaths.includes(p));
-	core.info(`found ${pathsToCheck.length} paths to check against substituters`);
-
 	// get all substituters
 	const substituters = await nix.substituters();
 	core.info(`substituters: ${substituters.join(", ")}`);
 
 	// check all paths in parallel
-	const pathsToCopyPromise = await Promise.allSettled(
-		pathsToCheck.map(async (path) => {
-			for (const sub of substituters) {
-				let attempts = 0;
-				while (attempts < 3) {
-					try {
-						const c = await check(path, sub);
-						if (c) return null;
-					} catch {
-						attempts++;
-						core.warning(`retrying ${path} on ${sub}, attempt ${attempts}...`);
-						await new Promise((resolve) => setTimeout(resolve, 1000));
-					}
-				}
-			}
+	let pathsToCheck = localPaths.filter((p) => !cachePaths.includes(p));
+	let pathsToCopy: string[] = [];
+	while (pathsToCheck.length > 0) {
+		core.info(`checking ${pathsToCheck.length} paths against substituters`);
 
-			return path;
-		}),
-	);
-
-	// filter results
-	const pathsToCopy: string[] = [];
-	for (const path of pathsToCopyPromise) {
-		if (path.status === "rejected") {
-			if (path.reason instanceof AggregateError) {
-				core.warning("multiple errors occurred:");
-				for (const err of path.reason.errors) {
-					core.warning(err.message);
-				}
-			} else {
-				core.warning(`error checking path: ${path.reason.message}`);
-			}
-		} else if (path.status === "fulfilled" && path.value !== null) {
-			pathsToCopy.push(path.value);
-		}
+		const checked = await checkAll(pathsToCheck, substituters);
+		pathsToCopy = pathsToCopy.concat(
+			checked
+				.filter((p) => p.state === PatchCheckState.Uncached)
+				.map((p) => p.path),
+		);
+		pathsToCheck = checked
+			.filter((p) => p.state === PatchCheckState.Failed)
+			.map((p) => p.path);
 	}
 	core.info(`found ${pathsToCopy.length} paths to copy to cache`);
 
@@ -111,6 +86,43 @@ async function main() {
 
 	await save();
 	await server.stop(pid);
+}
+
+enum PatchCheckState {
+	Uncached = 1,
+	Cached,
+	Failed,
+}
+
+type PathCheckResult = {
+	path: string;
+	state: PatchCheckState;
+};
+
+async function checkAll(paths: string[], substituters: string[]) {
+	return await Promise.all(
+		paths.map(async (path) => {
+			const pathCheck: PathCheckResult = {
+				path,
+				state: PatchCheckState.Uncached,
+			};
+
+			for (const sub of substituters) {
+				try {
+					const c = await check(path, sub);
+					if (c) {
+						pathCheck.state = PatchCheckState.Cached;
+						break;
+					}
+				} catch {
+					pathCheck.state = PatchCheckState.Failed;
+					break;
+				}
+			}
+
+			return pathCheck;
+		}),
+	);
 }
 
 // check if path exists in substituter

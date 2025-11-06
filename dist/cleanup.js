@@ -100429,29 +100429,16 @@ async function main() {
 	}
 	const localPaths = await list();
 	const cachePaths = await list(`file://${cachePath}`);
-	const pathsToCheck = localPaths.filter((p) => !cachePaths.includes(p));
-	import_core.info(`found ${pathsToCheck.length} paths to check against substituters`);
 	const substituters$1 = await substituters();
 	import_core.info(`substituters: ${substituters$1.join(", ")}`);
-	const pathsToCopyPromise = await Promise.allSettled(pathsToCheck.map(async (path$17) => {
-		for (const sub of substituters$1) {
-			let attempts = 0;
-			while (attempts < 3) try {
-				if (await check(path$17, sub)) return null;
-			} catch {
-				attempts++;
-				import_core.warning(`retrying ${path$17} on ${sub}, attempt ${attempts}...`);
-				await new Promise((resolve$1) => setTimeout(resolve$1, 1e3));
-			}
-		}
-		return path$17;
-	}));
-	const pathsToCopy = [];
-	for (const path$17 of pathsToCopyPromise) if (path$17.status === "rejected") if (path$17.reason instanceof AggregateError) {
-		import_core.warning("multiple errors occurred:");
-		for (const err of path$17.reason.errors) import_core.warning(err.message);
-	} else import_core.warning(`error checking path: ${path$17.reason.message}`);
-	else if (path$17.status === "fulfilled" && path$17.value !== null) pathsToCopy.push(path$17.value);
+	let pathsToCheck = localPaths.filter((p) => !cachePaths.includes(p));
+	let pathsToCopy = [];
+	while (pathsToCheck.length > 0) {
+		import_core.info(`checking ${pathsToCheck.length} paths against substituters`);
+		const checked = await checkAll(pathsToCheck, substituters$1);
+		pathsToCopy = pathsToCopy.concat(checked.filter((p) => p.state === PatchCheckState.Uncached).map((p) => p.path));
+		pathsToCheck = checked.filter((p) => p.state === PatchCheckState.Failed).map((p) => p.path);
+	}
 	import_core.info(`found ${pathsToCopy.length} paths to copy to cache`);
 	for (const path$17 of pathsToCopy) {
 		import_core.info(`copying ${path$17} to cache`);
@@ -100474,6 +100461,30 @@ async function main() {
 	}
 	await save();
 	await stop(pid);
+}
+var PatchCheckState = /* @__PURE__ */ function(PatchCheckState$1) {
+	PatchCheckState$1[PatchCheckState$1["Uncached"] = 1] = "Uncached";
+	PatchCheckState$1[PatchCheckState$1["Cached"] = 2] = "Cached";
+	PatchCheckState$1[PatchCheckState$1["Failed"] = 3] = "Failed";
+	return PatchCheckState$1;
+}(PatchCheckState || {});
+async function checkAll(paths, substituters$1) {
+	return await Promise.all(paths.map(async (path$17) => {
+		const pathCheck = {
+			path: path$17,
+			state: PatchCheckState.Uncached
+		};
+		for (const sub of substituters$1) try {
+			if (await check(path$17, sub)) {
+				pathCheck.state = PatchCheckState.Cached;
+				break;
+			}
+		} catch {
+			pathCheck.state = PatchCheckState.Failed;
+			break;
+		}
+		return pathCheck;
+	}));
 }
 async function check(path$17, substituter) {
 	substituter = substituter.replace(/\/+$/, "");
