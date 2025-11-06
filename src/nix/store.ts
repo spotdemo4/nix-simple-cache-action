@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as exec from "@actions/exec";
-import { request } from "undici";
+import { Pool, request } from "undici";
 import { getTextBetween } from "../util.js";
 import { keyPath } from "../var.js";
 
@@ -46,15 +46,6 @@ export async function list(store?: string) {
 	return e.stdout.trim().split("\n");
 }
 
-// check if path exists in substituter
-export async function check(path: string, substituter: string) {
-	substituter = substituter.replace(/\/+$/, ""); // remove trailing slash
-	const narInfo = `${getTextBetween(path, "/nix/store/", "-")}.narinfo`;
-	const res = await request(`${substituter}/${narInfo}`, { method: "HEAD" });
-
-	return res.statusCode < 300;
-}
-
 // copy path to store
 export async function copy(path: string, store: string) {
 	await exec.exec("nix", ["copy", "--to", store, path], {});
@@ -88,4 +79,7 @@ export async function info(store: string, path: string) {
 	pathInfo.narInfo = `${getTextBetween(path, "/nix/store/", "-")}.narinfo`;
 
 	return pathInfo;
+}
+export function check(path: string, sub: string) {
+	throw new Error("Function not implemented.");
 }

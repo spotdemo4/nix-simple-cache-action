@@ -2,8 +2,10 @@ import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import * as io from "@actions/io";
+import { request } from "undici";
 import * as nix from "./nix/nix.js";
 import * as server from "./server/client.js";
+import { getTextBetween } from "./util.js";
 import { cachePath, keyPath } from "./var.js";
 
 async function main() {
@@ -26,22 +28,35 @@ async function main() {
 	const cachePaths = await nix.store.list(`file://${cachePath}`);
 
 	// get all paths that are in local but not in cache
-	const pathsToCopy = localPaths.filter((p) => !cachePaths.includes(p));
-	core.info(`found ${pathsToCopy.length} paths to copy to cache`);
+	const pathsToCheck = localPaths.filter((p) => !cachePaths.includes(p));
+	core.info(`found ${pathsToCheck.length} paths to check against substituters`);
 
 	// get all substituters
 	const substituters = await nix.substituters();
+	core.info(`substituters: ${substituters.join(", ")}`);
+
+	// check which paths need to be copied to cache
+	const pathsToCopy = await Promise.allSettled(
+		pathsToCheck.map(async (path) => {
+			for (const sub of substituters) {
+				const c = await check(path, sub);
+				if (c) {
+					return null;
+				}
+			}
+			return path;
+		}),
+	).then((results) =>
+		results
+			.filter(
+				(result) => result.status === "fulfilled" && result.value !== null,
+			)
+			.map((result) => result.status as string),
+	);
+	core.info(`found ${pathsToCopy.length} paths to copy to cache`);
 
 	// copy paths to cache
-	pathLoop: for (const path of pathsToCopy) {
-		for (const sub of substituters) {
-			const check = await nix.store.check(path, sub);
-			if (check) {
-				core.info(`path ${path} found in substituter ${sub}, skipping copy`);
-				continue pathLoop;
-			}
-		}
-
+	for (const path of pathsToCopy) {
 		core.info(`copying ${path} to cache`);
 		await nix.store.sign(path);
 		await nix.store.copy(path, `file://${cachePath}`);
@@ -69,6 +84,15 @@ async function main() {
 
 	await save();
 	await server.stop();
+}
+
+// check if path exists in substituter
+export async function check(path: string, substituter: string) {
+	substituter = substituter.replace(/\/+$/, ""); // remove trailing slash
+	const narInfo = `${getTextBetween(path, "/nix/store/", "-")}.narinfo`;
+	const res = await request(`${substituter}/${narInfo}`, { method: "HEAD" });
+
+	return res.statusCode < 300;
 }
 
 // save to action cache

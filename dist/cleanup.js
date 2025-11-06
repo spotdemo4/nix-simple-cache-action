@@ -80697,18 +80697,6 @@ var require_io = /* @__PURE__ */ __commonJS({ "node_modules/@actions/io/lib/io.j
 }) });
 
 //#endregion
-//#region src/var.ts
-var import_io = /* @__PURE__ */ __toESM$1(require_io(), 1);
-var import_github = /* @__PURE__ */ __toESM$1(require_github(), 1);
-var import_cache = /* @__PURE__ */ __toESM$1(require_cache$4(), 1);
-var import_core$1 = /* @__PURE__ */ __toESM$1(require_core(), 1);
-var import_exec$1 = /* @__PURE__ */ __toESM$1(require_exec(), 1);
-const cachePath = "/tmp/nix-cache";
-const keyPath = "/tmp/.secret-key";
-const logPath = "/tmp/out.log";
-const errPath = "/tmp/err.log";
-
-//#endregion
 //#region node_modules/undici/lib/core/symbols.js
 var require_symbols = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/core/symbols.js": ((exports, module) => {
 	module.exports = {
@@ -100310,8 +100298,20 @@ var require_undici = /* @__PURE__ */ __commonJS({ "node_modules/undici/index.js"
 }) });
 
 //#endregion
-//#region src/util.ts
+//#region src/var.ts
 var import_undici = /* @__PURE__ */ __toESM$1(require_undici(), 1);
+var import_io = /* @__PURE__ */ __toESM$1(require_io(), 1);
+var import_github = /* @__PURE__ */ __toESM$1(require_github(), 1);
+var import_cache = /* @__PURE__ */ __toESM$1(require_cache$4(), 1);
+var import_core$1 = /* @__PURE__ */ __toESM$1(require_core(), 1);
+var import_exec$1 = /* @__PURE__ */ __toESM$1(require_exec(), 1);
+const cachePath = "/tmp/nix-cache";
+const keyPath = "/tmp/.secret-key";
+const logPath = "/tmp/out.log";
+const errPath = "/tmp/err.log";
+
+//#endregion
+//#region src/util.ts
 function getTextBetween(str, startDelimiter, endDelimiter) {
 	const startIndex = str.indexOf(startDelimiter);
 	if (startIndex === -1) return "";
@@ -100342,11 +100342,6 @@ async function list(store) {
 		"--all",
 		...store ? ["--store", store] : []
 	], { silent: true })).stdout.trim().split("\n");
-}
-async function check(path$17, substituter) {
-	substituter = substituter.replace(/\/+$/, "");
-	const narInfo = `${getTextBetween(path$17, "/nix/store/", "-")}.narinfo`;
-	return (await (0, import_undici.request)(`${substituter}/${narInfo}`, { method: "HEAD" })).statusCode < 300;
 }
 async function copy(path$17, store) {
 	await import_exec$1.exec("nix", [
@@ -100434,14 +100429,16 @@ async function main() {
 	}
 	const localPaths = await list();
 	const cachePaths = await list(`file://${cachePath}`);
-	const pathsToCopy = localPaths.filter((p) => !cachePaths.includes(p));
-	import_core.info(`found ${pathsToCopy.length} paths to copy to cache`);
+	const pathsToCheck = localPaths.filter((p) => !cachePaths.includes(p));
+	import_core.info(`found ${pathsToCheck.length} paths to check against substituters`);
 	const substituters$1 = await substituters();
-	pathLoop: for (const path$17 of pathsToCopy) {
-		for (const sub of substituters$1) if (await check(path$17, sub)) {
-			import_core.info(`path ${path$17} found in substituter ${sub}, skipping copy`);
-			continue pathLoop;
-		}
+	import_core.info(`substituters: ${substituters$1.join(", ")}`);
+	const pathsToCopy = await Promise.allSettled(pathsToCheck.map(async (path$17) => {
+		for (const sub of substituters$1) if (await check(path$17, sub)) return null;
+		return path$17;
+	})).then((results) => results.filter((result) => result.status === "fulfilled" && result.value !== null).map((result) => result.status));
+	import_core.info(`found ${pathsToCopy.length} paths to copy to cache`);
+	for (const path$17 of pathsToCopy) {
 		import_core.info(`copying ${path$17} to cache`);
 		await sign(path$17);
 		await copy(path$17, `file://${cachePath}`);
@@ -100463,6 +100460,11 @@ async function main() {
 	await save();
 	await stop();
 }
+async function check(path$17, substituter) {
+	substituter = substituter.replace(/\/+$/, "");
+	const narInfo = `${getTextBetween(path$17, "/nix/store/", "-")}.narinfo`;
+	return (await (0, import_undici.request)(`${substituter}/${narInfo}`, { method: "HEAD" })).statusCode < 300;
+}
 async function save() {
 	const flakeHash = import_core.getState("flake-hash");
 	if (!flakeHash) {
@@ -100483,4 +100485,4 @@ try {
 }
 
 //#endregion
-export {  };
+export { check };
