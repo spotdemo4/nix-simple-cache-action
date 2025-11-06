@@ -46,9 +46,25 @@ async function main() {
 
 	// force IPv4 for undici requests
 	const agent = new Agent({
-		autoSelectFamily: true,
-		keepAliveTimeout: 8e3,
-	}).compose(interceptors.retry());
+		keepAliveTimeout: 20e3,
+		bodyTimeout: 0,
+		autoSelectFamilyAttemptTimeout: 20e3,
+	}).compose(
+		interceptors.retry({
+			throwOnError: false,
+			errorCodes: [
+				"ETIMEDOUT",
+				"ECONNRESET",
+				"ECONNREFUSED",
+				"ENOTFOUND",
+				"ENETDOWN",
+				"ENETUNREACH",
+				"EHOSTDOWN",
+				"EHOSTUNREACH",
+				"EPIPE",
+			],
+		}),
+	);
 	setGlobalDispatcher(agent);
 
 	// check all paths in parallel

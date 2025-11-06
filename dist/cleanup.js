@@ -100434,9 +100434,23 @@ async function main() {
 	const substituters$1 = await substituters();
 	import_core.info(`substituters: ${substituters$1.join(", ")}`);
 	(0, import_undici.setGlobalDispatcher)(new import_undici.Agent({
-		autoSelectFamily: true,
-		keepAliveTimeout: 8e3
-	}).compose(import_undici.interceptors.retry()));
+		keepAliveTimeout: 2e4,
+		bodyTimeout: 0,
+		autoSelectFamilyAttemptTimeout: 2e4
+	}).compose(import_undici.interceptors.retry({
+		throwOnError: false,
+		errorCodes: [
+			"ETIMEDOUT",
+			"ECONNRESET",
+			"ECONNREFUSED",
+			"ENOTFOUND",
+			"ENETDOWN",
+			"ENETUNREACH",
+			"EHOSTDOWN",
+			"EHOSTUNREACH",
+			"EPIPE"
+		]
+	})));
 	const pathsToCopyPromise = await Promise.allSettled(pathsToCheck.map(async (path$17) => {
 		for (const sub of substituters$1) if (await check(path$17, sub)) return null;
 		return path$17;
