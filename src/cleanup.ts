@@ -50,9 +50,6 @@ async function main() {
 		autoSelectFamilyAttemptTimeout: 30e3,
 	}).compose(
 		interceptors.retry({
-			retry: (err) => {
-				core.warning(`request error: ${err.message}, retrying...`);
-			},
 			throwOnError: false,
 			errorCodes: [
 				"ETIMEDOUT",

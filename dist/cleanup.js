@@ -100438,9 +100438,6 @@ async function main() {
 		keepAliveTimeout: 3e4,
 		autoSelectFamilyAttemptTimeout: 3e4
 	}).compose(import_undici.interceptors.retry({
-		retry: (err) => {
-			import_core.warning(`request error: ${err.message}, retrying...`);
-		},
 		throwOnError: false,
 		errorCodes: [
 			"ETIMEDOUT",
