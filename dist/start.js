@@ -80463,12 +80463,12 @@ async function getPublicKey() {
 //#region src/server/client.ts
 async function start() {
 	if (import_core$1.getState("pid")) {
-		import_core$1.warning(`proxy server already running`);
+		import_core$1.warning(`Proxy server already running`);
 		return false;
 	}
 	const __dirname = dirname(fileURLToPath(import.meta.url));
 	if (!existsSync(`${__dirname}/server.js`)) {
-		import_core$1.warning(`${__dirname}/server.js not found, skipping binary cache server`);
+		import_core$1.warning(`File ${__dirname}/server.js not found`);
 		return false;
 	}
 	const out = openSync(logPath, "as");
@@ -80488,14 +80488,14 @@ async function start() {
 		ping$1 = await ping(`http://127.0.0.1:${port}`);
 		if (!ping$1) {
 			attempts++;
-			import_core$1.info(`waiting for proxy server to start, attempt ${attempts}...`);
+			import_core$1.info(`Waiting for proxy server to start, attempt ${attempts}`);
 			await new Promise((resolve) => setTimeout(resolve, 1e3));
 		}
 	}
 	if (attempts >= 5 || !proxy.pid) {
-		import_core$1.warning("proxy server did not start.");
-		import_core$1.warning(`stdout: ${readFileSync(logPath, "utf8")}`);
-		import_core$1.warning(`stderr: ${readFileSync(errPath, "utf8")}`);
+		import_core$1.warning("Proxy server did not start.");
+		import_core$1.warning(`Stdout: ${readFileSync(logPath, "utf8")}`);
+		import_core$1.warning(`Stderr: ${readFileSync(errPath, "utf8")}`);
 		return false;
 	}
 	import_core$1.saveState("pid", proxy.pid.toString());
@@ -80507,22 +80507,22 @@ async function start() {
 var import_core = /* @__PURE__ */ __toESM$1(require_core(), 1);
 async function main() {
 	if (!import_cache.isFeatureAvailable()) {
-		import_core.warning("cache is not available");
+		import_core.warning("Cache is not available");
 		return;
 	}
 	if (!fs.existsSync("flake.nix") || !fs.existsSync("flake.lock")) {
-		import_core.warning("flake.nix or flake.lock not found in repository root");
+		import_core.warning("Flake.nix or flake.lock not found in repository root");
 		return;
 	}
 	const version$1 = await version();
-	import_core.info(`nix version: ${version$1}`);
+	import_core.info(`Nix version: ${version$1}`);
 	const nodeVersion = process.version;
-	import_core.info(`node version: ${nodeVersion}`);
+	import_core.info(`Node version: ${nodeVersion}`);
 	const flakeHash = await hash("flake.nix");
-	import_core.info(`flake hash: ${flakeHash}`);
+	import_core.info(`Flake hash: ${flakeHash}`);
 	import_core.saveState("flake-hash", flakeHash);
 	const lockHash = await hash("flake.lock");
-	import_core.info(`lock hash: ${lockHash}`);
+	import_core.info(`Lock hash: ${lockHash}`);
 	import_core.saveState("lock-hash", lockHash);
 	const restore = await import_cache.restoreCache([cachePath, keyPath], `nix-cache-${flakeHash}-${lockHash}-${import_github.context.workflow}-${import_github.context.job}`, [
 		`nix-cache-${flakeHash}-${lockHash}-${import_github.context.workflow}`,
@@ -80531,24 +80531,24 @@ async function main() {
 		`nix-cache`
 	]);
 	if (restore === `nix-cache-${flakeHash}-${lockHash}-${import_github.context.workflow}-${import_github.context.job}`) {
-		import_core.info("cache restored (direct hit)");
+		import_core.info("Direct cache hit");
 		import_core.saveState("hit-type", "direct");
 		import_core.setOutput("cache-hit", "true");
 	} else if (restore) {
-		import_core.info("cache restored (indirect hit)");
+		import_core.info("Indirect cache hit");
 		import_core.saveState("hit-type", "indirect");
 		import_core.setOutput("cache-hit", "true");
 	} else {
-		import_core.info("cache not found");
+		import_core.info("No cache hit");
 		import_core.saveState("hit-type", "none");
 		import_core.setOutput("cache-hit", "false");
 		await generateSecretKey();
 	}
 	const publicKey = await getPublicKey();
-	import_core.info(`public key: ${publicKey}`);
+	import_core.info(`Public key: ${publicKey}`);
 	import_core.saveState("public-key", publicKey);
 	if (!await start()) {
-		import_core.warning("failed to start proxy server");
+		import_core.warning("Failed to start proxy server");
 		return;
 	}
 	import_core.exportVariable("NIX_CONFIG", `

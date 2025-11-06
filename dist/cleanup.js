@@ -100398,13 +100398,13 @@ async function stop(pid) {
 	process.kill(pid);
 	const stdout = readFileSync(logPath, "utf8").trim();
 	if (stdout) {
-		import_core$1.debug("proxy server stdout:");
+		import_core$1.debug("Proxy server stdout:");
 		import_core$1.debug(stdout);
 	}
 	const stderr = readFileSync(errPath, "utf8").trim();
 	if (stderr) {
-		import_core$1.warning("proxy server exited with errors");
-		import_core$1.info("proxy server stderr:");
+		import_core$1.warning("Proxy server exited with errors");
+		import_core$1.info("Proxy server stderr:");
 		import_core$1.info(stderr);
 	}
 }
@@ -100414,34 +100414,34 @@ async function stop(pid) {
 var import_core = /* @__PURE__ */ __toESM$1(require_core(), 1);
 async function main() {
 	if (!import_cache.isFeatureAvailable()) {
-		import_core.warning("cache is not available");
+		import_core.warning("Cache is not available");
 		return;
 	}
 	const pidStr = import_core.getState("pid");
 	if (!pidStr) {
-		import_core.warning("no proxy server running");
+		import_core.warning("No proxy server running");
 		return;
 	}
 	const pid = parseInt(pidStr, 10);
 	const hitType = import_core.getState("hit-type");
 	if (hitType === "direct") {
-		import_core.info("cache was a direct hit, skipping save");
+		import_core.info("Cache was a direct hit, skipping save");
 		await stop(pid);
 		return;
 	}
 	const localPaths = await list();
 	const cachePaths = await list(`file://${cachePath}`);
 	const substituters$1 = await substituters();
-	import_core.info(`substituters: ${substituters$1.join(", ")}`);
+	import_core.info(`Substituters: ${substituters$1.join(", ")}`);
 	let pathsToCheck = localPaths.filter((p) => !cachePaths.includes(p));
 	let pathsToCopy = [];
 	while (pathsToCheck.length > 0) {
-		import_core.info(`checking ${pathsToCheck.length} paths against substituters`);
+		import_core.info(`Checking ${pathsToCheck.length} paths against substituters`);
 		const checked = await checkAll(pathsToCheck, substituters$1);
 		pathsToCopy = pathsToCopy.concat(checked.filter((p) => p.state === PatchCheckState.Uncached).map((p) => p.path));
 		pathsToCheck = checked.filter((p) => p.state === PatchCheckState.Failed).map((p) => p.path);
 	}
-	import_core.startGroup(`copying ${pathsToCopy.length} paths to cache`);
+	import_core.startGroup(`Copying ${pathsToCopy.length} paths to cache`);
 	for (const path$17 of pathsToCopy) {
 		import_core.info(path$17);
 		await sign(path$17);
@@ -100449,13 +100449,13 @@ async function main() {
 	}
 	import_core.endGroup();
 	if (hitType === "none") {
-		import_core.info("no cache was restored, skipping cleanup");
+		import_core.info("No cache was restored, skipping cleanup");
 		await stop(pid);
 		await save();
 		return;
 	}
 	const pathsToRemove = cachePaths.filter((p) => !localPaths.includes(p));
-	import_core.startGroup(`removing ${pathsToRemove.length} old paths from cache`);
+	import_core.startGroup(`Removing ${pathsToRemove.length} old paths from cache`);
 	for (const path$17 of pathsToRemove) {
 		import_core.info(path$17);
 		const info$2 = await info(`file://${cachePath}`, path$17);
@@ -100500,12 +100500,12 @@ async function check(path$17, substituter) {
 async function save() {
 	const flakeHash = import_core.getState("flake-hash");
 	if (!flakeHash) {
-		import_core.warning("flake hash not found, not saving cache");
+		import_core.warning("Flake hash not found, not saving cache");
 		return;
 	}
 	const lockHash = import_core.getState("lock-hash");
 	if (!lockHash) {
-		import_core.warning("lock hash not found, not saving cache");
+		import_core.warning("Lock hash not found, not saving cache");
 		return;
 	}
 	await import_cache.saveCache([cachePath, keyPath], `nix-cache-${flakeHash}-${lockHash}-${import_github.context.workflow}-${import_github.context.job}`);

@@ -10,7 +10,7 @@ import { errPath, logPath, port } from "../var.js";
 export async function start() {
 	// check if already running
 	if (core.getState("pid")) {
-		core.warning(`proxy server already running`);
+		core.warning(`Proxy server already running`);
 		return false;
 	}
 
@@ -18,9 +18,7 @@ export async function start() {
 	const __filename = fileURLToPath(import.meta.url);
 	const __dirname = dirname(__filename);
 	if (!existsSync(`${__dirname}/server.js`)) {
-		core.warning(
-			`${__dirname}/server.js not found, skipping binary cache server`,
-		);
+		core.warning(`File ${__dirname}/server.js not found`);
 		return false;
 	}
 
@@ -41,16 +39,16 @@ export async function start() {
 
 		if (!ping) {
 			attempts++;
-			core.info(`waiting for proxy server to start, attempt ${attempts}...`);
+			core.info(`Waiting for proxy server to start, attempt ${attempts}`);
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 		}
 	}
 
 	// starting failed
 	if (attempts >= 5 || !proxy.pid) {
-		core.warning("proxy server did not start.");
-		core.warning(`stdout: ${readFileSync(logPath, "utf8")}`);
-		core.warning(`stderr: ${readFileSync(errPath, "utf8")}`);
+		core.warning("Proxy server did not start.");
+		core.warning(`Stdout: ${readFileSync(logPath, "utf8")}`);
+		core.warning(`Stderr: ${readFileSync(errPath, "utf8")}`);
 		return false;
 	}
 
@@ -68,15 +66,15 @@ export async function stop(pid: number) {
 	// print proxy stdout to debug
 	const stdout = readFileSync(logPath, "utf8").trim();
 	if (stdout) {
-		core.debug("proxy server stdout:");
+		core.debug("Proxy server stdout:");
 		core.debug(stdout);
 	}
 
 	// print proxy errors if they exist
 	const stderr = readFileSync(errPath, "utf8").trim();
 	if (stderr) {
-		core.warning("proxy server exited with errors");
-		core.info("proxy server stderr:");
+		core.warning("Proxy server exited with errors");
+		core.info("Proxy server stderr:");
 		core.info(stderr);
 	}
 }
