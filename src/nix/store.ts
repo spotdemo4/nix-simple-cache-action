@@ -1,6 +1,5 @@
 import * as fs from "node:fs";
 import * as exec from "@actions/exec";
-import { Pool, request } from "undici";
 import { getTextBetween } from "../util.js";
 import { keyPath } from "../var.js";
 
@@ -79,7 +78,4 @@ export async function info(store: string, path: string) {
 	pathInfo.narInfo = `${getTextBetween(path, "/nix/store/", "-")}.narinfo`;
 
 	return pathInfo;
-}
-export function check(path: string, sub: string) {
-	throw new Error("Function not implemented.");
 }

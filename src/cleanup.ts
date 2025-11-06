@@ -35,24 +35,22 @@ async function main() {
 	const substituters = await nix.substituters();
 	core.info(`substituters: ${substituters.join(", ")}`);
 
-	// check which paths need to be copied to cache
-	const pathsToCopy = await Promise.allSettled(
+	// check all paths in parallel
+	const pathsToCopyPromise = await Promise.allSettled(
 		pathsToCheck.map(async (path) => {
 			for (const sub of substituters) {
 				const c = await check(path, sub);
-				if (c) {
-					return null;
-				}
+				if (c) return null;
 			}
+
 			return path;
 		}),
-	).then((results) =>
-		results
-			.filter(
-				(result) => result.status === "fulfilled" && result.value !== null,
-			)
-			.map((result) => result.status as string),
 	);
+
+	// filter out nulls
+	const pathsToCopy = pathsToCopyPromise
+		.filter((result) => result.status === "fulfilled" && result.value !== null)
+		.map((result) => (result as PromiseFulfilledResult<string>).value);
 	core.info(`found ${pathsToCopy.length} paths to copy to cache`);
 
 	// copy paths to cache

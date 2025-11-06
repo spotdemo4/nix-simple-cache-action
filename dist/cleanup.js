@@ -100433,10 +100433,10 @@ async function main() {
 	import_core.info(`found ${pathsToCheck.length} paths to check against substituters`);
 	const substituters$1 = await substituters();
 	import_core.info(`substituters: ${substituters$1.join(", ")}`);
-	const pathsToCopy = await Promise.allSettled(pathsToCheck.map(async (path$17) => {
+	const pathsToCopy = (await Promise.allSettled(pathsToCheck.map(async (path$17) => {
 		for (const sub of substituters$1) if (await check(path$17, sub)) return null;
 		return path$17;
-	})).then((results) => results.filter((result) => result.status === "fulfilled" && result.value !== null).map((result) => result.status));
+	}))).filter((result) => result.status === "fulfilled" && result.value !== null).map((result) => result.value);
 	import_core.info(`found ${pathsToCopy.length} paths to copy to cache`);
 	for (const path$17 of pathsToCopy) {
 		import_core.info(`copying ${path$17} to cache`);
