@@ -59,7 +59,14 @@ async function main() {
 	const pathsToCopy: string[] = [];
 	for (const path of pathsToCopyPromise) {
 		if (path.status === "rejected") {
-			core.warning(`error checking path: ${path.reason}`);
+			if (path.reason instanceof AggregateError) {
+				core.warning("multiple errors occurred:");
+				for (const err of path.reason.errors) {
+					core.warning(err.message);
+				}
+			} else {
+				core.warning(`error checking path: ${path.reason.message}`);
+			}
 		} else if (path.status === "fulfilled" && path.value !== null) {
 			pathsToCopy.push(path.value);
 		}

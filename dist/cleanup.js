@@ -100438,7 +100438,10 @@ async function main() {
 		return path$17;
 	}));
 	const pathsToCopy = [];
-	for (const path$17 of pathsToCopyPromise) if (path$17.status === "rejected") import_core.warning(`error checking path: ${path$17.reason}`);
+	for (const path$17 of pathsToCopyPromise) if (path$17.status === "rejected") if (path$17.reason instanceof AggregateError) {
+		import_core.warning("multiple errors occurred:");
+		for (const err of path$17.reason.errors) import_core.warning(err.message);
+	} else import_core.warning(`error checking path: ${path$17.reason.message}`);
 	else if (path$17.status === "fulfilled" && path$17.value !== null) pathsToCopy.push(path$17.value);
 	import_core.info(`found ${pathsToCopy.length} paths to copy to cache`);
 	for (const path$17 of pathsToCopy) {
