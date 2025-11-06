@@ -1,5 +1,4 @@
 import { createRequire } from "node:module";
-import { setDefaultResultOrder } from "node:dns";
 import * as fs from "node:fs";
 import { readFileSync } from "node:fs";
 
@@ -6018,7 +6017,7 @@ var require_client$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-
 		* @param {string|URL} url
 		* @param {import('../types/client').Client.Options} options
 		*/
-		constructor(url, { interceptors, maxHeaderSize, headersTimeout, socketTimeout, requestTimeout, connectTimeout, bodyTimeout, idleTimeout, keepAlive, keepAliveTimeout, maxKeepAliveTimeout, keepAliveMaxTimeout, keepAliveTimeoutThreshold, socketPath, pipelining, tls: tls$6, strictContentLength, maxCachedSessions, maxRedirections, connect: connect$7, maxRequestsPerClient, localAddress, maxResponseSize, autoSelectFamily, autoSelectFamilyAttemptTimeout, allowH2, maxConcurrentStreams } = {}) {
+		constructor(url, { interceptors: interceptors$1, maxHeaderSize, headersTimeout, socketTimeout, requestTimeout, connectTimeout, bodyTimeout, idleTimeout, keepAlive, keepAliveTimeout, maxKeepAliveTimeout, keepAliveMaxTimeout, keepAliveTimeoutThreshold, socketPath, pipelining, tls: tls$6, strictContentLength, maxCachedSessions, maxRedirections, connect: connect$7, maxRequestsPerClient, localAddress, maxResponseSize, autoSelectFamily, autoSelectFamilyAttemptTimeout, allowH2, maxConcurrentStreams } = {}) {
 			super();
 			if (keepAlive !== void 0) throw new InvalidArgumentError$72("unsupported keepAlive, use pipelining=0 instead");
 			if (socketTimeout !== void 0) throw new InvalidArgumentError$72("unsupported socketTimeout, use headersTimeout & bodyTimeout instead");
@@ -6053,7 +6052,7 @@ var require_client$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-
 				} : void 0,
 				...connect$7
 			});
-			this[kInterceptors$10] = interceptors && interceptors.Client && Array.isArray(interceptors.Client) ? interceptors.Client : [createRedirectInterceptor$7({ maxRedirections })];
+			this[kInterceptors$10] = interceptors$1 && interceptors$1.Client && Array.isArray(interceptors$1.Client) ? interceptors$1.Client : [createRedirectInterceptor$7({ maxRedirections })];
 			this[kUrl$14] = util$54.parseOrigin(url);
 			this[kConnector$2] = connect$7;
 			this[kSocket$3] = null;
@@ -7740,7 +7739,7 @@ var require_agent$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 	function defaultFactory$9(origin, opts) {
 		return opts && opts.connections === 1 ? new Client$14(origin, opts) : new Pool$15(origin, opts);
 	}
-	var Agent$17 = class extends DispatcherBase$13 {
+	var Agent$18 = class extends DispatcherBase$13 {
 		constructor({ factory = defaultFactory$9, maxRedirections = 0, connect: connect$7,...options } = {}) {
 			super();
 			if (typeof factory !== "function") throw new InvalidArgumentError$69("factory must be a function.");
@@ -7818,7 +7817,7 @@ var require_agent$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 			await Promise.all(destroyPromises);
 		}
 	};
-	module.exports = Agent$17;
+	module.exports = Agent$18;
 }) });
 
 //#endregion
@@ -9250,7 +9249,7 @@ var require_pending_interceptors_formatter$2 = /* @__PURE__ */ __commonJS({ "nod
 //#region node_modules/@actions/http-client/node_modules/undici/lib/mock/mock-agent.js
 var require_mock_agent$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-client/node_modules/undici/lib/mock/mock-agent.js": ((exports, module) => {
 	const { kClients: kClients$10 } = require_symbols$10();
-	const Agent$16 = require_agent$2();
+	const Agent$17 = require_agent$2();
 	const { kAgent: kAgent$5, kMockAgentSet: kMockAgentSet$2, kMockAgentGet: kMockAgentGet$2, kDispatches: kDispatches$10, kIsMockActive: kIsMockActive$2, kNetConnect: kNetConnect$2, kGetNetConnect: kGetNetConnect$4, kOptions: kOptions$8, kFactory: kFactory$8 } = require_mock_symbols$2();
 	const MockClient$7 = require_mock_client$2();
 	const MockPool$7 = require_mock_pool$2();
@@ -9273,7 +9272,7 @@ var require_mock_agent$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/h
 			this[kNetConnect$2] = true;
 			this[kIsMockActive$2] = true;
 			if (opts && opts.agent && typeof opts.agent.dispatch !== "function") throw new InvalidArgumentError$59("Argument opts.agent must implement Agent");
-			const agent = opts && opts.agent ? opts.agent : new Agent$16(opts);
+			const agent = opts && opts.agent ? opts.agent : new Agent$17(opts);
 			this[kAgent$5] = agent;
 			this[kClients$10] = agent[kClients$10];
 			this[kOptions$8] = buildMockOptions$2(opts);
@@ -9366,7 +9365,7 @@ ${pendingInterceptorsFormatter.format(pending)}
 var require_proxy_agent$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-client/node_modules/undici/lib/proxy-agent.js": ((exports, module) => {
 	const { kProxy: kProxy$2, kClose: kClose$16, kDestroy: kDestroy$12, kInterceptors: kInterceptors$6 } = require_symbols$10();
 	const { URL: URL$2 } = __require("url");
-	const Agent$15 = require_agent$2();
+	const Agent$16 = require_agent$2();
 	const Pool$13 = require_pool$2();
 	const DispatcherBase$12 = require_dispatcher_base$2();
 	const { InvalidArgumentError: InvalidArgumentError$58, RequestAbortedError: RequestAbortedError$19 } = require_errors$3();
@@ -9395,7 +9394,7 @@ var require_proxy_agent$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/
 		constructor(opts) {
 			super(opts);
 			this[kProxy$2] = buildProxyOptions$1(opts);
-			this[kAgent$4] = new Agent$15(opts);
+			this[kAgent$4] = new Agent$16(opts);
 			this[kInterceptors$6] = opts.interceptors && opts.interceptors.ProxyAgent && Array.isArray(opts.interceptors.ProxyAgent) ? opts.interceptors.ProxyAgent : [];
 			if (typeof opts === "string") opts = { uri: opts };
 			if (!opts || !opts.uri) throw new InvalidArgumentError$58("Proxy opts.uri is mandatory");
@@ -9413,7 +9412,7 @@ var require_proxy_agent$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/
 			const connect$7 = buildConnector$11({ ...opts.proxyTls });
 			this[kConnectEndpoint$2] = buildConnector$11({ ...opts.requestTls });
 			this[kClient$6] = clientFactory(resolvedUrl, { connect: connect$7 });
-			this[kAgent$4] = new Agent$15({
+			this[kAgent$4] = new Agent$16({
 				...opts,
 				connect: async (opts$1, callback) => {
 					let requestedHost = opts$1.host;
@@ -9714,9 +9713,9 @@ var require_RetryHandler$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions
 var require_global$4 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-client/node_modules/undici/lib/global.js": ((exports, module) => {
 	const globalDispatcher$2 = Symbol.for("undici.globalDispatcher.1");
 	const { InvalidArgumentError: InvalidArgumentError$57 } = require_errors$3();
-	const Agent$14 = require_agent$2();
-	if (getGlobalDispatcher$15() === void 0) setGlobalDispatcher$5(new Agent$14());
-	function setGlobalDispatcher$5(agent) {
+	const Agent$15 = require_agent$2();
+	if (getGlobalDispatcher$15() === void 0) setGlobalDispatcher$6(new Agent$15());
+	function setGlobalDispatcher$6(agent) {
 		if (!agent || typeof agent.dispatch !== "function") throw new InvalidArgumentError$57("Argument agent must implement Agent");
 		Object.defineProperty(globalThis, globalDispatcher$2, {
 			value: agent,
@@ -9729,7 +9728,7 @@ var require_global$4 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-
 		return globalThis[globalDispatcher$2];
 	}
 	module.exports = {
-		setGlobalDispatcher: setGlobalDispatcher$5,
+		setGlobalDispatcher: setGlobalDispatcher$6,
 		getGlobalDispatcher: getGlobalDispatcher$15
 	};
 }) });
@@ -14339,7 +14338,7 @@ var require_undici$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-
 	const errors$2 = require_errors$3();
 	const Pool$12 = require_pool$2();
 	const BalancedPool$4 = require_balanced_pool$2();
-	const Agent$13 = require_agent$2();
+	const Agent$14 = require_agent$2();
 	const util$42 = require_util$21();
 	const { InvalidArgumentError: InvalidArgumentError$56 } = errors$2;
 	const api$2 = require_api$2();
@@ -14350,7 +14349,7 @@ var require_undici$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-
 	const mockErrors$2 = require_mock_errors$2();
 	const ProxyAgent$5 = require_proxy_agent$2();
 	const RetryHandler$6 = require_RetryHandler$1();
-	const { getGlobalDispatcher: getGlobalDispatcher$10, setGlobalDispatcher: setGlobalDispatcher$4 } = require_global$4();
+	const { getGlobalDispatcher: getGlobalDispatcher$10, setGlobalDispatcher: setGlobalDispatcher$5 } = require_global$4();
 	const DecoratorHandler$6 = require_DecoratorHandler$1();
 	const RedirectHandler$6 = require_RedirectHandler$1();
 	const createRedirectInterceptor$5 = require_redirectInterceptor$1();
@@ -14366,7 +14365,7 @@ var require_undici$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-
 	module.exports.Client = Client$12;
 	module.exports.Pool = Pool$12;
 	module.exports.BalancedPool = BalancedPool$4;
-	module.exports.Agent = Agent$13;
+	module.exports.Agent = Agent$14;
 	module.exports.ProxyAgent = ProxyAgent$5;
 	module.exports.RetryHandler = RetryHandler$6;
 	module.exports.DecoratorHandler = DecoratorHandler$6;
@@ -14401,7 +14400,7 @@ var require_undici$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-
 			}, handler$1);
 		};
 	}
-	module.exports.setGlobalDispatcher = setGlobalDispatcher$4;
+	module.exports.setGlobalDispatcher = setGlobalDispatcher$5;
 	module.exports.getGlobalDispatcher = getGlobalDispatcher$10;
 	if (util$42.nodeMajor > 16 || util$42.nodeMajor === 16 && util$42.nodeMinor >= 8) {
 		let fetchImpl$1 = null;
@@ -23397,7 +23396,7 @@ var require_dist$3 = /* @__PURE__ */ __commonJS({ "node_modules/agent-base/dist/
 	const https_1 = __require("https");
 	__exportStar(require_helpers(), exports);
 	const INTERNAL = Symbol("AgentBaseInternalState");
-	var Agent$12 = class extends http$2.Agent {
+	var Agent$13 = class extends http$2.Agent {
 		constructor(opts) {
 			super(opts);
 			this[INTERNAL] = {};
@@ -23476,7 +23475,7 @@ var require_dist$3 = /* @__PURE__ */ __commonJS({ "node_modules/agent-base/dist/
 			if (this[INTERNAL]) this[INTERNAL].protocol = v;
 		}
 	};
-	exports.Agent = Agent$12;
+	exports.Agent = Agent$13;
 }) });
 
 //#endregion
@@ -69117,7 +69116,7 @@ var require_client$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/githu
 		* @param {string|URL} url
 		* @param {import('../types/client').Client.Options} options
 		*/
-		constructor(url, { interceptors, maxHeaderSize, headersTimeout, socketTimeout, requestTimeout, connectTimeout, bodyTimeout, idleTimeout, keepAlive, keepAliveTimeout, maxKeepAliveTimeout, keepAliveMaxTimeout, keepAliveTimeoutThreshold, socketPath, pipelining, tls: tls$6, strictContentLength, maxCachedSessions, maxRedirections, connect: connect$7, maxRequestsPerClient, localAddress, maxResponseSize, autoSelectFamily, autoSelectFamilyAttemptTimeout, allowH2, maxConcurrentStreams } = {}) {
+		constructor(url, { interceptors: interceptors$1, maxHeaderSize, headersTimeout, socketTimeout, requestTimeout, connectTimeout, bodyTimeout, idleTimeout, keepAlive, keepAliveTimeout, maxKeepAliveTimeout, keepAliveMaxTimeout, keepAliveTimeoutThreshold, socketPath, pipelining, tls: tls$6, strictContentLength, maxCachedSessions, maxRedirections, connect: connect$7, maxRequestsPerClient, localAddress, maxResponseSize, autoSelectFamily, autoSelectFamilyAttemptTimeout, allowH2, maxConcurrentStreams } = {}) {
 			super();
 			if (keepAlive !== void 0) throw new InvalidArgumentError$49("unsupported keepAlive, use pipelining=0 instead");
 			if (socketTimeout !== void 0) throw new InvalidArgumentError$49("unsupported socketTimeout, use headersTimeout & bodyTimeout instead");
@@ -69152,7 +69151,7 @@ var require_client$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/githu
 				} : void 0,
 				...connect$7
 			});
-			this[kInterceptors$4] = interceptors && interceptors.Client && Array.isArray(interceptors.Client) ? interceptors.Client : [createRedirectInterceptor$3({ maxRedirections })];
+			this[kInterceptors$4] = interceptors$1 && interceptors$1.Client && Array.isArray(interceptors$1.Client) ? interceptors$1.Client : [createRedirectInterceptor$3({ maxRedirections })];
 			this[kUrl$10] = util$34.parseOrigin(url);
 			this[kConnector$1] = connect$7;
 			this[kSocket$2] = null;
@@ -70839,7 +70838,7 @@ var require_agent$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/github
 	function defaultFactory$5(origin, opts) {
 		return opts && opts.connections === 1 ? new Client$9(origin, opts) : new Pool$9(origin, opts);
 	}
-	var Agent$11 = class extends DispatcherBase$8 {
+	var Agent$12 = class extends DispatcherBase$8 {
 		constructor({ factory = defaultFactory$5, maxRedirections = 0, connect: connect$7,...options } = {}) {
 			super();
 			if (typeof factory !== "function") throw new InvalidArgumentError$46("factory must be a function.");
@@ -70917,7 +70916,7 @@ var require_agent$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/github
 			await Promise.all(destroyPromises);
 		}
 	};
-	module.exports = Agent$11;
+	module.exports = Agent$12;
 }) });
 
 //#endregion
@@ -72349,7 +72348,7 @@ var require_pending_interceptors_formatter$1 = /* @__PURE__ */ __commonJS({ "nod
 //#region node_modules/@actions/github/node_modules/undici/lib/mock/mock-agent.js
 var require_mock_agent$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/github/node_modules/undici/lib/mock/mock-agent.js": ((exports, module) => {
 	const { kClients: kClients$5 } = require_symbols$5();
-	const Agent$10 = require_agent$1();
+	const Agent$11 = require_agent$1();
 	const { kAgent: kAgent$3, kMockAgentSet: kMockAgentSet$1, kMockAgentGet: kMockAgentGet$1, kDispatches: kDispatches$5, kIsMockActive: kIsMockActive$1, kNetConnect: kNetConnect$1, kGetNetConnect: kGetNetConnect$2, kOptions: kOptions$4, kFactory: kFactory$4 } = require_mock_symbols$1();
 	const MockClient$4 = require_mock_client$1();
 	const MockPool$4 = require_mock_pool$1();
@@ -72372,7 +72371,7 @@ var require_mock_agent$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/g
 			this[kNetConnect$1] = true;
 			this[kIsMockActive$1] = true;
 			if (opts && opts.agent && typeof opts.agent.dispatch !== "function") throw new InvalidArgumentError$36("Argument opts.agent must implement Agent");
-			const agent = opts && opts.agent ? opts.agent : new Agent$10(opts);
+			const agent = opts && opts.agent ? opts.agent : new Agent$11(opts);
 			this[kAgent$3] = agent;
 			this[kClients$5] = agent[kClients$5];
 			this[kOptions$4] = buildMockOptions(opts);
@@ -72465,7 +72464,7 @@ ${pendingInterceptorsFormatter.format(pending)}
 var require_proxy_agent$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/github/node_modules/undici/lib/proxy-agent.js": ((exports, module) => {
 	const { kProxy: kProxy$1, kClose: kClose$9, kDestroy: kDestroy$7, kInterceptors } = require_symbols$5();
 	const { URL: URL$1 } = __require("url");
-	const Agent$9 = require_agent$1();
+	const Agent$10 = require_agent$1();
 	const Pool$7 = require_pool$1();
 	const DispatcherBase$7 = require_dispatcher_base$1();
 	const { InvalidArgumentError: InvalidArgumentError$35, RequestAbortedError: RequestAbortedError$9 } = require_errors$1();
@@ -72494,7 +72493,7 @@ var require_proxy_agent$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/
 		constructor(opts) {
 			super(opts);
 			this[kProxy$1] = buildProxyOptions(opts);
-			this[kAgent$2] = new Agent$9(opts);
+			this[kAgent$2] = new Agent$10(opts);
 			this[kInterceptors] = opts.interceptors && opts.interceptors.ProxyAgent && Array.isArray(opts.interceptors.ProxyAgent) ? opts.interceptors.ProxyAgent : [];
 			if (typeof opts === "string") opts = { uri: opts };
 			if (!opts || !opts.uri) throw new InvalidArgumentError$35("Proxy opts.uri is mandatory");
@@ -72512,7 +72511,7 @@ var require_proxy_agent$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/
 			const connect$7 = buildConnector$6({ ...opts.proxyTls });
 			this[kConnectEndpoint$1] = buildConnector$6({ ...opts.requestTls });
 			this[kClient$4] = clientFactory(resolvedUrl, { connect: connect$7 });
-			this[kAgent$2] = new Agent$9({
+			this[kAgent$2] = new Agent$10({
 				...opts,
 				connect: async (opts$1, callback) => {
 					let requestedHost = opts$1.host;
@@ -72813,9 +72812,9 @@ var require_RetryHandler = /* @__PURE__ */ __commonJS({ "node_modules/@actions/g
 var require_global$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/github/node_modules/undici/lib/global.js": ((exports, module) => {
 	const globalDispatcher$1 = Symbol.for("undici.globalDispatcher.1");
 	const { InvalidArgumentError: InvalidArgumentError$34 } = require_errors$1();
-	const Agent$8 = require_agent$1();
-	if (getGlobalDispatcher$9() === void 0) setGlobalDispatcher$3(new Agent$8());
-	function setGlobalDispatcher$3(agent) {
+	const Agent$9 = require_agent$1();
+	if (getGlobalDispatcher$9() === void 0) setGlobalDispatcher$4(new Agent$9());
+	function setGlobalDispatcher$4(agent) {
 		if (!agent || typeof agent.dispatch !== "function") throw new InvalidArgumentError$34("Argument agent must implement Agent");
 		Object.defineProperty(globalThis, globalDispatcher$1, {
 			value: agent,
@@ -72828,7 +72827,7 @@ var require_global$2 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/githu
 		return globalThis[globalDispatcher$1];
 	}
 	module.exports = {
-		setGlobalDispatcher: setGlobalDispatcher$3,
+		setGlobalDispatcher: setGlobalDispatcher$4,
 		getGlobalDispatcher: getGlobalDispatcher$9
 	};
 }) });
@@ -77438,7 +77437,7 @@ var require_undici$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/githu
 	const errors$1 = require_errors$1();
 	const Pool$6 = require_pool$1();
 	const BalancedPool$2 = require_balanced_pool$1();
-	const Agent$7 = require_agent$1();
+	const Agent$8 = require_agent$1();
 	const util$22 = require_util$12();
 	const { InvalidArgumentError: InvalidArgumentError$33 } = errors$1;
 	const api$1 = require_api$1();
@@ -77449,7 +77448,7 @@ var require_undici$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/githu
 	const mockErrors$1 = require_mock_errors$1();
 	const ProxyAgent$3 = require_proxy_agent$1();
 	const RetryHandler$4 = require_RetryHandler();
-	const { getGlobalDispatcher: getGlobalDispatcher$4, setGlobalDispatcher: setGlobalDispatcher$2 } = require_global$2();
+	const { getGlobalDispatcher: getGlobalDispatcher$4, setGlobalDispatcher: setGlobalDispatcher$3 } = require_global$2();
 	const DecoratorHandler$5 = require_DecoratorHandler();
 	const RedirectHandler$3 = require_RedirectHandler();
 	const createRedirectInterceptor$1 = require_redirectInterceptor();
@@ -77465,7 +77464,7 @@ var require_undici$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/githu
 	module.exports.Client = Client$7;
 	module.exports.Pool = Pool$6;
 	module.exports.BalancedPool = BalancedPool$2;
-	module.exports.Agent = Agent$7;
+	module.exports.Agent = Agent$8;
 	module.exports.ProxyAgent = ProxyAgent$3;
 	module.exports.RetryHandler = RetryHandler$4;
 	module.exports.DecoratorHandler = DecoratorHandler$5;
@@ -77500,7 +77499,7 @@ var require_undici$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/githu
 			}, handler$1);
 		};
 	}
-	module.exports.setGlobalDispatcher = setGlobalDispatcher$2;
+	module.exports.setGlobalDispatcher = setGlobalDispatcher$3;
 	module.exports.getGlobalDispatcher = getGlobalDispatcher$4;
 	if (util$22.nodeMajor > 16 || util$22.nodeMajor === 16 && util$22.nodeMinor >= 8) {
 		let fetchImpl$1 = null;
@@ -82791,9 +82790,9 @@ var require_dispatcher = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/d
 			throw new Error("not implemented");
 		}
 		compose(...args) {
-			const interceptors = Array.isArray(args[0]) ? args[0] : args;
+			const interceptors$1 = Array.isArray(args[0]) ? args[0] : args;
 			let dispatch = this.dispatch.bind(this);
-			for (const interceptor of interceptors) {
+			for (const interceptor of interceptors$1) {
 				if (interceptor == null) continue;
 				if (typeof interceptor !== "function") throw new TypeError(`invalid interceptor, expected function received ${typeof interceptor}`);
 				dispatch = interceptor(dispatch);
@@ -88371,7 +88370,7 @@ var require_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/dispat
 	function defaultFactory$1(origin, opts) {
 		return opts && opts.connections === 1 ? new Client$4(origin, opts) : new Pool$3(origin, opts);
 	}
-	var Agent$6 = class extends DispatcherBase$3 {
+	var Agent$7 = class extends DispatcherBase$3 {
 		constructor({ factory = defaultFactory$1, maxOrigins = Infinity, connect: connect$7,...options } = {}) {
 			if (typeof factory !== "function") throw new InvalidArgumentError$22("factory must be a function.");
 			if (connect$7 != null && typeof connect$7 !== "function" && typeof connect$7 !== "object") throw new InvalidArgumentError$22("connect must be a function or an object");
@@ -88460,14 +88459,14 @@ var require_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/dispat
 			return allClientStats;
 		}
 	};
-	module.exports = Agent$6;
+	module.exports = Agent$7;
 }) });
 
 //#endregion
 //#region node_modules/undici/lib/dispatcher/proxy-agent.js
 var require_proxy_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/dispatcher/proxy-agent.js": ((exports, module) => {
 	const { kProxy, kClose: kClose$4, kDestroy: kDestroy$2, kDispatch: kDispatch$1 } = require_symbols();
-	const Agent$5 = require_agent();
+	const Agent$6 = require_agent();
 	const Pool$2 = require_pool();
 	const DispatcherBase$2 = require_dispatcher_base();
 	const { InvalidArgumentError: InvalidArgumentError$21, RequestAbortedError: RequestAbortedError$5, SecureProxyConnectionError } = require_errors();
@@ -88562,7 +88561,7 @@ var require_proxy_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/
 				return agentFactory(origin$1, options);
 			};
 			this[kClient] = clientFactory(url, { connect: connect$7 });
-			this[kAgent$1] = new Agent$5({
+			this[kAgent$1] = new Agent$6({
 				...opts,
 				factory,
 				connect: async (opts$1, callback) => {
@@ -88665,7 +88664,7 @@ var require_env_http_proxy_agent = /* @__PURE__ */ __commonJS({ "node_modules/un
 	const DispatcherBase$1 = require_dispatcher_base();
 	const { kClose: kClose$3, kDestroy: kDestroy$1, kClosed, kDestroyed, kDispatch, kNoProxyAgent, kHttpProxyAgent, kHttpsProxyAgent } = require_symbols();
 	const ProxyAgent$1 = require_proxy_agent();
-	const Agent$4 = require_agent();
+	const Agent$5 = require_agent();
 	const DEFAULT_PORTS = {
 		"http:": 80,
 		"https:": 443
@@ -88678,7 +88677,7 @@ var require_env_http_proxy_agent = /* @__PURE__ */ __commonJS({ "node_modules/un
 			super();
 			this.#opts = opts;
 			const { httpProxy, httpsProxy, noProxy,...agentOpts } = opts;
-			this[kNoProxyAgent] = new Agent$4(agentOpts);
+			this[kNoProxyAgent] = new Agent$5(agentOpts);
 			const HTTP_PROXY$1 = httpProxy ?? process.env.http_proxy ?? process.env.HTTP_PROXY;
 			if (HTTP_PROXY$1) this[kHttpProxyAgent] = new ProxyAgent$1({
 				...agentOpts,
@@ -90968,7 +90967,7 @@ var require_pending_interceptors_formatter = /* @__PURE__ */ __commonJS({ "node_
 //#region node_modules/undici/lib/mock/mock-agent.js
 var require_mock_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/mock/mock-agent.js": ((exports, module) => {
 	const { kClients } = require_symbols();
-	const Agent$3 = require_agent();
+	const Agent$4 = require_agent();
 	const { kAgent, kMockAgentSet, kMockAgentGet, kDispatches, kIsMockActive, kNetConnect, kGetNetConnect, kOptions, kFactory, kMockAgentRegisterCallHistory, kMockAgentIsCallHistoryEnabled, kMockAgentAddCallHistoryLog, kMockAgentMockCallHistoryInstance, kMockAgentAcceptsNonStandardSearchParameters, kMockCallHistoryAddLog, kIgnoreTrailingSlash } = require_mock_symbols();
 	const MockClient$1 = require_mock_client();
 	const MockPool$1 = require_mock_pool();
@@ -90987,7 +90986,7 @@ var require_mock_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/m
 			this[kMockAgentAcceptsNonStandardSearchParameters] = mockOptions.acceptNonStandardSearchParameters ?? false;
 			this[kIgnoreTrailingSlash] = mockOptions.ignoreTrailingSlash ?? false;
 			if (opts?.agent && typeof opts.agent.dispatch !== "function") throw new InvalidArgumentError$8("Argument opts.agent must implement Agent");
-			const agent = opts?.agent ? opts.agent : new Agent$3(opts);
+			const agent = opts?.agent ? opts.agent : new Agent$4(opts);
 			this[kAgent] = agent;
 			this[kClients] = agent[kClients];
 			this[kOptions] = mockOptions;
@@ -91637,7 +91636,7 @@ var require_snapshot_recorder = /* @__PURE__ */ __commonJS({ "node_modules/undic
 //#endregion
 //#region node_modules/undici/lib/mock/snapshot-agent.js
 var require_snapshot_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/mock/snapshot-agent.js": ((exports, module) => {
-	const Agent$2 = require_agent();
+	const Agent$3 = require_agent();
 	const MockAgent$1 = require_mock_agent();
 	const { SnapshotRecorder } = require_snapshot_recorder();
 	const WrapHandler$1 = require_wrap_handler();
@@ -91678,7 +91677,7 @@ var require_snapshot_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/l
 				excludeUrls: opts.excludeUrls
 			});
 			this[kSnapshotLoaded] = false;
-			if (this[kSnapshotMode] === "record" || this[kSnapshotMode] === "update") this[kRealAgent] = new Agent$2(opts);
+			if (this[kSnapshotMode] === "record" || this[kSnapshotMode] === "update") this[kRealAgent] = new Agent$3(opts);
 			if ((this[kSnapshotMode] === "playback" || this[kSnapshotMode] === "update") && this[kSnapshotPath]) this.loadSnapshots().catch(() => {});
 		}
 		dispatch(opts, handler$1) {
@@ -91902,9 +91901,9 @@ var require_snapshot_agent = /* @__PURE__ */ __commonJS({ "node_modules/undici/l
 var require_global = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/global.js": ((exports, module) => {
 	const globalDispatcher = Symbol.for("undici.globalDispatcher.1");
 	const { InvalidArgumentError: InvalidArgumentError$4 } = require_errors();
-	const Agent$1 = require_agent();
-	if (getGlobalDispatcher$3() === void 0) setGlobalDispatcher$1(new Agent$1());
-	function setGlobalDispatcher$1(agent) {
+	const Agent$2 = require_agent();
+	if (getGlobalDispatcher$3() === void 0) setGlobalDispatcher$2(new Agent$2());
+	function setGlobalDispatcher$2(agent) {
 		if (!agent || typeof agent.dispatch !== "function") throw new InvalidArgumentError$4("Argument agent must implement Agent");
 		Object.defineProperty(globalThis, globalDispatcher, {
 			value: agent,
@@ -91929,7 +91928,7 @@ var require_global = /* @__PURE__ */ __commonJS({ "node_modules/undici/lib/globa
 		"EventSource"
 	];
 	module.exports = {
-		setGlobalDispatcher: setGlobalDispatcher$1,
+		setGlobalDispatcher: setGlobalDispatcher$2,
 		getGlobalDispatcher: getGlobalDispatcher$3,
 		installedExports
 	};
@@ -100154,7 +100153,7 @@ var require_undici = /* @__PURE__ */ __commonJS({ "node_modules/undici/index.js"
 	const Dispatcher = require_dispatcher();
 	const Pool = require_pool();
 	const BalancedPool = require_balanced_pool();
-	const Agent = require_agent();
+	const Agent$1 = require_agent();
 	const ProxyAgent = require_proxy_agent();
 	const EnvHttpProxyAgent = require_env_http_proxy_agent();
 	const RetryAgent = require_retry_agent();
@@ -100171,7 +100170,7 @@ var require_undici = /* @__PURE__ */ __commonJS({ "node_modules/undici/index.js"
 	const SnapshotAgent = require_snapshot_agent();
 	const mockErrors = require_mock_errors();
 	const RetryHandler = require_retry_handler();
-	const { getGlobalDispatcher, setGlobalDispatcher } = require_global();
+	const { getGlobalDispatcher, setGlobalDispatcher: setGlobalDispatcher$1 } = require_global();
 	const DecoratorHandler = require_decorator_handler();
 	const RedirectHandler = require_redirect_handler();
 	Object.assign(Dispatcher.prototype, api);
@@ -100179,7 +100178,7 @@ var require_undici = /* @__PURE__ */ __commonJS({ "node_modules/undici/index.js"
 	module.exports.Client = Client;
 	module.exports.Pool = Pool;
 	module.exports.BalancedPool = BalancedPool;
-	module.exports.Agent = Agent;
+	module.exports.Agent = Agent$1;
 	module.exports.ProxyAgent = ProxyAgent;
 	module.exports.EnvHttpProxyAgent = EnvHttpProxyAgent;
 	module.exports.RetryAgent = RetryAgent;
@@ -100232,7 +100231,7 @@ var require_undici = /* @__PURE__ */ __commonJS({ "node_modules/undici/index.js"
 			}, handler$1);
 		};
 	}
-	module.exports.setGlobalDispatcher = setGlobalDispatcher;
+	module.exports.setGlobalDispatcher = setGlobalDispatcher$1;
 	module.exports.getGlobalDispatcher = getGlobalDispatcher;
 	const fetchImpl = require_fetch().fetch;
 	module.exports.fetch = function fetch$3(init$1, options = void 0) {
@@ -100434,7 +100433,10 @@ async function main() {
 	import_core.info(`found ${pathsToCheck.length} paths to check against substituters`);
 	const substituters$1 = await substituters();
 	import_core.info(`substituters: ${substituters$1.join(", ")}`);
-	setDefaultResultOrder("ipv4first");
+	(0, import_undici.setGlobalDispatcher)(new import_undici.Agent({
+		autoSelectFamily: true,
+		keepAliveTimeout: 8e3
+	}).compose(import_undici.interceptors.retry()));
 	const pathsToCopyPromise = await Promise.allSettled(pathsToCheck.map(async (path$17) => {
 		for (const sub of substituters$1) if (await check(path$17, sub)) return null;
 		return path$17;

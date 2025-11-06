@@ -3,7 +3,7 @@ import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import * as io from "@actions/io";
-import { request } from "undici";
+import { Agent, interceptors, request, setGlobalDispatcher } from "undici";
 import * as nix from "./nix/nix.js";
 import * as server from "./server/client.js";
 import { getTextBetween } from "./util.js";
@@ -45,7 +45,11 @@ async function main() {
 	core.info(`substituters: ${substituters.join(", ")}`);
 
 	// force IPv4 for undici requests
-	setDefaultResultOrder("ipv4first");
+	const agent = new Agent({
+		autoSelectFamily: true,
+		keepAliveTimeout: 8e3,
+	}).compose(interceptors.retry());
+	setGlobalDispatcher(agent);
 
 	// check all paths in parallel
 	const pathsToCopyPromise = await Promise.allSettled(
