@@ -1,4 +1,3 @@
-import { setDefaultResultOrder } from "node:dns";
 import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
@@ -44,14 +43,13 @@ async function main() {
 	const substituters = await nix.substituters();
 	core.info(`substituters: ${substituters.join(", ")}`);
 
-	// force IPv4 for undici requests
+	// enable retries
 	const agent = new Agent({
-		keepAliveTimeout: 20e3,
 		bodyTimeout: 0,
-		autoSelectFamilyAttemptTimeout: 20e3,
+		keepAliveTimeout: 30e3,
+		autoSelectFamilyAttemptTimeout: 30e3,
 	}).compose(
 		interceptors.retry({
-			throwOnError: false,
 			errorCodes: [
 				"ETIMEDOUT",
 				"ECONNRESET",
