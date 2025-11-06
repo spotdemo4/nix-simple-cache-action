@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as exec from "@actions/exec";
+import { request } from "undici";
 import { getTextBetween } from "../util.js";
 import { keyPath } from "../var.js";
 
@@ -45,15 +46,12 @@ export async function list(store?: string) {
 	return e.stdout.trim().split("\n");
 }
 
-// check if path exists in store
-export async function check(store: string, path: string) {
-	const e = await exec.exec(
-		"nix",
-		["path-info", "--recursive", "--store", store, path],
-		{ ignoreReturnCode: true, silent: true },
-	);
+// check if path exists in substituter
+export async function check(path: string, substituter: string) {
+	const narInfo = `${getTextBetween(path, "/nix/store/", "-")}.narinfo`;
+	const res = await request(`${substituter}/${narInfo}`, { method: "HEAD" });
 
-	return e === 0;
+	return res.statusCode < 300;
 }
 
 // copy path to store
