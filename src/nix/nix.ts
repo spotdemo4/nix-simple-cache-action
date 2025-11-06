@@ -25,6 +25,15 @@ export async function hash(filename: string) {
 }
 
 export async function substituters() {
+	const configSubs = await getConfigSubstituters();
+	const flakeSubs = await getFlakeSubstituters();
+	let subs = [...new Set([...configSubs, ...flakeSubs])];
+	subs = subs.map((s) => s.trim().replace(/\/+$/, ""));
+
+	return subs;
+}
+
+async function getConfigSubstituters() {
 	const e = await exec.getExecOutput(
 		"nix",
 		["config", "show", "substituters"],
@@ -32,25 +41,35 @@ export async function substituters() {
 			silent: true,
 		},
 	);
-	const configSubs = e.stdout
+
+	return e.stdout
 		.split(" ")
 		.map((s) => s.trim())
 		.filter((s) => !s.includes("127.0.0.1"));
+}
 
+async function getFlakeSubstituters() {
 	const f = await exec.getExecOutput(
 		"nix",
 		["eval", "--json", "--file", "./flake.nix", "nixConfig"],
 		{
 			silent: true,
+			ignoreReturnCode: true,
 		},
 	);
-	const parsed = JSON.parse(f.stdout);
-	const flakeSubs: string[] = parsed.substituters || [];
-	const flakeExtraSubs: string[] = parsed["extra-substituters"] || [];
+	if (f.exitCode !== 0) {
+		return [];
+	}
 
-	let subs = [...new Set([...configSubs, ...flakeSubs, ...flakeExtraSubs])];
-	subs = subs.map((s) => s.trim().replace(/\/+$/, ""));
-	return subs;
+	try {
+		const parsed = JSON.parse(f.stdout);
+		const flakeSubs: string[] = parsed.substituters || [];
+		const flakeExtraSubs: string[] = parsed["extra-substituters"] || [];
+
+		return [...new Set([...flakeSubs, ...flakeExtraSubs])];
+	} catch {
+		return [];
+	}
 }
 
 export async function generateSecretKey() {

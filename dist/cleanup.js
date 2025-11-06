@@ -100368,28 +100368,39 @@ async function info(store, path$17) {
 //#region src/nix/nix.ts
 var import_exec = /* @__PURE__ */ __toESM$1(require_exec(), 1);
 async function substituters() {
-	const configSubs = (await import_exec.getExecOutput("nix", [
+	const configSubs = await getConfigSubstituters();
+	const flakeSubs = await getFlakeSubstituters();
+	let subs = [...new Set([...configSubs, ...flakeSubs])];
+	subs = subs.map((s$1) => s$1.trim().replace(/\/+$/, ""));
+	return subs;
+}
+async function getConfigSubstituters() {
+	return (await import_exec.getExecOutput("nix", [
 		"config",
 		"show",
 		"substituters"
 	], { silent: true })).stdout.split(" ").map((s$1) => s$1.trim()).filter((s$1) => !s$1.includes("127.0.0.1"));
+}
+async function getFlakeSubstituters() {
 	const f = await import_exec.getExecOutput("nix", [
 		"eval",
 		"--json",
 		"--file",
 		"./flake.nix",
 		"nixConfig"
-	], { silent: true });
-	const parsed = JSON.parse(f.stdout);
-	const flakeSubs = parsed.substituters || [];
-	const flakeExtraSubs = parsed["extra-substituters"] || [];
-	let subs = [...new Set([
-		...configSubs,
-		...flakeSubs,
-		...flakeExtraSubs
-	])];
-	subs = subs.map((s$1) => s$1.trim().replace(/\/+$/, ""));
-	return subs;
+	], {
+		silent: true,
+		ignoreReturnCode: true
+	});
+	if (f.exitCode !== 0) return [];
+	try {
+		const parsed = JSON.parse(f.stdout);
+		const flakeSubs = parsed.substituters || [];
+		const flakeExtraSubs = parsed["extra-substituters"] || [];
+		return [...new Set([...flakeSubs, ...flakeExtraSubs])];
+	} catch {
+		return [];
+	}
 }
 
 //#endregion
