@@ -80424,7 +80424,10 @@ async function ping(store) {
 		"info",
 		"--store",
 		store
-	], { ignoreReturnCode: true }) === 0;
+	], {
+		ignoreReturnCode: true,
+		silent: true
+	}) === 0;
 }
 
 //#endregion

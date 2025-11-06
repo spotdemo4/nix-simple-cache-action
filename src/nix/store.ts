@@ -12,13 +12,16 @@ export async function optimise() {
 
 // sign a specific path in the store
 export async function sign(path: string) {
-	await exec.exec("nix", ["store", "sign", "--key-file", keyPath, path], {});
+	await exec.exec("nix", ["store", "sign", "--key-file", keyPath, path], {
+		silent: true,
+	});
 }
 
 // ping store to check if reachable
 export async function ping(store: string) {
 	const e = await exec.exec("nix", ["store", "info", "--store", store], {
 		ignoreReturnCode: true,
+		silent: true,
 	});
 
 	return e === 0;
@@ -47,7 +50,9 @@ export async function list(store?: string) {
 
 // copy path to store
 export async function copy(path: string, store: string) {
-	await exec.exec("nix", ["copy", "--to", store, path], {});
+	await exec.exec("nix", ["copy", "--to", store, path], {
+		silent: true,
+	});
 }
 
 export interface Path {
