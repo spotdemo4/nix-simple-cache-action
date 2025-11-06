@@ -48,6 +48,7 @@ export async function list(store?: string) {
 
 // check if path exists in substituter
 export async function check(path: string, substituter: string) {
+	substituter = substituter.replace(/\/+$/, ""); // remove trailing slash
 	const narInfo = `${getTextBetween(path, "/nix/store/", "-")}.narinfo`;
 	const res = await request(`${substituter}/${narInfo}`, { method: "HEAD" });
 

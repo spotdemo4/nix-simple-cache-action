@@ -100344,7 +100344,9 @@ async function list(store) {
 	], { silent: true })).stdout.trim().split("\n");
 }
 async function check(path$17, substituter) {
-	return (await (0, import_undici.request)(`${substituter}/${`${getTextBetween(path$17, "/nix/store/", "-")}.narinfo`}`, { method: "HEAD" })).statusCode < 300;
+	substituter = substituter.replace(/\/+$/, "");
+	const narInfo = `${getTextBetween(path$17, "/nix/store/", "-")}.narinfo`;
+	return (await (0, import_undici.request)(`${substituter}/${narInfo}`, { method: "HEAD" })).statusCode < 300;
 }
 async function copy(path$17, store) {
 	await import_exec$1.exec("nix", [
