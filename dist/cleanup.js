@@ -100436,7 +100436,7 @@ async function main() {
 	import_core.info(`found ${pathsToCopy.length} paths to copy to cache`);
 	const substituters$1 = await substituters();
 	pathLoop: for (const path$17 of pathsToCopy) {
-		for (const sub of substituters$1) if (await check(sub, path$17)) {
+		for (const sub of substituters$1) if (await check(path$17, sub)) {
 			import_core.info(`path ${path$17} found in substituter ${sub}, skipping copy`);
 			continue pathLoop;
 		}

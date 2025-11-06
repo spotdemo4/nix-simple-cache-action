@@ -35,7 +35,7 @@ async function main() {
 	// copy paths to cache
 	pathLoop: for (const path of pathsToCopy) {
 		for (const sub of substituters) {
-			const check = await nix.store.check(sub, path);
+			const check = await nix.store.check(path, sub);
 			if (check) {
 				core.info(`path ${path} found in substituter ${sub}, skipping copy`);
 				continue pathLoop;
