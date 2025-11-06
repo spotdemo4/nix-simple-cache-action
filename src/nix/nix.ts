@@ -48,7 +48,9 @@ export async function substituters() {
 	const flakeSubs: string[] = parsed.substituters || [];
 	const flakeExtraSubs: string[] = parsed["extra-substituters"] || [];
 
-	return [...new Set([...configSubs, ...flakeSubs, ...flakeExtraSubs])];
+	let subs = [...new Set([...configSubs, ...flakeSubs, ...flakeExtraSubs])];
+	subs = subs.map((s) => s.trim().replace(/\/+$/, ""));
+	return subs;
 }
 
 export async function generateSecretKey() {

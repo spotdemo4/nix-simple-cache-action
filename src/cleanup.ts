@@ -44,7 +44,6 @@ async function main() {
 	let pathsToCopy: string[] = [];
 	while (pathsToCheck.length > 0) {
 		core.info(`checking ${pathsToCheck.length} paths against substituters`);
-
 		const checked = await checkAll(pathsToCheck, substituters);
 		pathsToCopy = pathsToCopy.concat(
 			checked
@@ -55,14 +54,15 @@ async function main() {
 			.filter((p) => p.state === PatchCheckState.Failed)
 			.map((p) => p.path);
 	}
-	core.info(`found ${pathsToCopy.length} paths to copy to cache`);
 
 	// copy paths to cache
+	core.startGroup(`copying ${pathsToCopy.length} paths to cache`);
 	for (const path of pathsToCopy) {
-		core.info(`copying ${path} to cache`);
+		core.info(path);
 		await nix.store.sign(path);
 		await nix.store.copy(path, `file://${cachePath}`);
 	}
+	core.endGroup();
 
 	if (hitType === "none") {
 		core.info("no cache was restored, skipping cleanup");
@@ -73,16 +73,17 @@ async function main() {
 
 	// get all paths that are in cache but not in local
 	const pathsToRemove = cachePaths.filter((p) => !localPaths.includes(p));
-	core.info(`found ${pathsToRemove.length} old paths to remove from cache`);
 
 	// remove paths from cache
+	core.startGroup(`removing ${pathsToRemove.length} old paths from cache`);
 	for (const path of pathsToRemove) {
-		core.info(`removing ${path} from cache`);
+		core.info(path);
 		const info = await nix.store.info(`file://${cachePath}`, path);
 
 		await io.rmRF(`${cachePath}/${info.narInfo}`);
 		await io.rmRF(`${cachePath}/${info.url}`);
 	}
+	core.endGroup();
 
 	await save();
 	await server.stop(pid);
@@ -127,7 +128,6 @@ async function checkAll(paths: string[], substituters: string[]) {
 
 // check if path exists in substituter
 export async function check(path: string, substituter: string) {
-	substituter = substituter.replace(/\/+$/, ""); // remove trailing slash
 	const narInfo = `${getTextBetween(path, "/nix/store/", "-")}.narinfo`;
 	const res = await request(`${substituter}/${narInfo}`, {
 		method: "HEAD",

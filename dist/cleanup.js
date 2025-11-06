@@ -100383,11 +100383,13 @@ async function substituters() {
 	const parsed = JSON.parse(f.stdout);
 	const flakeSubs = parsed.substituters || [];
 	const flakeExtraSubs = parsed["extra-substituters"] || [];
-	return [...new Set([
+	let subs = [...new Set([
 		...configSubs,
 		...flakeSubs,
 		...flakeExtraSubs
 	])];
+	subs = subs.map((s$1) => s$1.trim().replace(/\/+$/, ""));
+	return subs;
 }
 
 //#endregion
@@ -100439,12 +100441,13 @@ async function main() {
 		pathsToCopy = pathsToCopy.concat(checked.filter((p) => p.state === PatchCheckState.Uncached).map((p) => p.path));
 		pathsToCheck = checked.filter((p) => p.state === PatchCheckState.Failed).map((p) => p.path);
 	}
-	import_core.info(`found ${pathsToCopy.length} paths to copy to cache`);
+	import_core.startGroup(`copying ${pathsToCopy.length} paths to cache`);
 	for (const path$17 of pathsToCopy) {
-		import_core.info(`copying ${path$17} to cache`);
+		import_core.info(path$17);
 		await sign(path$17);
 		await copy(path$17, `file://${cachePath}`);
 	}
+	import_core.endGroup();
 	if (hitType === "none") {
 		import_core.info("no cache was restored, skipping cleanup");
 		await stop(pid);
@@ -100452,13 +100455,14 @@ async function main() {
 		return;
 	}
 	const pathsToRemove = cachePaths.filter((p) => !localPaths.includes(p));
-	import_core.info(`found ${pathsToRemove.length} old paths to remove from cache`);
+	import_core.startGroup(`removing ${pathsToRemove.length} old paths from cache`);
 	for (const path$17 of pathsToRemove) {
-		import_core.info(`removing ${path$17} from cache`);
+		import_core.info(path$17);
 		const info$2 = await info(`file://${cachePath}`, path$17);
 		await import_io.rmRF(`${cachePath}/${info$2.narInfo}`);
 		await import_io.rmRF(`${cachePath}/${info$2.url}`);
 	}
+	import_core.endGroup();
 	await save();
 	await stop(pid);
 }
@@ -100487,9 +100491,7 @@ async function checkAll(paths, substituters$1) {
 	}));
 }
 async function check(path$17, substituter) {
-	substituter = substituter.replace(/\/+$/, "");
-	const narInfo = `${getTextBetween(path$17, "/nix/store/", "-")}.narinfo`;
-	return (await (0, import_undici.request)(`${substituter}/${narInfo}`, {
+	return (await (0, import_undici.request)(`${substituter}/${`${getTextBetween(path$17, "/nix/store/", "-")}.narinfo`}`, {
 		method: "HEAD",
 		reset: true,
 		bodyTimeout: 0
