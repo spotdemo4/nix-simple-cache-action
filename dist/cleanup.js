@@ -100323,6 +100323,9 @@ function getTextBetween(str, startDelimiter, endDelimiter) {
 
 //#endregion
 //#region src/nix/store.ts
+async function optimise() {
+	await import_exec$1.exec("nix", ["store", "optimise"], { silent: true });
+}
 async function sign(path$17) {
 	await import_exec$1.exec("nix", [
 		"store",
@@ -100440,6 +100443,7 @@ async function main() {
 		await stop(pid);
 		return;
 	}
+	await optimise();
 	const localPaths = await list();
 	const cachePaths = await list(`file://${cachePath}`);
 	const substituters$1 = await substituters();

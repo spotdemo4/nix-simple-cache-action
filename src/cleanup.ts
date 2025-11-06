@@ -31,6 +31,9 @@ async function main() {
 		return;
 	}
 
+	// optimise nix store
+	await nix.store.optimise();
+
 	// get nix store paths in local and cache
 	const localPaths = await nix.store.list();
 	const cachePaths = await nix.store.list(`file://${cachePath}`);
