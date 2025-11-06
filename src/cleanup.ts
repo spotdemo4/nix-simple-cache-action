@@ -2,7 +2,7 @@ import * as cache from "@actions/cache";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import * as io from "@actions/io";
-import { Agent, interceptors, request, setGlobalDispatcher } from "undici";
+import { request } from "undici";
 import * as nix from "./nix/nix.js";
 import * as server from "./server/client.js";
 import { getTextBetween } from "./util.js";
@@ -43,35 +43,21 @@ async function main() {
 	const substituters = await nix.substituters();
 	core.info(`substituters: ${substituters.join(", ")}`);
 
-	// enable retries
-	const agent = new Agent({
-		bodyTimeout: 0,
-		keepAliveTimeout: 30e3,
-		autoSelectFamilyAttemptTimeout: 30e3,
-	}).compose(
-		interceptors.retry({
-			throwOnError: false,
-			errorCodes: [
-				"ETIMEDOUT",
-				"ECONNRESET",
-				"ECONNREFUSED",
-				"ENOTFOUND",
-				"ENETDOWN",
-				"ENETUNREACH",
-				"EHOSTDOWN",
-				"EHOSTUNREACH",
-				"EPIPE",
-			],
-		}),
-	);
-	setGlobalDispatcher(agent);
-
 	// check all paths in parallel
 	const pathsToCopyPromise = await Promise.allSettled(
 		pathsToCheck.map(async (path) => {
 			for (const sub of substituters) {
-				const c = await check(path, sub);
-				if (c) return null;
+				let attempts = 0;
+				while (attempts < 3) {
+					try {
+						const c = await check(path, sub);
+						if (c) return null;
+					} catch {
+						attempts++;
+						core.warning(`retrying ${path} on ${sub}, attempt ${attempts}...`);
+						await new Promise((resolve) => setTimeout(resolve, 1000));
+					}
+				}
 			}
 
 			return path;
