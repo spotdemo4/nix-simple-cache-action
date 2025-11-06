@@ -100437,17 +100437,23 @@ async function main() {
 		bodyTimeout: 0,
 		keepAliveTimeout: 3e4,
 		autoSelectFamilyAttemptTimeout: 3e4
-	}).compose(import_undici.interceptors.retry({ errorCodes: [
-		"ETIMEDOUT",
-		"ECONNRESET",
-		"ECONNREFUSED",
-		"ENOTFOUND",
-		"ENETDOWN",
-		"ENETUNREACH",
-		"EHOSTDOWN",
-		"EHOSTUNREACH",
-		"EPIPE"
-	] })));
+	}).compose(import_undici.interceptors.retry({
+		retry: (err) => {
+			import_core.warning(`request error: ${err.message}, retrying...`);
+		},
+		throwOnError: false,
+		errorCodes: [
+			"ETIMEDOUT",
+			"ECONNRESET",
+			"ECONNREFUSED",
+			"ENOTFOUND",
+			"ENETDOWN",
+			"ENETUNREACH",
+			"EHOSTDOWN",
+			"EHOSTUNREACH",
+			"EPIPE"
+		]
+	})));
 	const pathsToCopyPromise = await Promise.allSettled(pathsToCheck.map(async (path$17) => {
 		for (const sub of substituters$1) if (await check(path$17, sub)) return null;
 		return path$17;
