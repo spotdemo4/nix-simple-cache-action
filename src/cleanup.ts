@@ -55,10 +55,15 @@ async function main() {
 		}),
 	);
 
-	// filter out nulls
-	const pathsToCopy = pathsToCopyPromise
-		.filter((result) => result.status === "fulfilled" && result.value !== null)
-		.map((result) => (result as PromiseFulfilledResult<string>).value);
+	// filter results
+	const pathsToCopy: string[] = [];
+	for (const path of pathsToCopyPromise) {
+		if (path.status === "rejected") {
+			core.warning(`error checking path: ${path.reason}`);
+		} else if (path.status === "fulfilled" && path.value !== null) {
+			pathsToCopy.push(path.value);
+		}
+	}
 	core.info(`found ${pathsToCopy.length} paths to copy to cache`);
 
 	// copy paths to cache
