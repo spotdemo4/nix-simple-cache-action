@@ -323,8 +323,8 @@ var require_tunnel$1 = /* @__PURE__ */ __commonJS({ "node_modules/tunnel/lib/tun
 		self$1.maxSockets = self$1.options.maxSockets || http$5.Agent.defaultMaxSockets;
 		self$1.requests = [];
 		self$1.sockets = [];
-		self$1.on("free", function onFree(socket, host, port, localAddress) {
-			var options$1 = toOptions(host, port, localAddress);
+		self$1.on("free", function onFree(socket, host, port$1, localAddress) {
+			var options$1 = toOptions(host, port$1, localAddress);
 			for (var i$1 = 0, len = self$1.requests.length; i$1 < len; ++i$1) {
 				var pending = self$1.requests[i$1];
 				if (pending.host === options$1.host && pending.port === options$1.port) {
@@ -338,9 +338,9 @@ var require_tunnel$1 = /* @__PURE__ */ __commonJS({ "node_modules/tunnel/lib/tun
 		});
 	}
 	util$37.inherits(TunnelingAgent, events$1.EventEmitter);
-	TunnelingAgent.prototype.addRequest = function addRequest(req$1, host, port, localAddress) {
+	TunnelingAgent.prototype.addRequest = function addRequest(req$1, host, port$1, localAddress) {
 		var self$1 = this;
-		var options = mergeOptions({ request: req$1 }, self$1.options, toOptions(host, port, localAddress));
+		var options = mergeOptions({ request: req$1 }, self$1.options, toOptions(host, port$1, localAddress));
 		if (self$1.sockets.length >= this.maxSockets) {
 			self$1.requests.push(options);
 			return;
@@ -448,10 +448,10 @@ var require_tunnel$1 = /* @__PURE__ */ __commonJS({ "node_modules/tunnel/lib/tun
 			cb(secureSocket);
 		});
 	}
-	function toOptions(host, port, localAddress) {
+	function toOptions(host, port$1, localAddress) {
 		if (typeof host === "string") return {
 			host,
-			port,
+			port: port$1,
 			localAddress
 		};
 		return host;
@@ -922,8 +922,8 @@ var require_util$15 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-c
 			if (url.pathname != null && typeof url.pathname !== "string") throw new InvalidArgumentError$44("Invalid URL pathname: the pathname must be a string or null/undefined.");
 			if (url.hostname != null && typeof url.hostname !== "string") throw new InvalidArgumentError$44("Invalid URL hostname: the hostname must be a string or null/undefined.");
 			if (url.origin != null && typeof url.origin !== "string") throw new InvalidArgumentError$44("Invalid URL origin: the origin must be a string or null/undefined.");
-			const port = url.port != null ? url.port : url.protocol === "https:" ? 443 : 80;
-			let origin = url.origin != null ? url.origin : `${url.protocol}//${url.hostname}:${port}`;
+			const port$1 = url.port != null ? url.port : url.protocol === "https:" ? 443 : 80;
+			let origin = url.origin != null ? url.origin : `${url.protocol}//${url.hostname}:${port$1}`;
 			let path$17 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
 			if (origin.endsWith("/")) origin = origin.substring(0, origin.length - 1);
 			if (path$17 && !path$17.startsWith("/")) path$17 = `/${path$17}`;
@@ -5390,7 +5390,7 @@ var require_connect$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http
 		const sessionCache = new SessionCache$1(maxCachedSessions == null ? 100 : maxCachedSessions);
 		timeout = timeout == null ? 1e4 : timeout;
 		allowH2 = allowH2 != null ? allowH2 : false;
-		return function connect$4({ hostname, host, protocol, port, servername, localAddress, httpSocket }, callback) {
+		return function connect$4({ hostname, host, protocol, port: port$1, servername, localAddress, httpSocket }, callback) {
 			let socket;
 			if (protocol === "https:") {
 				if (!tls$3) tls$3 = __require("tls");
@@ -5406,7 +5406,7 @@ var require_connect$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http
 					localAddress,
 					ALPNProtocols: allowH2 ? ["http/1.1", "h2"] : ["http/1.1"],
 					socket: httpSocket,
-					port: port || 443,
+					port: port$1 || 443,
 					host: hostname
 				});
 				socket.on("session", function(session$1) {
@@ -5418,7 +5418,7 @@ var require_connect$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http
 					highWaterMark: 64 * 1024,
 					...options,
 					localAddress,
-					port: port || 80,
+					port: port$1 || 80,
 					host: hostname
 				});
 			}
@@ -6626,7 +6626,7 @@ var require_client$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-
 	async function connect$3(client) {
 		assert$33(!client[kConnecting$1]);
 		assert$33(!client[kSocket$1]);
-		let { host, hostname, protocol, port } = client[kUrl$7];
+		let { host, hostname, protocol, port: port$1 } = client[kUrl$7];
 		if (hostname[0] === "[") {
 			const idx = hostname.indexOf("]");
 			assert$33(idx !== -1);
@@ -6640,7 +6640,7 @@ var require_client$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-
 				host,
 				hostname,
 				protocol,
-				port,
+				port: port$1,
 				servername: client[kServerName$1],
 				localAddress: client[kLocalAddress$1]
 			},
@@ -6652,7 +6652,7 @@ var require_client$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-
 					host,
 					hostname,
 					protocol,
-					port,
+					port: port$1,
 					servername: client[kServerName$1],
 					localAddress: client[kLocalAddress$1]
 				}, (err, socket$1) => {
@@ -6708,7 +6708,7 @@ var require_client$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-
 					host,
 					hostname,
 					protocol,
-					port,
+					port: port$1,
 					servername: client[kServerName$1],
 					localAddress: client[kLocalAddress$1]
 				},
@@ -6724,7 +6724,7 @@ var require_client$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/http-
 					host,
 					hostname,
 					protocol,
-					port,
+					port: port$1,
 					servername: client[kServerName$1],
 					localAddress: client[kLocalAddress$1]
 				},
@@ -9404,7 +9404,7 @@ var require_proxy_agent$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/
 			this[kProxyTls$1] = opts.proxyTls;
 			this[kProxyHeaders$1] = opts.headers || {};
 			const resolvedUrl = new URL$2(opts.uri);
-			const { origin, port, host, username, password } = resolvedUrl;
+			const { origin, port: port$1, host, username, password } = resolvedUrl;
 			if (opts.auth && opts.token) throw new InvalidArgumentError$25("opts.auth cannot be used in combination with opts.token");
 			else if (opts.auth) this[kProxyHeaders$1]["proxy-authorization"] = `Basic ${opts.auth}`;
 			else if (opts.token) this[kProxyHeaders$1]["proxy-authorization"] = opts.token;
@@ -9420,7 +9420,7 @@ var require_proxy_agent$1 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/
 					try {
 						const { socket, statusCode } = await this[kClient$2].connect({
 							origin,
-							port,
+							port: port$1,
 							path: requestedHost,
 							signal: opts$1.signal,
 							headers: {
@@ -23638,12 +23638,12 @@ var require_dist$2 = /* @__PURE__ */ __commonJS({ "node_modules/https-proxy-agen
 			this.proxyHeaders = opts?.headers ?? {};
 			debug$1("Creating new HttpsProxyAgent instance: %o", this.proxy.href);
 			const host = (this.proxy.hostname || this.proxy.host).replace(/^\[|\]$/g, "");
-			const port = this.proxy.port ? parseInt(this.proxy.port, 10) : this.proxy.protocol === "https:" ? 443 : 80;
+			const port$1 = this.proxy.port ? parseInt(this.proxy.port, 10) : this.proxy.protocol === "https:" ? 443 : 80;
 			this.connectOpts = {
 				ALPNProtocols: ["http/1.1"],
 				...opts ? omit$2(opts, "headers") : null,
 				host,
-				port
+				port: port$1
 			};
 		}
 		/**
@@ -23769,11 +23769,11 @@ var require_dist$1 = /* @__PURE__ */ __commonJS({ "node_modules/http-proxy-agent
 			this.proxyHeaders = opts?.headers ?? {};
 			debug("Creating new HttpProxyAgent instance: %o", this.proxy.href);
 			const host = (this.proxy.hostname || this.proxy.host).replace(/^\[|\]$/g, "");
-			const port = this.proxy.port ? parseInt(this.proxy.port, 10) : this.proxy.protocol === "https:" ? 443 : 80;
+			const port$1 = this.proxy.port ? parseInt(this.proxy.port, 10) : this.proxy.protocol === "https:" ? 443 : 80;
 			this.connectOpts = {
 				...opts ? omit$1(opts, "headers") : null,
 				host,
-				port
+				port: port$1
 			};
 		}
 		addRequest(req$1, opts) {
@@ -65697,8 +65697,8 @@ var require_util$6 = /* @__PURE__ */ __commonJS({ "node_modules/@actions/github/
 			if (url.pathname != null && typeof url.pathname !== "string") throw new InvalidArgumentError$21("Invalid URL pathname: the pathname must be a string or null/undefined.");
 			if (url.hostname != null && typeof url.hostname !== "string") throw new InvalidArgumentError$21("Invalid URL hostname: the hostname must be a string or null/undefined.");
 			if (url.origin != null && typeof url.origin !== "string") throw new InvalidArgumentError$21("Invalid URL origin: the origin must be a string or null/undefined.");
-			const port = url.port != null ? url.port : url.protocol === "https:" ? 443 : 80;
-			let origin = url.origin != null ? url.origin : `${url.protocol}//${url.hostname}:${port}`;
+			const port$1 = url.port != null ? url.port : url.protocol === "https:" ? 443 : 80;
+			let origin = url.origin != null ? url.origin : `${url.protocol}//${url.hostname}:${port$1}`;
 			let path$17 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
 			if (origin.endsWith("/")) origin = origin.substring(0, origin.length - 1);
 			if (path$17 && !path$17.startsWith("/")) path$17 = `/${path$17}`;
@@ -68489,7 +68489,7 @@ var require_connect = /* @__PURE__ */ __commonJS({ "node_modules/@actions/github
 		const sessionCache = new SessionCache(maxCachedSessions == null ? 100 : maxCachedSessions);
 		timeout = timeout == null ? 1e4 : timeout;
 		allowH2 = allowH2 != null ? allowH2 : false;
-		return function connect$4({ hostname, host, protocol, port, servername, localAddress, httpSocket }, callback) {
+		return function connect$4({ hostname, host, protocol, port: port$1, servername, localAddress, httpSocket }, callback) {
 			let socket;
 			if (protocol === "https:") {
 				if (!tls) tls = __require("tls");
@@ -68505,7 +68505,7 @@ var require_connect = /* @__PURE__ */ __commonJS({ "node_modules/@actions/github
 					localAddress,
 					ALPNProtocols: allowH2 ? ["http/1.1", "h2"] : ["http/1.1"],
 					socket: httpSocket,
-					port: port || 443,
+					port: port$1 || 443,
 					host: hostname
 				});
 				socket.on("session", function(session$1) {
@@ -68517,7 +68517,7 @@ var require_connect = /* @__PURE__ */ __commonJS({ "node_modules/@actions/github
 					highWaterMark: 64 * 1024,
 					...options,
 					localAddress,
-					port: port || 80,
+					port: port$1 || 80,
 					host: hostname
 				});
 			}
@@ -69725,7 +69725,7 @@ var require_client = /* @__PURE__ */ __commonJS({ "node_modules/@actions/github/
 	async function connect$1(client) {
 		assert$12(!client[kConnecting]);
 		assert$12(!client[kSocket]);
-		let { host, hostname, protocol, port } = client[kUrl$3];
+		let { host, hostname, protocol, port: port$1 } = client[kUrl$3];
 		if (hostname[0] === "[") {
 			const idx = hostname.indexOf("]");
 			assert$12(idx !== -1);
@@ -69739,7 +69739,7 @@ var require_client = /* @__PURE__ */ __commonJS({ "node_modules/@actions/github/
 				host,
 				hostname,
 				protocol,
-				port,
+				port: port$1,
 				servername: client[kServerName],
 				localAddress: client[kLocalAddress]
 			},
@@ -69751,7 +69751,7 @@ var require_client = /* @__PURE__ */ __commonJS({ "node_modules/@actions/github/
 					host,
 					hostname,
 					protocol,
-					port,
+					port: port$1,
 					servername: client[kServerName],
 					localAddress: client[kLocalAddress]
 				}, (err, socket$1) => {
@@ -69807,7 +69807,7 @@ var require_client = /* @__PURE__ */ __commonJS({ "node_modules/@actions/github/
 					host,
 					hostname,
 					protocol,
-					port,
+					port: port$1,
 					servername: client[kServerName],
 					localAddress: client[kLocalAddress]
 				},
@@ -69823,7 +69823,7 @@ var require_client = /* @__PURE__ */ __commonJS({ "node_modules/@actions/github/
 					host,
 					hostname,
 					protocol,
-					port,
+					port: port$1,
 					servername: client[kServerName],
 					localAddress: client[kLocalAddress]
 				},
@@ -72503,7 +72503,7 @@ var require_proxy_agent = /* @__PURE__ */ __commonJS({ "node_modules/@actions/gi
 			this[kProxyTls] = opts.proxyTls;
 			this[kProxyHeaders] = opts.headers || {};
 			const resolvedUrl = new URL$1(opts.uri);
-			const { origin, port, host, username, password } = resolvedUrl;
+			const { origin, port: port$1, host, username, password } = resolvedUrl;
 			if (opts.auth && opts.token) throw new InvalidArgumentError$2("opts.auth cannot be used in combination with opts.token");
 			else if (opts.auth) this[kProxyHeaders]["proxy-authorization"] = `Basic ${opts.auth}`;
 			else if (opts.token) this[kProxyHeaders]["proxy-authorization"] = opts.token;
@@ -72519,7 +72519,7 @@ var require_proxy_agent = /* @__PURE__ */ __commonJS({ "node_modules/@actions/gi
 					try {
 						const { socket, statusCode } = await this[kClient].connect({
 							origin,
-							port,
+							port: port$1,
 							path: requestedHost,
 							signal: opts$1.signal,
 							headers: {
@@ -80755,7 +80755,6 @@ async function check(store, path$17) {
 }
 async function copy(path$17, store) {
 	await import_exec$1.exec("nix", [
-		"store",
 		"copy",
 		"--to",
 		store,

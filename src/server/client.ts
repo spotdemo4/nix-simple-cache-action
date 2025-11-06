@@ -4,7 +4,7 @@ import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as core from "@actions/core";
 import * as nix from "../nix/nix.js";
-import { errPath, logPath } from "../var.js";
+import { errPath, logPath, port } from "../var.js";
 
 // create and start a nix store HTTP binary proxy server
 export async function start() {
@@ -23,9 +23,6 @@ export async function start() {
 		);
 		return false;
 	}
-
-	// get port for server to run on
-	const port = core.getInput("port") || "5001";
 
 	// start server
 	const out = openSync(logPath, "as"); // Open file for stdout

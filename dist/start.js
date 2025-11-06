@@ -80467,10 +80467,9 @@ async function start() {
 		import_core$1.warning(`${__dirname}/server.js not found, skipping binary cache server`);
 		return false;
 	}
-	const port$1 = import_core$1.getInput("port") || "5001";
 	const out = openSync(logPath, "as");
 	const err = openSync(errPath, "as");
-	const proxy = spawn("node", [`${__dirname}/server.js`, port$1], {
+	const proxy = spawn("node", [`${__dirname}/server.js`, port], {
 		detached: true,
 		stdio: [
 			"ignore",
@@ -80482,7 +80481,7 @@ async function start() {
 	let ping$1 = false;
 	let attempts = 0;
 	while (!ping$1 && attempts < 5) {
-		ping$1 = await ping(`http://127.0.0.1:${port$1}`);
+		ping$1 = await ping(`http://127.0.0.1:${port}`);
 		if (!ping$1) {
 			attempts++;
 			import_core$1.info(`waiting for proxy server to start, attempt ${attempts}...`);

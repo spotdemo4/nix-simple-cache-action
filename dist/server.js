@@ -4,11 +4,11 @@ import path from "node:path";
 
 //#region src/var.ts
 const cachePath = "/tmp/nix-cache";
+const port = "5069";
 
 //#endregion
 //#region src/server/server.ts
 const hostname = "127.0.0.1";
-const port = process.argv[2] ? parseInt(process.argv[2], 10) : 5001;
 const mimeTypes = {
 	".nar": "application/x-nix-nar",
 	".nar.xz": "application/x-xz",
@@ -81,7 +81,7 @@ const server = createServer(async (req, res) => {
 	}
 });
 console.log(`starting server at http://${hostname}:${port}`);
-server.listen(port, hostname);
+server.listen(parseInt(port, 10), hostname);
 
 //#endregion
 export {  };

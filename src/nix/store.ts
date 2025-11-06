@@ -58,7 +58,7 @@ export async function check(store: string, path: string) {
 
 // copy path to store
 export async function copy(path: string, store: string) {
-	await exec.exec("nix", ["store", "copy", "--to", store, path], {});
+	await exec.exec("nix", ["copy", "--to", store, path], {});
 }
 
 export interface Path {

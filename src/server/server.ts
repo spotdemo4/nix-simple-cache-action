@@ -6,10 +6,9 @@ import {
 } from "node:fs";
 import { createServer } from "node:http";
 import path from "node:path";
-import { cachePath } from "../var.js";
+import { cachePath, port } from "../var.js";
 
 const hostname = "127.0.0.1";
-const port = process.argv[2] ? parseInt(process.argv[2], 10) : 5001;
 const mimeTypes: Record<string, string> = {
 	".nar": "application/x-nix-nar",
 	".nar.xz": "application/x-xz",
@@ -107,4 +106,4 @@ const server = createServer(async (req, res) => {
 });
 
 console.log(`starting server at http://${hostname}:${port}`);
-server.listen(port, hostname);
+server.listen(parseInt(port, 10), hostname);
