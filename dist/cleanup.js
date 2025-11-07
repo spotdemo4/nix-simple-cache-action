@@ -100444,8 +100444,8 @@ async function main() {
 		return;
 	}
 	await optimise();
-	const localPaths = await list();
-	const cachePaths = await list(`file://${cachePath}`);
+	const localPaths = (await list()).filter((p) => !p.endsWith(".drv"));
+	const cachePaths = (await list(`file://${cachePath}`)).filter((p) => !p.endsWith(".drv"));
 	const substituters$1 = await substituters();
 	import_core.info(`Substituters: ${substituters$1.join(", ")}`);
 	let pathsToCheck = localPaths.filter((p) => !cachePaths.includes(p));

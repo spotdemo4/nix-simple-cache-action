@@ -35,8 +35,12 @@ async function main() {
 	await nix.store.optimise();
 
 	// get nix store paths in local and cache
-	const localPaths = await nix.store.list();
-	const cachePaths = await nix.store.list(`file://${cachePath}`);
+	const localPaths = (await nix.store.list()).filter(
+		(p) => !p.endsWith(".drv"),
+	);
+	const cachePaths = (await nix.store.list(`file://${cachePath}`)).filter(
+		(p) => !p.endsWith(".drv"),
+	);
 
 	// get all substituters
 	const substituters = await nix.substituters();
